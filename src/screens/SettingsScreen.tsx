@@ -141,7 +141,7 @@ const SettingsScreen: React.FC = () => {
   const { t, i18n } = useTranslation();
 
   const SETTINGS_CATEGORIES = [
-    { id: 'account', title: t('settings.account'), icon: 'user' },
+    { id: 'aa', title: t('settings.account'), icon: 'user' },
     { id: 'content', title: t('settings.content_discovery'), icon: 'compass' },
     { id: 'appearance', title: t('settings.appearance'), icon: 'sliders' },
     { id: 'integrations', title: t('settings.integrations'), icon: 'layers' },

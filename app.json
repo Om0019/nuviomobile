@@ -25,20 +25,28 @@
         "NSBonjourServices": [
           "_http._tcp",
           "_googlecast._tcp",
+          "_CC1AD845._googlecast._tcp",
+          "_http._tcp",
+          "_googlecast._tcp",
           "_CC1AD845._googlecast._tcp"
         ],
         "NSLocalNetworkUsageDescription": "Nuvio uses the local network to discover Cast-enabled devices on your WiFi network and to connect to local media servers.",
         "NSMicrophoneUsageDescription": "This app does not require microphone access.",
         "UIBackgroundModes": [
+          "audio",
           "audio"
         ],
         "LSSupportsOpeningDocumentsInPlace": true,
-        "UIFileSharingEnabled": true
+        "UIFileSharingEnabled": true,
+        "NSSupportsLiveActivities": true,
+        "NSSupportsLiveActivitiesFrequentUpdates": false,
+        "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.nuvio.hub",
+      "bundleIdentifier": "com.omnuvio.hub",
       "associatedDomains": [],
       "jsEngine": "hermes",
-      "appleTeamId": "8QBDZ766S3"
+      "appleTeamId": "8QBDZ766S3",
+      "entitlements": {}
     },
     "android": {
       "adaptiveIcon": {
@@ -61,12 +69,7 @@
       ],
       "jsEngine": "hermes"
     },
-    "extra": {
-      "eas": {
-        "projectId": "909107b8-fe61-45ce-b02f-b02510d306a6"
-      }
-    },
-    "owner": "nayifleo",
+    "owner": "om0019",
     "plugins": [
       "expo-live-activity",
       [
@@ -84,12 +87,7 @@
         }
       ],
       "expo-localization",
-      [
-        "expo-updates",
-        {
-          "username": "nayifleo"
-        }
-      ],
+      "expo-updates",
       "react-native-bottom-tabs",
       [
         "react-native-google-cast",
@@ -100,11 +98,28 @@
       ]
     ],
     "updates": {
-      "enabled": true,
-      "checkAutomatically": "ON_ERROR_RECOVERY",
-      "fallbackToCacheTimeout": 30000,
-      "url": "https://ota.nuvioapp.space/api/manifest"
+      "url": "https://u.expo.dev/d06f0c70-4b02-4871-a6f1-b6446b17ff4f"
     },
-    "runtimeVersion": "1.4.1"
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "extra": {
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "LiveActivity",
+                  "bundleIdentifier": "com.omnuvio.hub.LiveActivity",
+                  "entitlements": {}
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "d06f0c70-4b02-4871-a6f1-b6446b17ff4f"
+      }
+    }
   }
 }

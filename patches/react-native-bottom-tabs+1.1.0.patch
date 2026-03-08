@@ -1,3 +1,7 @@
+diff --git a/node_modules/react-native-bottom-tabs/.DS_Store b/node_modules/react-native-bottom-tabs/.DS_Store
+new file mode 100644
+index 0000000..58cfcd2
+Binary files /dev/null and b/node_modules/react-native-bottom-tabs/.DS_Store differ
 diff --git a/node_modules/react-native-bottom-tabs/app.plugin.js b/node_modules/react-native-bottom-tabs/app.plugin.js
 index 87edf84..711d0c0 100644
 --- a/node_modules/react-native-bottom-tabs/app.plugin.js
@@ -36,3 +40,83 @@ index 87edf84..711d0c0 100644
 +
 +module.exports = createRunOncePlugin(withMaterial3Theme, "react-native-bottom-tabs");
 \ No newline at end of file
+diff --git a/node_modules/react-native-bottom-tabs/ios/.DS_Store b/node_modules/react-native-bottom-tabs/ios/.DS_Store
+new file mode 100644
+index 0000000..c507559
+Binary files /dev/null and b/node_modules/react-native-bottom-tabs/ios/.DS_Store differ
+diff --git a/node_modules/react-native-bottom-tabs/ios/BottomAccessoryProvider.swift b/node_modules/react-native-bottom-tabs/ios/BottomAccessoryProvider.swift
+index 539efee..c9a46ba 100644
+--- a/node_modules/react-native-bottom-tabs/ios/BottomAccessoryProvider.swift
++++ b/node_modules/react-native-bottom-tabs/ios/BottomAccessoryProvider.swift
+@@ -9,16 +9,16 @@ import SwiftUI
+   }
+ 
+   #if !os(macOS)
+-  @available(iOS 26.0, *)
+-  public func emitPlacementChanged(_ placement: TabViewBottomAccessoryPlacement?) {
+-    var placementValue = "none"
+-    if placement == .inline {
+-      placementValue = "inline"
+-    } else if placement == .expanded {
+-      placementValue = "expanded"
+-    }
+-    self.delegate?.onPlacementChanged(placement: placementValue)
+-  }
++ // @available(iOS 26.0, *)
++ // public func emitPlacementChanged(_ placement: TabViewBottomAccessoryPlacement?) {
++ //   var placementValue = "none"
++ //   if placement == .inline {
++ //     placementValue = "inline"
++ //   } else if placement == .expanded {
++ //     placementValue = "expanded"
++ //   }
++ //   self.delegate?.onPlacementChanged(placement: placementValue)
++ // }
+   #endif
+ }
+ 
+diff --git a/node_modules/react-native-bottom-tabs/ios/TabView/NewTabView.swift b/node_modules/react-native-bottom-tabs/ios/TabView/NewTabView.swift
+index d699315..61728db 100644
+--- a/node_modules/react-native-bottom-tabs/ios/TabView/NewTabView.swift
++++ b/node_modules/react-native-bottom-tabs/ios/TabView/NewTabView.swift
+@@ -71,14 +71,11 @@ struct ConditionalBottomAccessoryModifier: ViewModifier {
+     // tabViewBottomAccessory is not available on macOS
+     content
+     #else
+-    if #available(iOS 26.0, tvOS 26.0, visionOS 3.0, *), bottomAccessoryView != nil {
+-      content
+-        .tabViewBottomAccessory {
+-          renderBottomAccessoryView()
+-        }
+-    } else {
+-      content
+-    }
++    if bottomAccessoryView != nil {
++  content
++} else {
++  content
++}
+     #endif
+   }
+ 
+@@ -97,7 +94,7 @@ struct ConditionalBottomAccessoryModifier: ViewModifier {
+ #if !os(macOS)
+ @available(iOS 26.0, *)
+ struct BottomAccessoryRepresentableView: PlatformViewRepresentable {
+-  @Environment(\.tabViewBottomAccessoryPlacement) var tabViewBottomAccessoryPlacement
++  //@Environment(\.tabViewBottomAccessoryPlacement) var tabViewBottomAccessoryPlacement
+   var view: PlatformView
+ 
+   func makeUIView(context: Context) -> PlatformView {
+@@ -118,9 +115,8 @@ struct BottomAccessoryRepresentableView: PlatformViewRepresentable {
+   }
+ 
+   private func emitPlacementChanged(for uiView: PlatformView) {
+-    if let contentView = uiView.value(forKey: "bottomAccessoryProvider") as? BottomAccessoryProvider {
+-      contentView.emitPlacementChanged(tabViewBottomAccessoryPlacement)
+-    }
++      // Disabled: requires newer SwiftUI bottom accessory APIs not available in this SDK.
++
+   }
+ }
+ #endif

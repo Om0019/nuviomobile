@@ -1,5 +1,4 @@
 PODS:
-  - DisplayCriteria (1.1.0)
   - EASClient (1.0.8):
     - ExpoModulesCore
   - EXApplication (7.0.8):
@@ -325,46 +324,12 @@ PODS:
   - EXUpdatesInterface (2.0.0):
     - ExpoModulesCore
   - FBLazyVector (0.81.4)
-  - FFmpegKit (6.1.0):
-    - FFmpegKit/FFmpegKit (= 6.1.0)
-  - FFmpegKit/FFmpegKit (6.1.0):
-    - Libass
   - google-cast-sdk (4.8.4)
   - hermes-engine (0.81.4):
     - hermes-engine/Pre-built (= 0.81.4)
   - hermes-engine/Pre-built (0.81.4)
   - ImageColors (2.5.1):
     - ExpoModulesCore
-  - KSPlayer (1.1.0):
-    - KSPlayer/Audio (= 1.1.0)
-    - KSPlayer/AVPlayer (= 1.1.0)
-    - KSPlayer/Core (= 1.1.0)
-    - KSPlayer/MEPlayer (= 1.1.0)
-    - KSPlayer/Metal (= 1.1.0)
-    - KSPlayer/Subtitle (= 1.1.0)
-    - KSPlayer/SwiftUI (= 1.1.0)
-    - KSPlayer/Video (= 1.1.0)
-  - KSPlayer/Audio (1.1.0):
-    - KSPlayer/Core
-  - KSPlayer/AVPlayer (1.1.0):
-    - DisplayCriteria
-  - KSPlayer/Core (1.1.0):
-    - KSPlayer/AVPlayer
-  - KSPlayer/MEPlayer (1.1.0):
-    - FFmpegKit
-    - KSPlayer/AVPlayer
-    - KSPlayer/Metal
-    - KSPlayer/Subtitle
-  - KSPlayer/Metal (1.1.0)
-  - KSPlayer/Subtitle (1.1.0)
-  - KSPlayer/SwiftUI (1.1.0):
-    - KSPlayer/AVPlayer
-  - KSPlayer/Video (1.1.0):
-    - KSPlayer/Core
-    - KSPlayer/Subtitle
-  - Libass (0.17.1):
-    - Libass/Libass (= 0.17.1)
-  - Libass/Libass (0.17.1)
   - libavif/core (0.11.1)
   - libavif/libdav1d (0.11.1):
     - libavif/core
@@ -2771,9 +2736,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - SDWebImage (5.21.5):
-    - SDWebImage/Core (= 5.21.5)
-  - SDWebImage/Core (5.21.5)
+  - SDWebImage (5.21.7):
+    - SDWebImage/Core (= 5.21.7)
+  - SDWebImage/Core (5.21.7)
   - SDWebImageAVIFCoder (0.11.1):
     - libavif/core (>= 0.11.0)
     - SDWebImage (~> 5.10)
@@ -2787,7 +2752,6 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - DisplayCriteria (from `../KSPlayer`)
   - EASClient (from `../node_modules/expo-eas-client/ios`)
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
@@ -2825,11 +2789,8 @@ DEPENDENCIES:
   - EXUpdates (from `../node_modules/expo-updates/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
-  - FFmpegKit (from `https://github.com/kingslay/FFmpegKit.git`, branch `main`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - ImageColors (from `../node_modules/react-native-image-colors/ios`)
-  - KSPlayer (from `../KSPlayer`)
-  - Libass (from `https://github.com/kingslay/FFmpegKit.git`, branch `main`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - NitroMmkv (from `../node_modules/react-native-mmkv`)
   - NitroModules (from `../node_modules/react-native-nitro-modules`)
@@ -2939,8 +2900,6 @@ SPEC REPOS:
     - SwiftUIIntrospect
 
 EXTERNAL SOURCES:
-  DisplayCriteria:
-    :path: "../KSPlayer"
   EASClient:
     :path: "../node_modules/expo-eas-client/ios"
   EXApplication:
@@ -3015,19 +2974,11 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-updates-interface/ios"
   FBLazyVector:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
-  FFmpegKit:
-    :branch: main
-    :git: https://github.com/kingslay/FFmpegKit.git
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2025-07-07-RNv0.81.0-e0fc67142ec0763c6b6153ca2bf96df815539782
   ImageColors:
     :path: "../node_modules/react-native-image-colors/ios"
-  KSPlayer:
-    :path: "../KSPlayer"
-  Libass:
-    :branch: main
-    :git: https://github.com/kingslay/FFmpegKit.git
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
   NitroMmkv:
@@ -3205,16 +3156,7 @@ EXTERNAL SOURCES:
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
-CHECKOUT OPTIONS:
-  FFmpegKit:
-    :commit: d7048037a2eb94a3b08113fbf43aa92bdcb332d9
-    :git: https://github.com/kingslay/FFmpegKit.git
-  Libass:
-    :commit: d7048037a2eb94a3b08113fbf43aa92bdcb332d9
-    :git: https://github.com/kingslay/FFmpegKit.git
-
 SPEC CHECKSUMS:
-  DisplayCriteria: bb0a90faf14b30848bc50ac0516340ce50164187
   EASClient: 40dd9e740684782610c49becab2643782ea1a20c
   EXApplication: 1e98d4b1dccdf30627f92917f4b2c5a53c330e5f
   EXConstants: 805f35b1b295c542ca6acce836f21a1f9ee104d5
@@ -3252,12 +3194,9 @@ SPEC CHECKSUMS:
   EXUpdates: f20abbc8a9f4e150656fe88126d52f52d4e7793f
   EXUpdatesInterface: 5adf50cb41e079c861da6d9b4b954c3db9a50734
   FBLazyVector: 9e0cd874afd81d9a4d36679daca991b58b260d42
-  FFmpegKit: 3885085fbbc320745838ee4c8a1f9c5e5953dab2
   google-cast-sdk: 32f65af50d164e3c475e79ad123db3cc26fbcd37
   hermes-engine: 35c763d57c9832d0eef764316ca1c4d043581394
   ImageColors: e12eb73e29bc1feaa3c228db8c174a1b25acb59d
-  KSPlayer: f163ac6195f240b6fa5b8225aeb39ec811a70c62
-  Libass: e88af2324e1217e3a4c8bdc675f6f23a9dfc7677
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
@@ -3353,7 +3292,7 @@ SPEC CHECKSUMS:
   RNSVG: cf9ae78f2edf2988242c71a6392d15ff7dd62522
   RNVectorIcons: 4351544f100d4f12cac156a7c13399e60bab3e26
   RNWorklets: 9eb6d567fa43984e96b6924a6df504b8a15980cd
-  SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
+  SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
@@ -3361,6 +3300,6 @@ SPEC CHECKSUMS:
   SwiftUIIntrospect: fee9aa07293ee280373a591e1824e8ddc869ba5d
   Yoga: 051f086b5ccf465ff2ed38a2cf5a558ae01aaaa1
 
-PODFILE CHECKSUM: b884d1ff07ac4a43323bce2e2e1342592513858c
+PODFILE CHECKSUM: 6bee6604a5c2c98e3ba6cb3af4e01ed1ddd61c8c
 
 COCOAPODS: 1.16.2

@@ -3,29 +3,25 @@ name: Expo OTA Update
 on:
   push:
     branches:
-      - production
       - main
+      - production
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+      - uses: expo/expo-github-action@v8
+        with:
+          token: ${{ secrets.EXPO_TOKEN }}
+          eas-version: latest
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - run: npm install
 
-      - name: Publish OTA update
-        run: eas update --branch production --message "GitHub OTA update"
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - run: eas update --branch production --message "GitHub OTA update"

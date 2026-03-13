@@ -309,67 +309,7 @@ export const AboutSettingsContent: React.FC<AboutSettingsContentProps> = ({
 /**
  * Reusable AboutFooter component - Downloads counter, social links, branding
  */
-export const AboutFooter: React.FC<{ displayDownloads: number | null }> = ({ displayDownloads }) => {
-    const { currentTheme } = useTheme();
-    const { t } = useTranslation();
-
-    return (
-        <>
-            {displayDownloads !== null && (
-                <View style={styles.downloadsContainer}>
-                    <Text style={[styles.downloadsNumber, { color: currentTheme.colors.primary }]}>
-                        {displayDownloads.toLocaleString()}
-                    </Text>
-                    <Text style={[styles.downloadsLabel, { color: currentTheme.colors.mediumEmphasis }]}>
-                        {t('settings.downloads_counter')}
-                    </Text>
-                </View>
-            )}
-
-            <View style={styles.communityContainer}>
-                <TouchableOpacity
-                    style={styles.supportButton}
-                    onPress={() => WebBrowser.openBrowserAsync('https://ko-fi.com/tapframe', {
-                        presentationStyle: Platform.OS === 'ios' ? WebBrowser.WebBrowserPresentationStyle.FORM_SHEET : WebBrowser.WebBrowserPresentationStyle.FORM_SHEET
-                    })}
-                    activeOpacity={0.7}
-                >
-                    <FastImage
-                        source={require('../../../assets/support_me_on_kofi_red.png')}
-                        style={styles.kofiImage}
-                        resizeMode={FastImage.resizeMode.contain}
-                    />
-                </TouchableOpacity>
-
-            </View>
-
-            {/* Monkey Animation */}
-            <View style={styles.monkeyContainer}>
-                <LottieView
-                    source={require('../../assets/lottie/monito.json')}
-                    autoPlay
-                    loop
-                    style={styles.monkeyAnimation}
-                    resizeMode="contain"
-                />
-            </View>
-
-            <View style={styles.brandLogoContainer}>
-                <FastImage
-                    source={require('../../../assets/text_only_og.png')}
-                    style={styles.brandLogo}
-                    resizeMode={FastImage.resizeMode.contain}
-                />
-            </View>
-
-            <View style={styles.footer}>
-                <Text style={[styles.footerText, { color: currentTheme.colors.mediumEmphasis }]}>
-                    {t('settings.made_with_love')}
-                </Text>
-            </View>
-        </>
-    );
-};
+export const AboutFooter: React.FC<{ displayDownloads: number | null }> = () => null;
 
 /**
  * AboutSettingsScreen - Wrapper for mobile navigation

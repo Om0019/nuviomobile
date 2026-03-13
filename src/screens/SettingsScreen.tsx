@@ -885,61 +885,6 @@ const SettingsScreen: React.FC = () => {
               </SettingsCard>
             )}
 
-            {/* Downloads Counter */}
-            {settingsConfig?.items?.['downloads_counter']?.visible !== false && displayDownloads !== null && (
-              <View style={styles.downloadsContainer}>
-                <Text style={[styles.downloadsNumber, { color: currentTheme.colors.primary }]}>
-                  {displayDownloads.toLocaleString()}
-                </Text>
-                <Text style={[styles.downloadsLabel, { color: currentTheme.colors.mediumEmphasis }]}>
-                  {t('settings.downloads_counter')}
-                </Text>
-              </View>
-            )}
-
-            {/* Support & Community Buttons */}
-            <View style={styles.discordContainer}>
-              <TouchableOpacity
-                style={[styles.discordButton, { backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 0, marginBottom: 8 }]}
-                onPress={() => WebBrowser.openBrowserAsync('https://ko-fi.com/tapframe', {
-                  presentationStyle: Platform.OS === 'ios' ? WebBrowser.WebBrowserPresentationStyle.FORM_SHEET : WebBrowser.WebBrowserPresentationStyle.FORM_SHEET
-                })}
-                activeOpacity={0.7}
-              >
-                <FastImage
-                  source={require('../../assets/support_me_on_kofi_red.png')}
-                  style={styles.kofiImage}
-                  resizeMode={FastImage.resizeMode.contain}
-                />
-              </TouchableOpacity>
-
-            </View>
-
-            {/* Monkey Animation */}
-            <View style={styles.monkeyContainer}>
-              <LottieView
-                source={require('../assets/lottie/monito.json')}
-                autoPlay
-                loop
-                style={styles.monkeyAnimation}
-                resizeMode="contain"
-              />
-            </View>
-
-            <View style={styles.brandLogoContainer}>
-              <FastImage
-                source={require('../../assets/text_only_og.png')}
-                style={styles.brandLogo}
-                resizeMode={FastImage.resizeMode.contain}
-              />
-            </View>
-
-            <View style={styles.footer}>
-              <Text style={[styles.footerText, { color: currentTheme.colors.mediumEmphasis }]}>
-                {t('settings.made_with_love')}
-              </Text>
-            </View>
-
             <View style={{ height: 50 }} />
           </ScrollView>
         </View>

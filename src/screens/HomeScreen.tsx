@@ -781,7 +781,7 @@ const HomeScreen = () => {
         <HeroCarousel
           items={allFeaturedContent || (featuredContent ? [featuredContent] : [])}
           loading={featuredLoading}
-          topOverlayOffset={settings.ideaMode ? floatingIdeaMenuHeight + 22 : 0}
+          topOverlayOffset={settings.ideaMode ? ideaHeroHeaderSpacing : 0}
         />
       );
     } else {
@@ -808,12 +808,13 @@ const HomeScreen = () => {
         </>
       );
     }
-  }, [isTablet, settings.heroStyle, settings.ideaMode, showHeroSection, featuredContentSource, allFeaturedContent, featuredContent, isSaved, handleSaveToLibrary, featuredLoading, floatingIdeaMenuHeight]);
+  }, [isTablet, settings.heroStyle, settings.ideaMode, showHeroSection, featuredContentSource, allFeaturedContent, featuredContent, isSaved, handleSaveToLibrary, featuredLoading, ideaHeroHeaderSpacing]);
 
   const memoizedThisWeekSection = useMemo(() => <ThisWeekSection />, []);
   const memoizedContinueWatchingSection = useMemo(() => <ContinueWatchingSection ref={continueWatchingRef} />, []);
   const floatingIdeaMenuTop = stableInsetsTop + 8;
   const floatingIdeaMenuHeight = 58;
+  const ideaHeroHeaderSpacing = settings.ideaMode ? floatingIdeaMenuHeight + 92 : 0;
   const ideaMenuWrapAnimatedStyle = useAnimatedStyle(() => ({
     opacity: ideaMenuVisibilityProgress.value,
     transform: [
@@ -1000,11 +1001,11 @@ const HomeScreen = () => {
   }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis, floatingIdeaMenuTop, ideaMenuWrapAnimatedStyle, ideaMenuGlowAnimatedStyle, ideaMenuReflectionAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
     <>
-      {settings.ideaMode ? <View style={{ height: floatingIdeaMenuHeight + 22 }} /> : null}
+      {settings.ideaMode ? <View style={{ height: ideaHeroHeaderSpacing }} /> : null}
       {showHeroSection ? memoizedFeaturedContent : null}
       {(!settings.ideaMode || ideaHomeSection === 'forYou') ? memoizedContinueWatchingSection : null}
     </>
-  ), [showHeroSection, memoizedFeaturedContent, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection, floatingIdeaMenuHeight]);
+  ), [showHeroSection, memoizedFeaturedContent, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection, ideaHeroHeaderSpacing]);
   // Track scroll direction manually for reliable behavior across platforms
   const lastScrollYRef = useRef(0);
   const lastToggleRef = useRef(0);

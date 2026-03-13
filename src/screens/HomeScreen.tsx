@@ -832,30 +832,50 @@ const HomeScreen = () => {
     opacity: 0.18 + Math.min(scrollY.value / 1400, 0.1),
     transform: [{ translateY: Math.min(scrollY.value * 0.02, 6) }],
   }));
-  const ideaAmbientPrimaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.5 + Math.min(scrollY.value / 1200, 0.18),
-    transform: [
-      { translateX: ideaMenuGlowOffset.value * 0.4 },
-      { translateY: -34 + Math.min(scrollY.value * 0.06, 42) },
-      { scale: 1.12 + ideaMenuVisibilityProgress.value * 0.05 },
-    ],
-  }));
-  const ideaAmbientSecondaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.34 + Math.min(scrollY.value / 1400, 0.12),
-    transform: [
-      { translateX: ideaMenuGlowOffset.value * -0.24 },
-      { translateY: 72 + Math.min(scrollY.value * 0.05, 56) },
-      { scale: 1.1 + ideaMenuVisibilityProgress.value * 0.04 },
-    ],
-  }));
-  const ideaAmbientTertiaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.24 + Math.min(scrollY.value / 1300, 0.1),
-    transform: [
-      { translateX: ideaMenuGlowOffset.value * 0.16 },
-      { translateY: 360 + Math.min(scrollY.value * 0.06, 70) },
-      { scale: 1.08 + ideaMenuVisibilityProgress.value * 0.03 },
-    ],
-  }));
+  const ideaAmbientTopBandAnimatedStyle = useAnimatedStyle(() => {
+    const scrollPhase = Math.min(scrollY.value, 900);
+    const palettes: Record<IdeaHomeSection, [string, string, string]> = {
+      forYou: ['#0A2233', '#123049', '#183C58'],
+      movie: ['#2B140F', '#381811', '#472016'],
+      series: ['#0B211A', '#133026', '#1A3E31'],
+    };
+    const [toneA, toneB, toneC] = palettes[ideaHomeSection];
+
+    return {
+      backgroundColor: interpolateColor(scrollPhase, [0, 360, 900], [toneA, toneB, toneC]),
+      opacity: 0.88,
+      transform: [{ translateY: Math.min(scrollPhase * 0.05, 38) }],
+    };
+  });
+  const ideaAmbientMidBandAnimatedStyle = useAnimatedStyle(() => {
+    const scrollPhase = Math.min(scrollY.value, 1200);
+    const palettes: Record<IdeaHomeSection, [string, string, string]> = {
+      forYou: ['#091521', '#102033', '#162B42'],
+      movie: ['#160E0C', '#24130F', '#321A14'],
+      series: ['#091510', '#10211A', '#183026'],
+    };
+    const [toneA, toneB, toneC] = palettes[ideaHomeSection];
+
+    return {
+      backgroundColor: interpolateColor(scrollPhase, [0, 520, 1200], [toneA, toneB, toneC]),
+      opacity: 0.74,
+      transform: [{ translateY: Math.min(scrollPhase * 0.035, 32) }],
+    };
+  });
+  const ideaAmbientBottomBandAnimatedStyle = useAnimatedStyle(() => {
+    const scrollPhase = Math.min(scrollY.value, 1400);
+    const palettes: Record<IdeaHomeSection, [string, string, string]> = {
+      forYou: ['#070D15', '#0B121D', '#0F1824'],
+      movie: ['#0D0908', '#140D0B', '#1B110D'],
+      series: ['#070E0B', '#0B1511', '#101C16'],
+    };
+    const [toneA, toneB, toneC] = palettes[ideaHomeSection];
+
+    return {
+      backgroundColor: interpolateColor(scrollPhase, [0, 600, 1400], [toneA, toneB, toneC]),
+      opacity: 0.92,
+    };
+  });
   const ideaAmbientToneAnimatedStyle = useAnimatedStyle(() => {
     const scrollPhase = Math.min(scrollY.value, 900);
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
@@ -876,7 +896,7 @@ const HomeScreen = () => {
   const ideaAmbientHighlightAnimatedStyle = useAnimatedStyle(() => {
     const highlightPhase = Math.min(scrollY.value, 1200);
     return {
-      opacity: 0.3 + Math.min(scrollY.value / 1000, 0.18),
+      opacity: 0.2 + Math.min(scrollY.value / 1000, 0.12),
       transform: [
         { translateY: -40 + Math.min(highlightPhase * 0.08, 90) },
         { scale: 1.06 + Math.min(highlightPhase / 2400, 0.06) },
@@ -884,10 +904,10 @@ const HomeScreen = () => {
     };
   });
   const ideaAmbientPalette = useMemo(() => {
-    const palettes: Record<IdeaHomeSection, [string, string, string]> = {
-      forYou: ['rgba(56,189,248,0.56)', 'rgba(59,130,246,0.34)', 'rgba(168,85,247,0.24)'],
-      movie: ['rgba(249,115,22,0.56)', 'rgba(239,68,68,0.34)', 'rgba(245,158,11,0.24)'],
-      series: ['rgba(16,185,129,0.56)', 'rgba(34,197,94,0.34)', 'rgba(45,212,191,0.24)'],
+    const palettes: Record<IdeaHomeSection, [string, string]> = {
+      forYou: ['rgba(56,189,248,0.22)', 'rgba(99,102,241,0.16)'],
+      movie: ['rgba(249,115,22,0.22)', 'rgba(239,68,68,0.16)'],
+      series: ['rgba(16,185,129,0.22)', 'rgba(45,212,191,0.16)'],
     };
 
     return palettes[ideaHomeSection];
@@ -1162,6 +1182,9 @@ const HomeScreen = () => {
         />
         {settings.ideaMode && (
           <View pointerEvents="none" style={styles.ideaAmbientBackground}>
+            <Animated.View style={[styles.ideaAmbientBottomBand, ideaAmbientBottomBandAnimatedStyle]} />
+            <Animated.View style={[styles.ideaAmbientMidBand, ideaAmbientMidBandAnimatedStyle]} />
+            <Animated.View style={[styles.ideaAmbientTopBand, ideaAmbientTopBandAnimatedStyle]} />
             <Animated.View style={[styles.ideaAmbientToneLayer, ideaAmbientToneAnimatedStyle]} />
             <LinearGradient
               colors={['rgba(34,42,64,0.54)', 'rgba(18,22,32,0.58)', settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground]}
@@ -1170,32 +1193,16 @@ const HomeScreen = () => {
             />
             <Animated.View style={[styles.ideaAmbientHighlightWrap, ideaAmbientHighlightAnimatedStyle]}>
               <LinearGradient
-                colors={['rgba(255,255,255,0.045)', ideaAmbientPalette[0], 'rgba(0,0,0,0)']}
+                colors={['rgba(255,255,255,0.03)', ideaAmbientPalette[0], 'rgba(0,0,0,0)']}
                 locations={[0, 0.42, 1]}
                 style={styles.ideaAmbientHighlightGradient}
               />
             </Animated.View>
-            <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobPrimary, ideaAmbientPrimaryAnimatedStyle]}>
-              <LinearGradient
-                colors={[ideaAmbientPalette[0], 'rgba(255,255,255,0.06)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.58, 1]}
-                style={styles.ideaAmbientGradient}
-              />
-            </Animated.View>
-            <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobSecondary, ideaAmbientSecondaryAnimatedStyle]}>
-              <LinearGradient
-                colors={[ideaAmbientPalette[1], 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.56, 1]}
-                style={styles.ideaAmbientGradient}
-              />
-            </Animated.View>
-            <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobTertiary, ideaAmbientTertiaryAnimatedStyle]}>
-              <LinearGradient
-                colors={[ideaAmbientPalette[2], 'rgba(255,255,255,0.026)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.56, 1]}
-                style={styles.ideaAmbientGradient}
-              />
-            </Animated.View>
+            <LinearGradient
+              colors={['rgba(255,255,255,0.02)', ideaAmbientPalette[1], 'rgba(0,0,0,0.0)']}
+              locations={[0, 0.36, 1]}
+              style={styles.ideaAmbientAccentGradient}
+            />
           </View>
         )}
         <FlashList
@@ -1230,9 +1237,9 @@ const HomeScreen = () => {
     memoizedIdeaSectionMenu,
     ideaAmbientToneAnimatedStyle,
     ideaAmbientHighlightAnimatedStyle,
-    ideaAmbientPrimaryAnimatedStyle,
-    ideaAmbientSecondaryAnimatedStyle,
-    ideaAmbientTertiaryAnimatedStyle,
+    ideaAmbientTopBandAnimatedStyle,
+    ideaAmbientMidBandAnimatedStyle,
+    ideaAmbientBottomBandAnimatedStyle,
     ideaAmbientPalette,
     ListFooterComponent,
     handleLoadMoreCatalogs,
@@ -1289,6 +1296,23 @@ const styles = StyleSheet.create<any>({
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
   },
+  ideaAmbientTopBand: {
+    position: 'absolute',
+    top: -40,
+    left: 0,
+    right: 0,
+    height: 340,
+  },
+  ideaAmbientMidBand: {
+    position: 'absolute',
+    top: 140,
+    left: 0,
+    right: 0,
+    height: 340,
+  },
+  ideaAmbientBottomBand: {
+    ...StyleSheet.absoluteFillObject,
+  },
   ideaAmbientToneLayer: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -1298,40 +1322,20 @@ const styles = StyleSheet.create<any>({
   ideaAmbientHighlightWrap: {
     position: 'absolute',
     top: -120,
-    left: -40,
-    right: -40,
-    height: 420,
-    borderRadius: 999,
+    left: 0,
+    right: 0,
+    height: 320,
     overflow: 'hidden',
   },
   ideaAmbientHighlightGradient: {
     flex: 1,
   },
-  ideaAmbientBlob: {
+  ideaAmbientAccentGradient: {
     position: 'absolute',
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  ideaAmbientBlobPrimary: {
-    top: -150,
-    left: -90,
-    width: 430,
-    height: 430,
-  },
-  ideaAmbientBlobSecondary: {
-    top: 180,
-    right: -130,
-    width: 390,
-    height: 390,
-  },
-  ideaAmbientBlobTertiary: {
-    top: 360,
-    left: width * 0.04,
-    width: 420,
-    height: 300,
-  },
-  ideaAmbientGradient: {
-    flex: 1,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   scrollContent: {
     paddingBottom: 90,

@@ -500,19 +500,19 @@ const AppIdeaBackground = React.memo(() => {
         style={StyleSheet.absoluteFillObject}
       />
       <LinearGradient
-        colors={['rgba(255,255,255,0.04)', 'rgba(255,255,255,0.01)', 'rgba(0,0,0,0)']}
-        locations={[0, 0.18, 1]}
+        colors={['rgba(255,255,255,0.035)', 'rgba(255,255,255,0.01)', 'rgba(0,0,0,0)']}
+        locations={[0, 0.22, 1]}
         style={styles.ideaAppTopSheen}
       />
       <LinearGradient
-        colors={[primary, 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0)']}
-        locations={[0, 0.52, 1]}
-        style={styles.ideaAppBlobPrimary}
+        colors={[primary, 'rgba(255,255,255,0.025)', 'rgba(0,0,0,0)']}
+        locations={[0, 0.45, 1]}
+        style={styles.ideaAppTopGradient}
       />
       <LinearGradient
-        colors={[secondary, 'rgba(255,255,255,0.018)', 'rgba(0,0,0,0)']}
-        locations={[0, 0.55, 1]}
-        style={styles.ideaAppBlobSecondary}
+        colors={[secondary, 'rgba(255,255,255,0.012)', 'rgba(0,0,0,0)']}
+        locations={[0, 0.5, 1]}
+        style={styles.ideaAppBottomGradient}
       />
     </View>
   );
@@ -526,21 +526,19 @@ const styles = StyleSheet.create({
     right: 0,
     height: 240,
   },
-  ideaAppBlobPrimary: {
+  ideaAppTopGradient: {
     position: 'absolute',
-    top: -120,
-    left: -90,
-    width: 420,
-    height: 420,
-    borderRadius: 999,
+    top: -20,
+    left: 0,
+    right: 0,
+    height: 320,
   },
-  ideaAppBlobSecondary: {
+  ideaAppBottomGradient: {
     position: 'absolute',
-    right: -120,
-    bottom: 80,
-    width: 360,
-    height: 360,
-    borderRadius: 999,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 340,
   },
 });
 

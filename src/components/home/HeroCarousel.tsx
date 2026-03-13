@@ -93,7 +93,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
     [isIdeaMode, isTablet, topOverlayOffset]
   );
   const cardTopOffset = useMemo(
-    () => (isIdeaMode && !isTablet ? heroTopBleed + 24 : 0),
+    () => (isIdeaMode && !isTablet ? heroTopBleed + 56 : 0),
     [isIdeaMode, isTablet, heroTopBleed]
   );
 

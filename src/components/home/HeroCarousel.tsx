@@ -44,6 +44,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) =
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useSettings();
+  const isIdeaMode = settings.ideaMode;
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   // Responsive sizing computed per-render so rotation updates layout
@@ -68,7 +69,14 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) =
     [baseCardWidthForHeight]
   );
 
-  const interval = useMemo(() => cardWidth + 16, [cardWidth]);
+  const stackOverlap = useMemo(
+    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.22) : 0),
+    [isIdeaMode, isTablet, cardWidth]
+  );
+  const interval = useMemo(
+    () => (isTablet ? cardWidth + 16 : cardWidth + 16 - stackOverlap),
+    [isTablet, cardWidth, stackOverlap]
+  );
 
   // Reduce top padding on phones while keeping tablets unchanged
   const effectiveTopOffset = useMemo(() => (isTablet ? TOP_TABS_OFFSET : 8), [isTablet]);
@@ -259,7 +267,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) =
             contentContainerStyle={{ paddingHorizontal: (windowWidth - cardWidth) / 2 }}
           >
             {[1, 2, 3].map((_, index) => (
-              <View key={index} style={{ width: cardWidth + 16 }}>
+              <View key={index} style={{ width: interval }}>
                 <View style={[
                   styles.card,
                   {
@@ -613,6 +621,8 @@ interface CarouselCardProps {
 
 const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFailed, onLogoError, onPressInfo, scrollX, index, flipped, onToggleFlip, interval, cardWidth, cardHeight, isTablet }) => {
   const { t } = useTranslation();
+  const { settings } = useSettings();
+  const isIdeaMode = settings.ideaMode;
   const [bannerLoaded, setBannerLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
 
@@ -706,29 +716,47 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
   const cardAnimatedStyle = useAnimatedStyle(() => {
     const translateX = scrollX.value;
     const cardOffset = index * interval;
-    const distance = Math.abs(translateX - cardOffset);
+    const rawDistance = translateX - cardOffset;
+    const distance = Math.abs(rawDistance);
+    const direction = rawDistance === 0 ? 0 : rawDistance > 0 ? -1 : 1;
 
     // AGGRESSIVE early exit for cards far from center
     if (distance > interval * 1.5) {
       return {
-        transform: [{ scale: isTablet ? 0.95 : 0.9 }],
-        opacity: isTablet ? 0.85 : 0.7
+        transform: isTablet || !isIdeaMode
+          ? [{ scale: 0.95 }]
+          : [
+              { translateX: direction * 18 },
+              { scale: 0.88 },
+              { rotateZ: `${direction * 3}deg` },
+            ],
+        opacity: isTablet ? 0.85 : 0.72,
+        zIndex: 0,
       };
     }
 
     const maxDistance = interval;
 
     // Scale animation based on distance from center
-    const scale = 1 - (distance / maxDistance) * 0.1;
-    const clampedScale = Math.max(isTablet ? 0.95 : 0.9, Math.min(1, scale));
+    const scale = isTablet || !isIdeaMode ? 1 - (distance / maxDistance) * 0.1 : 1 - (distance / maxDistance) * 0.12;
+    const clampedScale = Math.max(isTablet || !isIdeaMode ? 0.95 : 0.88, Math.min(1, scale));
 
     // Opacity animation for cards that are far from center
-    const opacity = 1 - (distance / maxDistance) * 0.3;
-    const clampedOpacity = Math.max(isTablet ? 0.85 : 0.7, Math.min(1, opacity));
+    const opacity = 1 - (distance / maxDistance) * (isTablet || !isIdeaMode ? 0.3 : 0.24);
+    const clampedOpacity = Math.max(isTablet || !isIdeaMode ? 0.85 : 0.76, Math.min(1, opacity));
+    const translateCardX = isTablet || !isIdeaMode ? 0 : direction * Math.min(22, (distance / maxDistance) * 22);
+    const rotate = isTablet || !isIdeaMode ? 0 : direction * Math.min(4, (distance / maxDistance) * 4);
 
     return {
-      transform: [{ scale: clampedScale }],
+      transform: isTablet || !isIdeaMode
+        ? [{ scale: clampedScale }]
+        : [
+            { translateX: translateCardX },
+            { scale: clampedScale },
+            { rotateZ: `${rotate}deg` },
+          ],
       opacity: clampedOpacity,
+      zIndex: Math.round(1000 - distance),
     };
   });
 
@@ -786,7 +814,7 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
   }, [logoLoaded]);
 
   return (
-    <View style={{ width: cardWidth + 16 }}>
+    <View style={{ width: interval }}>
       <View style={{ width: cardWidth, height: cardHeight }}>
         <Animated.View style={[
           styles.card,
@@ -1214,5 +1242,3 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(HeroCarousel);
-
-

@@ -1528,6 +1528,8 @@ const styles = StyleSheet.create<any>({
   ideaSectionMenuWrap: {
     marginTop: 8,
     marginBottom: 14,
+    position: 'relative',
+    zIndex: 40,
   },
   ideaSectionMenuRow: {
     flexDirection: 'row',

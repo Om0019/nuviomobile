@@ -81,7 +81,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
   );
 
   const stackOverlap = useMemo(
-    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.28) : 0),
+    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.42) : 0),
     [isIdeaMode, isTablet, cardWidth]
   );
   const interval = useMemo(
@@ -93,7 +93,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
     [isIdeaMode, isTablet, topOverlayOffset]
   );
   const cardTopOffset = useMemo(
-    () => (isIdeaMode && !isTablet ? heroTopBleed + 56 : 0),
+    () => (isIdeaMode && !isTablet ? heroTopBleed + 84 : 0),
     [isIdeaMode, isTablet, heroTopBleed]
   );
 
@@ -762,8 +762,8 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
         transform: isTablet || !isIdeaMode
           ? [{ scale: 0.95 }]
           : [
-              { translateX: direction * 30 },
-              { translateY: 26 },
+              { translateX: direction * 18 },
+              { translateY: 34 },
               { scale: 0.84 },
               { rotateZ: `${direction * 4.5}deg` },
             ],
@@ -781,8 +781,8 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
     // Opacity animation for cards that are far from center
     const opacity = 1 - (distance / maxDistance) * (isTablet || !isIdeaMode ? 0.3 : 0.18);
     const clampedOpacity = Math.max(isTablet || !isIdeaMode ? 0.85 : 0.8, Math.min(1, opacity));
-    const translateCardX = isTablet || !isIdeaMode ? 0 : direction * Math.min(32, (distance / maxDistance) * 32);
-    const translateCardY = isTablet || !isIdeaMode ? 0 : Math.min(28, (distance / maxDistance) * 28);
+    const translateCardX = isTablet || !isIdeaMode ? 0 : direction * Math.min(18, (distance / maxDistance) * 18);
+    const translateCardY = isTablet || !isIdeaMode ? 0 : 10 + Math.min(34, (distance / maxDistance) * 34);
     const rotate = isTablet || !isIdeaMode ? 0 : direction * Math.min(5, (distance / maxDistance) * 5);
 
     return {

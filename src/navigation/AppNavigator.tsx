@@ -767,7 +767,7 @@ const MainTabs = () => {
         bottom: Math.max(insets.bottom, 8),
         left: 14,
         right: 14,
-        height: Platform.OS === 'android' ? 76 : 68 + insets.bottom,
+        height: Platform.OS === 'android' ? 76 : 68,
         backgroundColor: 'transparent',
         overflow: 'visible',
       }}>
@@ -869,7 +869,7 @@ const MainTabs = () => {
         <View
           style={{
             height: '100%',
-            paddingBottom: Platform.OS === 'android' ? 16 : insets.bottom + 6,
+            paddingBottom: Platform.OS === 'android' ? 16 : 6,
             paddingTop: Platform.OS === 'android' ? 10 : 6,
             paddingHorizontal: 8,
             justifyContent: 'center',
@@ -950,7 +950,7 @@ const MainTabs = () => {
                     backgroundColor: isFocused ? 'rgba(255,255,255,0.08)' : 'transparent',
                     borderRadius: 20,
                     marginHorizontal: 2,
-                    minHeight: Platform.OS === 'android' ? 52 : 50,
+                    minHeight: Platform.OS === 'android' ? 52 : 52,
                     paddingVertical: Platform.OS === 'android' ? 4 : 0,
                   }}
                 >

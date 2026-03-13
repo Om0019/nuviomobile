@@ -5,6 +5,7 @@
   },
   "build": {
     "development": {
+      "channel": "development",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       },
@@ -12,12 +13,14 @@
       "distribution": "internal"
     },
     "preview": {
+      "channel": "preview",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       },
       "distribution": "internal"
     },
     "production": {
+      "channel": "production",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       },
@@ -30,6 +33,7 @@
       }
     },
     "release": {
+      "channel": "production",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       },
@@ -39,6 +43,7 @@
       }
     },
     "apk": {
+      "channel": "production",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       },

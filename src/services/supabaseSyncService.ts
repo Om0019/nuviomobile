@@ -404,23 +404,23 @@ class SupabaseSyncService {
         watchedRows,
         deviceRows,
       ] = await Promise.all([
-        this.request<Array<{ id: string }>>(`/rest/v1/plugins?select=id&user_id=eq.${ownerFilter}&profile_id=eq.1`, {
+        this.request<Array<{ id: string }>>(`/rest/v1/plugins?select=id&user_id=eq.${ownerFilter}`, {
           method: 'GET',
           authToken: token,
         }),
-        this.request<Array<{ id: string }>>(`/rest/v1/addons?select=id&user_id=eq.${ownerFilter}&profile_id=eq.1`, {
+        this.request<Array<{ id: string }>>(`/rest/v1/addons?select=id&user_id=eq.${ownerFilter}`, {
           method: 'GET',
           authToken: token,
         }),
-        this.request<Array<{ id: string }>>(`/rest/v1/watch_progress?select=id&user_id=eq.${ownerFilter}&profile_id=eq.1`, {
+        this.request<Array<{ id: string }>>(`/rest/v1/watch_progress?select=id&user_id=eq.${ownerFilter}`, {
           method: 'GET',
           authToken: token,
         }),
-        this.request<Array<{ id: string }>>(`/rest/v1/library_items?select=id&user_id=eq.${ownerFilter}&profile_id=eq.1`, {
+        this.request<Array<{ id: string }>>(`/rest/v1/library_items?select=id&user_id=eq.${ownerFilter}`, {
           method: 'GET',
           authToken: token,
         }),
-        this.request<Array<{ id: string }>>(`/rest/v1/watched_items?select=id&user_id=eq.${ownerFilter}&profile_id=eq.1`, {
+        this.request<Array<{ id: string }>>(`/rest/v1/watched_items?select=id&user_id=eq.${ownerFilter}`, {
           method: 'GET',
           authToken: token,
         }),
@@ -1092,7 +1092,7 @@ class SupabaseSyncService {
     if (!ownerId) return;
 
     const rows = await this.request<PluginRow[]>(
-      `/rest/v1/plugins?select=url,name,enabled,sort_order&user_id=eq.${encodeURIComponent(ownerId)}&profile_id=eq.1&order=sort_order.asc`,
+      `/rest/v1/plugins?select=url,name,enabled,sort_order&user_id=eq.${encodeURIComponent(ownerId)}&order=sort_order.asc`,
       {
         method: 'GET',
         authToken: token,
@@ -1174,7 +1174,7 @@ class SupabaseSyncService {
     if (!ownerId) return;
 
     const rows = await this.request<AddonRow[]>(
-      `/rest/v1/addons?select=url,sort_order&user_id=eq.${encodeURIComponent(ownerId)}&profile_id=eq.1&order=sort_order.asc`,
+      `/rest/v1/addons?select=url,sort_order&user_id=eq.${encodeURIComponent(ownerId)}&order=sort_order.asc`,
       {
         method: 'GET',
         authToken: token,

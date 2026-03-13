@@ -17,6 +17,7 @@ export class UpdateService {
   private logs: string[] = [];
   private readonly MAX_LOGS = 100; // Keep last 100 logs
   private updateCheckCallbacks: UpdateCheckCallback[] = [];
+  private readonly easUpdateUrl = 'https://u.expo.dev/d06f0c70-4b02-4871-a6f1-b6446b17ff4f';
 
   private constructor() { }
 
@@ -230,6 +231,7 @@ export class UpdateService {
     this.addLog(`Environment: ${__DEV__ ? 'Development' : 'Production'}`, 'INFO');
     this.addLog(`Platform: ${Platform.OS}`, 'INFO');
     this.addLog(`Updates enabled: ${Updates.isEnabled}`, 'INFO');
+    this.addLog(`Channel: ${Updates.channel || 'unconfigured'}`, 'INFO');
     this.addLog(`Runtime version: ${Updates.runtimeVersion || 'unknown'}`, 'INFO');
     this.addLog(`Update URL: ${this.getUpdateUrl()}`, 'INFO');
 
@@ -289,6 +291,7 @@ export class UpdateService {
   public async checkForUpdates(): Promise<UpdateInfo> {
     this.addLog('Starting update check...', 'INFO');
     this.addLog(`Update URL: ${this.getUpdateUrl()}`, 'INFO');
+    this.addLog(`Channel: ${Updates.channel || 'unconfigured'}`, 'INFO');
     this.addLog(`Runtime version: ${Updates.runtimeVersion || 'unknown'}`, 'INFO');
     this.addLog(`Platform: ${Platform.OS}`, 'INFO');
     this.addLog(`Updates enabled: ${Updates.isEnabled}`, 'INFO');
@@ -361,6 +364,7 @@ export class UpdateService {
       this.addLog('Environment checks passed, proceeding with installation', 'INFO');
       this.addLog('Checking for available updates before installation...', 'INFO');
       this.addLog(`Update URL: ${this.getUpdateUrl()}`, 'INFO');
+      this.addLog(`Channel: ${Updates.channel || 'unconfigured'}`, 'INFO');
       this.addLog(`Runtime version: ${Updates.runtimeVersion || 'unknown'}`, 'INFO');
       this.addLog(`Platform: ${Platform.OS}`, 'INFO');
 
@@ -468,8 +472,7 @@ export class UpdateService {
    * Get the update URL for the current platform
    */
   public getUpdateUrl(): string {
-    // Use the URL from app.json configuration
-    return 'https://ota.nuvioapp.space/api/manifest';
+    return this.easUpdateUrl;
   }
 
   /**
@@ -483,6 +486,5 @@ export class UpdateService {
 }
 
 export default UpdateService.getInstance();
-
 
 

@@ -72,9 +72,43 @@ export interface KSPlayerProps {
   style?: any;
 }
 
+const sanitizePlayerSource = (source?: KSPlayerSource): KSPlayerSource | undefined => {
+  if (!source?.uri || typeof source.uri !== 'string') {
+    return source;
+  }
+
+  const sanitizedHeaders: Record<string, string> = {};
+  const rawHeaders = source.headers;
+
+  if (rawHeaders && typeof rawHeaders === 'object') {
+    Object.entries(rawHeaders).forEach(([rawKey, rawValue]) => {
+      const key = typeof rawKey === 'string' ? rawKey.trim() : '';
+      if (!key) return;
+
+      if (typeof rawValue === 'string') {
+        const value = rawValue.trim();
+        if (value) {
+          sanitizedHeaders[key] = value;
+        }
+        return;
+      }
+
+      if (typeof rawValue === 'number' || typeof rawValue === 'boolean') {
+        sanitizedHeaders[key] = String(rawValue);
+      }
+    });
+  }
+
+  return {
+    uri: source.uri.trim(),
+    headers: Object.keys(sanitizedHeaders).length > 0 ? sanitizedHeaders : undefined,
+  };
+};
+
 const KSPlayer = forwardRef<KSPlayerRef, KSPlayerProps>((props, ref) => {
   const nativeRef = useRef<any>(null);
   const [key, setKey] = useState(0); // Force re-render when source changes
+  const sanitizedSource = sanitizePlayerSource(props.source);
 
   useImperativeHandle(ref, () => ({
     seek: (time: number) => {
@@ -90,7 +124,7 @@ const KSPlayer = forwardRef<KSPlayerRef, KSPlayerProps>((props, ref) => {
         const node = findNodeHandle(nativeRef.current);
         // @ts-ignore legacy UIManager commands path for Paper
         const commandId = UIManager.getViewManagerConfig('KSPlayerView').Commands.setSource;
-        UIManager.dispatchViewManagerCommand(node, commandId, [source]);
+        UIManager.dispatchViewManagerCommand(node, commandId, [sanitizePlayerSource(source)]);
       }
     },
     setPaused: (paused: boolean) => {
@@ -191,16 +225,16 @@ const KSPlayer = forwardRef<KSPlayerRef, KSPlayerProps>((props, ref) => {
 
   // Force re-render when source changes to ensure proper reloading
   useEffect(() => {
-    if (props.source) {
+    if (sanitizedSource) {
       setKey(prev => prev + 1);
     }
-  }, [props.source?.uri]);
+  }, [sanitizedSource?.uri]);
 
   return (
     <KSPlayerViewManager
       key={key}
       ref={nativeRef}
-      source={props.source}
+      source={sanitizedSource}
       paused={props.paused}
       volume={props.volume}
       rate={props.rate}

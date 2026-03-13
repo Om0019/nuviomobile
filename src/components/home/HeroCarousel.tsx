@@ -81,7 +81,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
   );
 
   const stackOverlap = useMemo(
-    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.42) : 0),
+    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.5) : 0),
     [isIdeaMode, isTablet, cardWidth]
   );
   const interval = useMemo(
@@ -762,8 +762,8 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
         transform: isTablet || !isIdeaMode
           ? [{ scale: 0.95 }]
           : [
-              { translateX: direction * 18 },
-              { translateY: 34 },
+              { translateX: direction * 10 },
+              { translateY: 26 },
               { scale: 0.84 },
               { rotateZ: `${direction * 4.5}deg` },
             ],
@@ -781,9 +781,9 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
     // Opacity animation for cards that are far from center
     const opacity = 1 - (distance / maxDistance) * (isTablet || !isIdeaMode ? 0.3 : 0.18);
     const clampedOpacity = Math.max(isTablet || !isIdeaMode ? 0.85 : 0.8, Math.min(1, opacity));
-    const translateCardX = isTablet || !isIdeaMode ? 0 : direction * Math.min(18, (distance / maxDistance) * 18);
-    const translateCardY = isTablet || !isIdeaMode ? 0 : 10 + Math.min(34, (distance / maxDistance) * 34);
-    const rotate = isTablet || !isIdeaMode ? 0 : direction * Math.min(5, (distance / maxDistance) * 5);
+    const translateCardX = isTablet || !isIdeaMode ? 0 : direction * Math.min(10, (distance / maxDistance) * 10);
+    const translateCardY = isTablet || !isIdeaMode ? 0 : 8 + Math.min(24, (distance / maxDistance) * 24);
+    const rotate = isTablet || !isIdeaMode ? 0 : direction * Math.min(3.5, (distance / maxDistance) * 3.5);
 
     return {
       transform: isTablet || !isIdeaMode

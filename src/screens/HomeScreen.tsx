@@ -814,7 +814,7 @@ const HomeScreen = () => {
   const memoizedContinueWatchingSection = useMemo(() => <ContinueWatchingSection ref={continueWatchingRef} />, []);
   const floatingIdeaMenuTop = stableInsetsTop + 8;
   const floatingIdeaMenuHeight = 58;
-  const ideaHeroHeaderSpacing = settings.ideaMode ? floatingIdeaMenuHeight + 92 : 0;
+  const ideaHeroHeaderSpacing = settings.ideaMode ? floatingIdeaMenuHeight + 72 : 0;
   const ideaMenuWrapAnimatedStyle = useAnimatedStyle(() => ({
     opacity: ideaMenuVisibilityProgress.value,
     transform: [

@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-node@v4
         with:
@@ -24,4 +26,7 @@ jobs:
 
       - run: npm install
 
-      - run: eas update --branch production --message "GitHub OTA update"
+      - name: Publish OTA update
+        run: |
+          UPDATE_MESSAGE="$(git log -1 --pretty=%s)"
+          eas update --branch production --message "$UPDATE_MESSAGE"

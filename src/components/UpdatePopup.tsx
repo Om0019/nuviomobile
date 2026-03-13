@@ -24,6 +24,7 @@ interface UpdatePopupProps {
       id?: string;
       version?: string;
       description?: string;
+      message?: string;
     };
   };
   onUpdateNow: () => void;
@@ -46,10 +47,14 @@ const UpdatePopup: React.FC<UpdatePopupProps> = ({
   const getReleaseNotes = () => {
     const manifest: any = updateInfo?.manifest || {};
     return (
+      manifest.message ||
       manifest.description ||
       manifest.releaseNotes ||
       manifest.extra?.releaseNotes ||
+      manifest.metadata?.message ||
+      manifest.metadata?.updateMessage ||
       manifest.metadata?.releaseNotes ||
+      manifest.extra?.expoClient?.message ||
       ''
     );
   };
@@ -154,6 +159,12 @@ const UpdatePopup: React.FC<UpdatePopupProps> = ({
 
             {!!getReleaseNotes() && (
               <View style={styles.descriptionContainer}>
+                <Text style={[
+                  styles.descriptionTitle,
+                  { color: currentTheme.colors.highEmphasis }
+                ]}>
+                  What's new
+                </Text>
                 <Text style={[
                   styles.description,
                   { color: currentTheme.colors.mediumEmphasis }
@@ -317,6 +328,11 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  descriptionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 6,
   },
   description: {
     fontSize: 14,

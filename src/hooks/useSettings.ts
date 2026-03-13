@@ -67,6 +67,7 @@ export interface AppSettings {
   themeId: string;
   customThemes: CustomThemeDef[];
   useDominantBackgroundColor: boolean;
+  ideaMode: boolean; // Experimental full-app visual mode
   // Home screen poster customization
   posterSize: 'small' | 'medium' | 'large' | 'xlarge'; // Predefined sizes
   posterBorderRadius: number; // 0-20 range for border radius
@@ -160,6 +161,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   themeId: 'default',
   customThemes: [],
   useDominantBackgroundColor: false,
+  ideaMode: false,
   // Home screen poster customization
   posterSize: 'medium',
   posterBorderRadius: 12,

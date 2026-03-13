@@ -45,14 +45,45 @@ export const AppearanceSettingsContent: React.FC<AppearanceSettingsContentProps>
     return (
         <>
             {hasVisibleItems(['theme']) && (
-                <SettingsCard title={t('settings.sections.theme')} isTablet={isTablet}>
+                <SettingsCard title={t('settings.sections.colors', { defaultValue: 'COLORS' })} isTablet={isTablet}>
                     {isItemVisible('theme') && (
                         <SettingItem
-                            title={t('settings.items.theme')}
+                            title={t('settings.items.colors', { defaultValue: 'Colors' })}
                             description={currentTheme.name}
+                            icon="palette"
+                            renderControl={() => <ChevronRight />}
+                            onPress={() => navigation.navigate('ThemeSettings')}
+                            isLast
+                            isTablet={isTablet}
+                        />
+                    )}
+                </SettingsCard>
+            )}
+
+            {hasVisibleItems(['theme']) && (
+                <SettingsCard title={t('settings.sections.themes', { defaultValue: 'THEMES' })} isTablet={isTablet}>
+                    {isItemVisible('theme') && (
+                        <SettingItem
+                            title={t('settings.items.themes', { defaultValue: 'Themes' })}
+                            description={t('settings.items.themes_desc', { defaultValue: 'Browse and customize themes' })}
                             icon="sliders"
                             renderControl={() => <ChevronRight />}
                             onPress={() => navigation.navigate('ThemeSettings')}
+                            isLast={false}
+                            isTablet={isTablet}
+                        />
+                    )}
+                    {isItemVisible('theme') && (
+                        <SettingItem
+                            title={t('settings.items.idea', { defaultValue: 'Idea' })}
+                            description={t('settings.items.idea_desc', { defaultValue: 'Change the overall visual style of the app' })}
+                            icon="sparkles"
+                            renderControl={() => (
+                                <CustomSwitch
+                                    value={settings?.ideaMode ?? false}
+                                    onValueChange={(value) => updateSetting('ideaMode', value)}
+                                />
+                            )}
                             isLast
                             isTablet={isTablet}
                         />

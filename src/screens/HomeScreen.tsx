@@ -101,6 +101,8 @@ type HomeScreenListItem =
   | { type: 'welcome'; key: string }
   | { type: 'loadMore'; key: string };
 
+type IdeaHomeSection = 'forYou' | 'movie' | 'series';
+
 const SkeletonCatalog = React.memo(() => {
   const { currentTheme } = useTheme();
   return (
@@ -127,6 +129,7 @@ const HomeScreen = () => {
   const [featuredContentSource, setFeaturedContentSource] = useState(settings.featuredContentSource);
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasContinueWatching, setHasContinueWatching] = useState(false);
+  const [ideaHomeSection, setIdeaHomeSection] = useState<IdeaHomeSection>('forYou');
 
   // Shared value for scroll position (for parallax effects)
   const scrollY = useSharedValue(0);
@@ -684,13 +687,19 @@ const HomeScreen = () => {
       return data;
     }
 
+    const filteredCatalogs = catalogs.filter(catalog => {
+      if (!catalog) return true;
+      if (!settings.ideaMode || ideaHomeSection === 'forYou') return true;
+      return catalog.type === ideaHomeSection;
+    });
+
     // Normal flow when addons are present (featured moved to ListHeaderComponent)
-    if (settings.showThisWeekSection) {
+    if (settings.showThisWeekSection && (!settings.ideaMode || ideaHomeSection === 'forYou')) {
       data.push({ type: 'thisWeek', key: 'thisWeek' });
     }
 
     // Only show a limited number of catalogs initially for performance
-    const catalogsToShow = catalogs.slice(0, visibleCatalogCount);
+    const catalogsToShow = filteredCatalogs.slice(0, visibleCatalogCount);
 
     catalogsToShow.forEach((catalog, index) => {
       if (catalog) {
@@ -702,12 +711,12 @@ const HomeScreen = () => {
     });
 
     // Add a "Load More" button if there are more catalogs to show
-    if (catalogs.length > visibleCatalogCount && catalogs.filter(c => c).length > visibleCatalogCount) {
+    if (filteredCatalogs.length > visibleCatalogCount && filteredCatalogs.filter(c => c).length > visibleCatalogCount) {
       data.push({ type: 'loadMore', key: 'load-more' });
     }
 
     return data;
-  }, [hasAddons, catalogs, visibleCatalogCount, settings.showThisWeekSection]);
+  }, [hasAddons, catalogs, visibleCatalogCount, settings.showThisWeekSection, settings.ideaMode, ideaHomeSection]);
 
   const handleLoadMoreCatalogs = useCallback(() => {
     setVisibleCatalogCount(prev => Math.min(prev + 3, catalogs.length));
@@ -771,12 +780,62 @@ const HomeScreen = () => {
 
   const memoizedThisWeekSection = useMemo(() => <ThisWeekSection />, []);
   const memoizedContinueWatchingSection = useMemo(() => <ContinueWatchingSection ref={continueWatchingRef} />, []);
+  const memoizedIdeaSectionMenu = useMemo(() => {
+    if (!settings.ideaMode) return null;
+
+    const sectionOptions: Array<{ key: IdeaHomeSection; label: string }> = [
+      { key: 'forYou', label: 'For You' },
+      { key: 'movie', label: 'Movies' },
+      { key: 'series', label: 'Series' },
+    ];
+
+    return (
+      <View style={styles.ideaSectionMenuWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.ideaSectionMenuScroll}
+        >
+          {sectionOptions.map((section) => {
+            const isActive = ideaHomeSection === section.key;
+            return (
+              <TouchableOpacity
+                key={section.key}
+                activeOpacity={0.85}
+                onPress={() => setIdeaHomeSection(section.key)}
+                style={[
+                  styles.ideaSectionPill,
+                  {
+                    backgroundColor: isActive ? `${currentTheme.colors.primary}26` : 'rgba(255,255,255,0.05)',
+                    borderColor: isActive ? `${currentTheme.colors.primary}55` : 'rgba(255,255,255,0.08)',
+                  }
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.ideaSectionPillText,
+                    {
+                      color: isActive ? currentTheme.colors.primary : currentTheme.colors.highEmphasis,
+                      opacity: isActive ? 1 : 0.78,
+                    }
+                  ]}
+                >
+                  {section.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+    );
+  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis]);
   const memoizedHeader = useMemo(() => (
     <>
       {showHeroSection ? memoizedFeaturedContent : null}
-      {memoizedContinueWatchingSection}
+      {memoizedIdeaSectionMenu}
+      {(!settings.ideaMode || ideaHomeSection === 'forYou') ? memoizedContinueWatchingSection : null}
     </>
-  ), [showHeroSection, memoizedFeaturedContent, memoizedContinueWatchingSection]);
+  ), [showHeroSection, memoizedFeaturedContent, memoizedIdeaSectionMenu, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection]);
   // Track scroll direction manually for reliable behavior across platforms
   const lastScrollYRef = useRef(0);
   const lastToggleRef = useRef(0);
@@ -1469,6 +1528,25 @@ const styles = StyleSheet.create<any>({
     justifyContent: 'flex-end',
     paddingHorizontal: 16,
     paddingBottom: 20,
+  },
+  ideaSectionMenuWrap: {
+    marginTop: 8,
+    marginBottom: 6,
+  },
+  ideaSectionMenuScroll: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  ideaSectionPill: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 22,
+    borderWidth: 1,
+  },
+  ideaSectionPillText: {
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 0.15,
   },
   featuredTitleText: {
     fontSize: 28,

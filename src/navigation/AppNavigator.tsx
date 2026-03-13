@@ -612,7 +612,6 @@ const MainTabs = () => {
   }, [dimensions]);
   const insets = useSafeAreaInsets();
   const isIosTablet = Platform.OS === 'ios' && isTablet;
-  const floatingTabBarReservedSpace = Platform.OS === 'ios' && !isTablet ? 84 + insets.bottom : 0;
   const [hidden, setHidden] = React.useState(HeaderVisibility.isHidden());
   React.useEffect(() => HeaderVisibility.subscribe(setHidden), []);
   const emitScrollToTop = useScrollToTopEmitter();
@@ -764,10 +763,10 @@ const MainTabs = () => {
     return (
       <View style={{
         position: 'absolute',
-        bottom: Math.max(insets.bottom, 8),
-        left: 14,
-        right: 14,
-        height: Platform.OS === 'android' ? 76 : 68,
+        bottom: Math.max(insets.bottom, 10),
+        left: 18,
+        right: 18,
+        height: Platform.OS === 'android' ? 76 : 74,
         backgroundColor: 'transparent',
         overflow: 'visible',
       }}>
@@ -776,16 +775,16 @@ const MainTabs = () => {
             position: 'absolute',
             height: '100%',
             width: '100%',
-            borderRadius: 24,
+            borderRadius: 32,
             overflow: 'hidden',
             borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.08)',
+            borderColor: 'rgba(255,255,255,0.12)',
             shadowColor: currentTheme.colors.black,
-            shadowOffset: { width: 0, height: 10 },
-            shadowOpacity: 0.3,
-            shadowRadius: 20,
-            elevation: 18,
-            backgroundColor: 'rgba(7,8,12,0.36)',
+            shadowOffset: { width: 0, height: 14 },
+            shadowOpacity: 0.34,
+            shadowRadius: 24,
+            elevation: 22,
+            backgroundColor: 'rgba(8,10,14,0.24)',
           }}
         >
           {Platform.OS === 'ios' ? (
@@ -795,7 +794,7 @@ const MainTabs = () => {
                   position: 'absolute',
                   height: '100%',
                   width: '100%',
-                  borderRadius: 24,
+                  borderRadius: 32,
                 }}
                 glassEffectStyle="clear"
               />
@@ -807,7 +806,7 @@ const MainTabs = () => {
                     position: 'absolute',
                     height: '100%',
                     width: '100%',
-                  borderRadius: 24,
+                  borderRadius: 32,
                 }}
               />
             )
@@ -820,16 +819,16 @@ const MainTabs = () => {
                   position: 'absolute',
                   height: '100%',
                   width: '100%',
-                  borderRadius: 24,
+                  borderRadius: 32,
                 }}
               />
               <LinearGradient
                 colors={[
-                  'rgba(255,255,255,0.07)',
-                  'rgba(36,40,52,0.12)',
-                  'rgba(8,10,14,0.52)',
+                  'rgba(255,255,255,0.10)',
+                  'rgba(28,34,44,0.10)',
+                  'rgba(6,8,12,0.38)',
                 ]}
-                locations={[0, 0.22, 1]}
+                locations={[0, 0.24, 1]}
                 style={{
                   position: 'absolute',
                   height: '100%',
@@ -840,26 +839,26 @@ const MainTabs = () => {
           )}
           <LinearGradient
             colors={[
-              'rgba(255,255,255,0.12)',
-              'rgba(255,255,255,0.03)',
+              'rgba(255,255,255,0.14)',
+              'rgba(255,255,255,0.035)',
               'rgba(255,255,255,0.00)',
             ]}
-            locations={[0, 0.18, 0.62]}
+            locations={[0, 0.14, 0.58]}
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               right: 0,
-              height: 24,
+              height: 18,
             }}
           />
           <LinearGradient
             colors={[
-              'rgba(255,255,255,0.02)',
+              'rgba(255,255,255,0.04)',
               'rgba(255,255,255,0.00)',
-              'rgba(0,0,0,0.16)',
+              'rgba(0,0,0,0.20)',
             ]}
-            locations={[0, 0.45, 1]}
+            locations={[0, 0.42, 1]}
             style={{
               position: 'absolute',
               inset: 0,
@@ -869,9 +868,9 @@ const MainTabs = () => {
         <View
           style={{
             height: '100%',
-            paddingBottom: Platform.OS === 'android' ? 16 : 6,
-            paddingTop: Platform.OS === 'android' ? 10 : 6,
-            paddingHorizontal: 8,
+            paddingBottom: Platform.OS === 'android' ? 16 : 8,
+            paddingTop: Platform.OS === 'android' ? 10 : 8,
+            paddingHorizontal: 10,
             justifyContent: 'center',
             backgroundColor: 'transparent',
           }}
@@ -947,18 +946,20 @@ const MainTabs = () => {
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: isFocused ? 'rgba(255,255,255,0.08)' : 'transparent',
-                    borderRadius: 20,
-                    marginHorizontal: 2,
-                    minHeight: Platform.OS === 'android' ? 52 : 52,
+                    backgroundColor: isFocused ? 'rgba(255,255,255,0.12)' : 'transparent',
+                    borderRadius: 26,
+                    marginHorizontal: 4,
+                    minHeight: Platform.OS === 'android' ? 52 : 58,
                     paddingVertical: Platform.OS === 'android' ? 4 : 0,
+                    borderWidth: isFocused ? 1 : 0,
+                    borderColor: isFocused ? 'rgba(255,255,255,0.08)' : 'transparent',
                   }}
                 >
                   <View
                     style={{
                       alignItems: 'center',
                       justifyContent: 'center',
-                      paddingTop: 1,
+                      minWidth: 58,
                     }}
                   >
                     <TabIcon
@@ -969,11 +970,11 @@ const MainTabs = () => {
                     />
                     <Text
                       style={{
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: '600',
-                        marginTop: 3,
+                        marginTop: 4,
                         color: isFocused ? currentTheme.colors.primary : currentTheme.colors.white,
-                        opacity: isFocused ? 1 : 0.7,
+                        opacity: isFocused ? 1 : 0.82,
                       }}
                     >
                       {typeof label === 'string' ? label : ''}
@@ -1033,7 +1034,6 @@ const MainTabs = () => {
           tabBarShowLabel: false,
           sceneStyle: {
             backgroundColor: currentTheme.colors.darkBackground,
-            paddingBottom: floatingTabBarReservedSpace,
           },
           tabBarStyle: {
             position: 'absolute',

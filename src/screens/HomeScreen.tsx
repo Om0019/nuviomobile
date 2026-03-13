@@ -821,7 +821,7 @@ const HomeScreen = () => {
     ],
   }));
   const ideaMenuGlowAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.18 + Math.min(scrollY.value / 900, 0.12),
+    opacity: 0.24 + Math.min(scrollY.value / 900, 0.14),
     transform: [
       { translateX: ideaMenuGlowOffset.value },
       { translateY: Math.min(scrollY.value * 0.03, 8) },
@@ -829,30 +829,38 @@ const HomeScreen = () => {
     ],
   }));
   const ideaMenuReflectionAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.16 + Math.min(scrollY.value / 1400, 0.08),
+    opacity: 0.18 + Math.min(scrollY.value / 1400, 0.1),
     transform: [{ translateY: Math.min(scrollY.value * 0.02, 6) }],
   }));
   const ideaAmbientPrimaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.22 + Math.min(scrollY.value / 1600, 0.08),
+    opacity: 0.34 + Math.min(scrollY.value / 1400, 0.14),
     transform: [
       { translateX: ideaMenuGlowOffset.value * 0.4 },
       { translateY: -24 + Math.min(scrollY.value * 0.05, 36) },
-      { scale: 1 + ideaMenuVisibilityProgress.value * 0.03 },
+      { scale: 1.06 + ideaMenuVisibilityProgress.value * 0.04 },
     ],
   }));
   const ideaAmbientSecondaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.14 + Math.min(scrollY.value / 1800, 0.06),
+    opacity: 0.24 + Math.min(scrollY.value / 1600, 0.1),
     transform: [
       { translateX: ideaMenuGlowOffset.value * -0.24 },
       { translateY: 90 + Math.min(scrollY.value * 0.04, 44) },
-      { scale: 1 + ideaMenuVisibilityProgress.value * 0.02 },
+      { scale: 1.04 + ideaMenuVisibilityProgress.value * 0.03 },
+    ],
+  }));
+  const ideaAmbientTertiaryAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: 0.12 + Math.min(scrollY.value / 1500, 0.08),
+    transform: [
+      { translateX: ideaMenuGlowOffset.value * 0.16 },
+      { translateY: 420 + Math.min(scrollY.value * 0.06, 60) },
+      { scale: 1.02 + ideaMenuVisibilityProgress.value * 0.02 },
     ],
   }));
   const ideaAmbientPalette = useMemo(() => {
-    const palettes: Record<IdeaHomeSection, [string, string]> = {
-      forYou: ['rgba(56,189,248,0.22)', 'rgba(59,130,246,0.12)'],
-      movie: ['rgba(249,115,22,0.22)', 'rgba(239,68,68,0.12)'],
-      series: ['rgba(16,185,129,0.22)', 'rgba(34,197,94,0.12)'],
+    const palettes: Record<IdeaHomeSection, [string, string, string]> = {
+      forYou: ['rgba(56,189,248,0.34)', 'rgba(59,130,246,0.22)', 'rgba(168,85,247,0.16)'],
+      movie: ['rgba(249,115,22,0.34)', 'rgba(239,68,68,0.22)', 'rgba(245,158,11,0.14)'],
+      series: ['rgba(16,185,129,0.34)', 'rgba(34,197,94,0.22)', 'rgba(45,212,191,0.14)'],
     };
 
     return palettes[ideaHomeSection];
@@ -877,14 +885,19 @@ const HomeScreen = () => {
           ) : (
             <BlurView
               tint="dark"
-              intensity={28}
+              intensity={72}
               style={StyleSheet.absoluteFillObject}
             />
           )}
           <LinearGradient
-            colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.02)', 'rgba(0,0,0,0.05)']}
-            locations={[0, 0.28, 1]}
+            colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.018)', 'rgba(255,255,255,0.00)']}
+            locations={[0, 0.14, 0.58]}
             style={styles.ideaSectionGlassOverlay}
+          />
+          <LinearGradient
+            colors={['rgba(255,255,255,0.015)', 'rgba(255,255,255,0.00)', 'rgba(0,0,0,0.10)']}
+            locations={[0, 0.42, 1]}
+            style={styles.ideaSectionGlassDepthOverlay}
           />
           <Animated.View style={[styles.ideaSectionReflectionWrap, ideaMenuReflectionAnimatedStyle]}>
             <LinearGradient
@@ -949,10 +962,10 @@ const HomeScreen = () => {
     HeaderVisibility.setHidden(hide);
   }, []);
 
-  const syncIdeaMenuWithScroll = useCallback((y: number) => {
+  const syncIdeaMenuWithScroll = useCallback((y: number, dy: number) => {
     if (!settings.ideaMode) return;
 
-    const shouldShow = y <= 24;
+    const shouldShow = y <= 20 || dy < -4;
     setIdeaMenuVisible((prev) => {
       if (prev === shouldShow) return prev;
       ideaMenuVisibilityProgress.value = withTiming(shouldShow ? 1 : 0, { duration: 220 });
@@ -1058,7 +1071,7 @@ const HomeScreen = () => {
       const y = scrollYValue;
       const dy = y - lastScrollYRef.current;
       lastScrollYRef.current = y;
-      syncIdeaMenuWithScroll(y);
+      syncIdeaMenuWithScroll(y, dy);
 
       isScrollingRef.current = Math.abs(dy) > 0;
 
@@ -1075,7 +1088,7 @@ const HomeScreen = () => {
 
       scrollAnimationFrameRef.current = null;
     });
-  }, [toggleHeader]);
+  }, [toggleHeader, syncIdeaMenuWithScroll, scrollY]);
 
   // Memoize content container style - use stable insets to prevent iOS shifting
   // Don't add paddingTop when using AppleTVHero as it handles its own top spacing
@@ -1103,16 +1116,28 @@ const HomeScreen = () => {
         />
         {settings.ideaMode && (
           <View pointerEvents="none" style={styles.ideaAmbientBackground}>
+            <LinearGradient
+              colors={['rgba(18,22,34,0.18)', 'rgba(8,10,16,0.42)', currentTheme.colors.darkBackground]}
+              locations={[0, 0.36, 1]}
+              style={styles.ideaAmbientBaseGradient}
+            />
             <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobPrimary, ideaAmbientPrimaryAnimatedStyle]}>
               <LinearGradient
-                colors={[ideaAmbientPalette[0], 'rgba(255,255,255,0.02)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.45, 1]}
+                colors={[ideaAmbientPalette[0], 'rgba(255,255,255,0.035)', 'rgba(0,0,0,0)']}
+                locations={[0, 0.5, 1]}
                 style={styles.ideaAmbientGradient}
               />
             </Animated.View>
             <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobSecondary, ideaAmbientSecondaryAnimatedStyle]}>
               <LinearGradient
-                colors={[ideaAmbientPalette[1], 'rgba(255,255,255,0.015)', 'rgba(0,0,0,0)']}
+                colors={[ideaAmbientPalette[1], 'rgba(255,255,255,0.02)', 'rgba(0,0,0,0)']}
+                locations={[0, 0.52, 1]}
+                style={styles.ideaAmbientGradient}
+              />
+            </Animated.View>
+            <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobTertiary, ideaAmbientTertiaryAnimatedStyle]}>
+              <LinearGradient
+                colors={[ideaAmbientPalette[2], 'rgba(255,255,255,0.016)', 'rgba(0,0,0,0)']}
                 locations={[0, 0.5, 1]}
                 style={styles.ideaAmbientGradient}
               />
@@ -1150,6 +1175,7 @@ const HomeScreen = () => {
     memoizedIdeaSectionMenu,
     ideaAmbientPrimaryAnimatedStyle,
     ideaAmbientSecondaryAnimatedStyle,
+    ideaAmbientTertiaryAnimatedStyle,
     ideaAmbientPalette,
     ListFooterComponent,
     handleLoadMoreCatalogs,
@@ -1206,6 +1232,9 @@ const styles = StyleSheet.create<any>({
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
   },
+  ideaAmbientBaseGradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
   ideaAmbientBlob: {
     position: 'absolute',
     borderRadius: 999,
@@ -1222,6 +1251,12 @@ const styles = StyleSheet.create<any>({
     right: -110,
     width: 300,
     height: 300,
+  },
+  ideaAmbientBlobTertiary: {
+    top: 420,
+    left: width * 0.18,
+    width: 360,
+    height: 240,
   },
   ideaAmbientGradient: {
     flex: 1,
@@ -1700,11 +1735,25 @@ const styles = StyleSheet.create<any>({
   ideaSectionGlassShell: {
     borderRadius: 26,
     overflow: 'hidden',
-    backgroundColor: 'rgba(12,15,22,0.08)',
+    backgroundColor: 'rgba(6,8,12,0.14)',
     paddingHorizontal: 10,
     paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.26,
+    shadowRadius: 24,
+    elevation: 22,
   },
   ideaSectionGlassOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 18,
+  },
+  ideaSectionGlassDepthOverlay: {
     ...StyleSheet.absoluteFillObject,
   },
   ideaSectionReflectionWrap: {
@@ -1725,7 +1774,7 @@ const styles = StyleSheet.create<any>({
     width: 116,
     height: 58,
     borderRadius: 999,
-    opacity: 0.24,
+    opacity: 0.3,
   },
   ideaSectionGlowSecondary: {
     position: 'absolute',
@@ -1734,8 +1783,8 @@ const styles = StyleSheet.create<any>({
     width: 128,
     height: 42,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    opacity: 0.22,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    opacity: 0.28,
   },
   ideaSectionMenuRow: {
     flexDirection: 'row',
@@ -1747,6 +1796,8 @@ const styles = StyleSheet.create<any>({
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
   ideaSectionPillText: {
     fontSize: 15,

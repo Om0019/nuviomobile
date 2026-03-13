@@ -81,7 +81,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
   );
 
   const stackOverlap = useMemo(
-    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.5) : 0),
+    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.18) : 0),
     [isIdeaMode, isTablet, cardWidth]
   );
   const interval = useMemo(
@@ -93,8 +93,12 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
     [isIdeaMode, isTablet, topOverlayOffset]
   );
   const cardTopOffset = useMemo(
-    () => (isIdeaMode && !isTablet ? 28 : 0),
+    () => (isIdeaMode && !isTablet ? 20 : 0),
     [isIdeaMode, isTablet, heroTopBleed]
+  );
+  const cardBottomOverflowSpace = useMemo(
+    () => (isIdeaMode && !isTablet ? 40 : 0),
+    [isIdeaMode, isTablet]
   );
 
   // Reduce top padding on phones while keeping tablets unchanged
@@ -287,7 +291,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
           }
         ] as StyleProp<ViewStyle>}
       >
-        <View style={{ height: cardHeight, paddingTop: cardTopOffset }}>
+        <View style={{ height: cardHeight + cardTopOffset + cardBottomOverflowSpace, paddingTop: cardTopOffset }}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -405,7 +409,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
             pointerEvents="none"
           />
         )}
-        <View style={{ paddingTop: cardTopOffset }}>
+        <View style={{ paddingTop: cardTopOffset, paddingBottom: cardBottomOverflowSpace, minHeight: cardHeight + cardTopOffset + cardBottomOverflowSpace }}>
           <Animated.ScrollView
             ref={scrollViewRef}
             horizontal
@@ -762,12 +766,12 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
         transform: isTablet || !isIdeaMode
           ? [{ scale: 0.95 }]
           : [
-              { translateX: direction * 10 },
-              { translateY: 26 },
-              { scale: 0.84 },
-              { rotateZ: `${direction * 4.5}deg` },
+              { translateX: direction * 22 },
+              { translateY: 14 },
+              { scale: 0.9 },
+              { rotateZ: `${direction * 1.5}deg` },
             ],
-        opacity: isTablet ? 0.85 : 0.78,
+        opacity: isTablet ? 0.85 : 0.72,
         zIndex: 0,
       };
     }
@@ -775,15 +779,15 @@ const CarouselCard: React.FC<CarouselCardProps> = memo(({ item, colors, logoFail
     const maxDistance = interval;
 
     // Scale animation based on distance from center
-    const scale = isTablet || !isIdeaMode ? 1 - (distance / maxDistance) * 0.1 : 1 - (distance / maxDistance) * 0.14;
-    const clampedScale = Math.max(isTablet || !isIdeaMode ? 0.95 : 0.84, Math.min(1, scale));
+    const scale = isTablet || !isIdeaMode ? 1 - (distance / maxDistance) * 0.1 : 1 - (distance / maxDistance) * 0.09;
+    const clampedScale = Math.max(isTablet || !isIdeaMode ? 0.95 : 0.9, Math.min(1, scale));
 
     // Opacity animation for cards that are far from center
-    const opacity = 1 - (distance / maxDistance) * (isTablet || !isIdeaMode ? 0.3 : 0.18);
-    const clampedOpacity = Math.max(isTablet || !isIdeaMode ? 0.85 : 0.8, Math.min(1, opacity));
-    const translateCardX = isTablet || !isIdeaMode ? 0 : direction * Math.min(10, (distance / maxDistance) * 10);
-    const translateCardY = isTablet || !isIdeaMode ? 0 : 8 + Math.min(24, (distance / maxDistance) * 24);
-    const rotate = isTablet || !isIdeaMode ? 0 : direction * Math.min(3.5, (distance / maxDistance) * 3.5);
+    const opacity = 1 - (distance / maxDistance) * (isTablet || !isIdeaMode ? 0.3 : 0.26);
+    const clampedOpacity = Math.max(isTablet || !isIdeaMode ? 0.85 : 0.68, Math.min(1, opacity));
+    const translateCardX = isTablet || !isIdeaMode ? 0 : direction * Math.min(22, (distance / maxDistance) * 22);
+    const translateCardY = isTablet || !isIdeaMode ? 0 : 4 + Math.min(12, (distance / maxDistance) * 12);
+    const rotate = isTablet || !isIdeaMode ? 0 : direction * Math.min(1.5, (distance / maxDistance) * 1.5);
 
     return {
       transform: isTablet || !isIdeaMode

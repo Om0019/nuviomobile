@@ -763,61 +763,102 @@ const MainTabs = () => {
     return (
       <View style={{
         position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: Platform.OS === 'android' ? 70 : 85 + insets.bottom,
+        bottom: Math.max(insets.bottom, 10),
+        left: 14,
+        right: 14,
+        height: Platform.OS === 'android' ? 76 : 85 + insets.bottom,
         backgroundColor: 'transparent',
-        overflow: 'hidden',
+        overflow: 'visible',
       }}>
-        {Platform.OS === 'ios' ? (
-          GlassViewComp && liquidGlassAvailable ? (
-            <GlassViewComp
-              style={{
-                position: 'absolute',
-                height: '100%',
-                width: '100%',
-              }}
-              glassEffectStyle="clear"
-            />
+        <View
+          style={{
+            position: 'absolute',
+            height: '100%',
+            width: '100%',
+            borderRadius: 28,
+            overflow: 'hidden',
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.10)',
+            shadowColor: currentTheme.colors.black,
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.22,
+            shadowRadius: 20,
+            elevation: 18,
+            backgroundColor: 'rgba(12,12,16,0.45)',
+          }}
+        >
+          {Platform.OS === 'ios' ? (
+            GlassViewComp && liquidGlassAvailable ? (
+              <GlassViewComp
+                style={{
+                  position: 'absolute',
+                  height: '100%',
+                  width: '100%',
+                  borderRadius: 28,
+                }}
+                glassEffectStyle="clear"
+              />
+            ) : (
+              <BlurView
+                tint="dark"
+                intensity={90}
+                style={{
+                  position: 'absolute',
+                  height: '100%',
+                  width: '100%',
+                  borderRadius: 28,
+                }}
+              />
+            )
           ) : (
-            <BlurView
-              tint="dark"
-              intensity={75}
-              style={{
-                position: 'absolute',
-                height: '100%',
-                width: '100%',
-                borderTopColor: currentTheme.colors.border,
-                borderTopWidth: 0.5,
-                shadowColor: currentTheme.colors.black,
-                shadowOffset: { width: 0, height: -2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 3,
-              }}
-            />
-          )
-        ) : (
+            <>
+              <BlurView
+                tint="dark"
+                intensity={70}
+                style={{
+                  position: 'absolute',
+                  height: '100%',
+                  width: '100%',
+                  borderRadius: 28,
+                }}
+              />
+              <LinearGradient
+                colors={[
+                  'rgba(255,255,255,0.10)',
+                  'rgba(32,32,40,0.26)',
+                  'rgba(10,10,14,0.66)',
+                ]}
+                locations={[0, 0.18, 1]}
+                style={{
+                  position: 'absolute',
+                  height: '100%',
+                  width: '100%',
+                }}
+              />
+            </>
+          )}
           <LinearGradient
             colors={[
-              'rgba(0, 0, 0, 0)',
-              'rgba(0, 0, 0, 0.65)',
-              'rgba(0, 0, 0, 0.85)',
-              'rgba(0, 0, 0, 0.98)',
+              'rgba(255,255,255,0.16)',
+              'rgba(255,255,255,0.03)',
+              'rgba(255,255,255,0.00)',
             ]}
-            locations={[0, 0.2, 0.4, 0.8]}
+            locations={[0, 0.14, 0.55]}
             style={{
               position: 'absolute',
-              height: '100%',
-              width: '100%',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 22,
             }}
           />
-        )}
+        </View>
         <View
           style={{
             height: '100%',
-            paddingBottom: Platform.OS === 'android' ? 15 : 20 + insets.bottom,
-            paddingTop: Platform.OS === 'android' ? 8 : 12,
+            paddingBottom: Platform.OS === 'android' ? 16 : 20 + insets.bottom,
+            paddingTop: Platform.OS === 'android' ? 10 : 12,
+            paddingHorizontal: 8,
             backgroundColor: 'transparent',
           }}
         >
@@ -892,7 +933,10 @@ const MainTabs = () => {
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: 'transparent',
+                    backgroundColor: isFocused ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    borderRadius: 20,
+                    marginHorizontal: 2,
+                    paddingVertical: 4,
                   }}
                 >
                   <TabIcon
@@ -920,128 +964,6 @@ const MainTabs = () => {
       </View>
     );
   };
-
-  // iOS: Use native bottom tabs (@bottom-tabs/react-navigation)
-  if (Platform.OS === 'ios') {
-    // Dynamically require to avoid impacting Android bundle
-    const { createNativeBottomTabNavigator } = require('@bottom-tabs/react-navigation');
-    const IOSTab = createNativeBottomTabNavigator();
-    const downloadsEnabled = appSettings?.enableDownloads !== false;
-
-    return (
-      <View style={{ flex: 1, backgroundColor: currentTheme.colors.darkBackground }}>
-        <StatusBar
-          translucent
-          barStyle="light-content"
-          backgroundColor="transparent"
-        />
-        <IOSTab.Navigator
-          key={`ios-tabs-${downloadsEnabled ? 'with-dl' : 'no-dl'}`}
-          initialRouteName="Home"
-          // Native tab bar handles its own visuals; keep options minimal
-          screenOptions={{
-            headerShown: false,
-            tabBarActiveTintColor: currentTheme.colors.primary,
-            tabBarInactiveTintColor: currentTheme.colors.white,
-            translucent: true,
-            // Prefer native lazy/freeze when available; still pass for parity
-            lazy: true,
-            freezeOnBlur: true,
-          }}
-        >
-          <IOSTab.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              title: t('navigation.home'),
-              tabBarIcon: () => ({ sfSymbol: 'house' }),
-              freezeOnBlur: true,
-            }}
-            listeners={({ navigation }: { navigation: any }) => ({
-              tabPress: (e: any) => {
-                if (navigation.isFocused()) {
-                  emitScrollToTop('Home');
-                }
-              },
-            })}
-          />
-          <IOSTab.Screen
-            name="Library"
-            component={LibraryScreen}
-            options={{
-              title: t('navigation.library'),
-              tabBarIcon: () => ({ sfSymbol: 'heart' }),
-            }}
-            listeners={({ navigation }: { navigation: any }) => ({
-              tabPress: (e: any) => {
-                if (navigation.isFocused()) {
-                  emitScrollToTop('Library');
-                }
-              },
-            })}
-          />
-          <IOSTab.Screen
-            name="Search"
-            component={SearchScreen}
-            options={{
-              title: t('navigation.search'),
-              tabBarIcon: () => ({ sfSymbol: 'magnifyingglass' }),
-            }}
-            listeners={({ navigation }: { navigation: any }) => ({
-              tabPress: (e: any) => {
-                const now = Date.now();
-                const DOUBLE_TAP_DELAY = 300;
-                const lastTap = lastTapRef.current['Search'] || 0;
-                const isDoubleTap = (now - lastTap) < DOUBLE_TAP_DELAY;
-
-                lastTapRef.current['Search'] = now;
-
-                if (navigation.isFocused()) {
-                  if (isDoubleTap) {
-                    DeviceEventEmitter.emit('FOCUS_SEARCH_INPUT');
-                  } else {
-                    emitScrollToTop('Search');
-                  }
-                }
-              },
-            })}
-          />
-          {downloadsEnabled && (
-            <IOSTab.Screen
-              name="Downloads"
-              component={DownloadsScreen}
-              options={{
-                title: t('navigation.downloads'),
-                tabBarIcon: () => ({ sfSymbol: 'arrow.down.circle' }),
-              }}
-              listeners={({ navigation }: { navigation: any }) => ({
-                tabPress: (e: any) => {
-                  if (navigation.isFocused()) {
-                    emitScrollToTop('Downloads');
-                  }
-                },
-              })}
-            />
-          )}
-          <IOSTab.Screen
-            name="Settings"
-            component={SettingsScreen}
-            options={{
-              title: t('navigation.settings'),
-              tabBarIcon: () => ({ sfSymbol: 'gear' }),
-            }}
-            listeners={({ navigation }: { navigation: any }) => ({
-              tabPress: (e: any) => {
-                if (navigation.isFocused()) {
-                  emitScrollToTop('Settings');
-                }
-              },
-            })}
-          />
-        </IOSTab.Navigator>
-      </View>
-    );
-  }
 
   return (
     <View style={{ flex: 1, backgroundColor: currentTheme.colors.darkBackground }}>

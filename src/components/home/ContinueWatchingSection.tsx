@@ -1924,17 +1924,31 @@ const ContinueWatchingSection = React.forwardRef<ContinueWatchingRef>((props, re
 
   // Compute poster dimensions for poster-style cards
   const computedPosterWidth = useMemo(() => {
+    const sizeOffset = (() => {
+      switch (settings.posterSize) {
+        case 'small':
+          return -10;
+        case 'large':
+          return 18;
+        case 'xlarge':
+          return 32;
+        case 'medium':
+        default:
+          return 0;
+      }
+    })();
+
     switch (deviceType) {
       case 'tv':
-        return 180;
+        return 180 + sizeOffset;
       case 'largeTablet':
-        return 160;
+        return 160 + sizeOffset;
       case 'tablet':
-        return 140;
+        return 140 + sizeOffset;
       default:
-        return 120;
+        return 120 + sizeOffset;
     }
-  }, [deviceType]);
+  }, [deviceType, settings.posterSize]);
 
   const computedPosterHeight = useMemo(() => {
     return computedPosterWidth * 1.5; // 2:3 aspect ratio
@@ -2068,7 +2082,9 @@ const ContinueWatchingSection = React.forwardRef<ContinueWatchingRef>((props, re
       <View style={[
         styles.posterContainer,
         {
-          width: isTV ? 100 : isLargeTablet ? 90 : isTablet ? 85 : 80
+          width:
+            (isTV ? 100 : isLargeTablet ? 90 : isTablet ? 85 : 80) +
+            (settings.posterSize === 'xlarge' ? 18 : settings.posterSize === 'large' ? 10 : settings.posterSize === 'small' ? -6 : 0)
         }
       ]}>
         <FastImage
@@ -2209,7 +2225,7 @@ const ContinueWatchingSection = React.forwardRef<ContinueWatchingRef>((props, re
       </View>
     </TouchableOpacity>
     );
-  }, [currentTheme.colors, handleContentPress, handleLongPress, deletingItemId, computedItemWidth, computedItemHeight, isTV, isLargeTablet, isTablet, settings.posterBorderRadius, t]);
+  }, [currentTheme.colors, handleContentPress, handleLongPress, deletingItemId, computedItemWidth, computedItemHeight, isTV, isLargeTablet, isTablet, settings.posterBorderRadius, settings.posterSize, t]);
 
   // Choose the appropriate render function based on settings
   const renderContinueWatchingItem = useCallback(({ item }: { item: ContinueWatchingItem }) => {
@@ -2420,8 +2436,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 1,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.15)',
   },
   posterContainer: {
     width: 80,

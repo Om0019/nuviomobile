@@ -32,7 +32,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import FastImage from '@d11/react-native-fast-image';
-import Animated, { FadeIn, Layout, useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { FadeIn, Layout, useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, withTiming, interpolateColor } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import {
   Gesture,
@@ -833,37 +833,73 @@ const HomeScreen = () => {
     transform: [{ translateY: Math.min(scrollY.value * 0.02, 6) }],
   }));
   const ideaAmbientPrimaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.34 + Math.min(scrollY.value / 1400, 0.14),
+    opacity: 0.5 + Math.min(scrollY.value / 1200, 0.18),
     transform: [
       { translateX: ideaMenuGlowOffset.value * 0.4 },
-      { translateY: -24 + Math.min(scrollY.value * 0.05, 36) },
-      { scale: 1.06 + ideaMenuVisibilityProgress.value * 0.04 },
+      { translateY: -34 + Math.min(scrollY.value * 0.06, 42) },
+      { scale: 1.12 + ideaMenuVisibilityProgress.value * 0.05 },
     ],
   }));
   const ideaAmbientSecondaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.24 + Math.min(scrollY.value / 1600, 0.1),
+    opacity: 0.34 + Math.min(scrollY.value / 1400, 0.12),
     transform: [
       { translateX: ideaMenuGlowOffset.value * -0.24 },
-      { translateY: 90 + Math.min(scrollY.value * 0.04, 44) },
-      { scale: 1.04 + ideaMenuVisibilityProgress.value * 0.03 },
+      { translateY: 72 + Math.min(scrollY.value * 0.05, 56) },
+      { scale: 1.1 + ideaMenuVisibilityProgress.value * 0.04 },
     ],
   }));
   const ideaAmbientTertiaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.12 + Math.min(scrollY.value / 1500, 0.08),
+    opacity: 0.24 + Math.min(scrollY.value / 1300, 0.1),
     transform: [
       { translateX: ideaMenuGlowOffset.value * 0.16 },
-      { translateY: 420 + Math.min(scrollY.value * 0.06, 60) },
-      { scale: 1.02 + ideaMenuVisibilityProgress.value * 0.02 },
+      { translateY: 360 + Math.min(scrollY.value * 0.06, 70) },
+      { scale: 1.08 + ideaMenuVisibilityProgress.value * 0.03 },
     ],
   }));
+  const ideaAmbientToneAnimatedStyle = useAnimatedStyle(() => {
+    const scrollPhase = Math.min(scrollY.value, 900);
+    const palettes: Record<IdeaHomeSection, [string, string, string]> = {
+      forYou: ['#08111A', '#0A1C2B', '#13283A'],
+      movie: ['#120B09', '#24110D', '#321712'],
+      series: ['#07120F', '#0B2018', '#133126'],
+    };
+    const [toneA, toneB, toneC] = palettes[ideaHomeSection];
+
+    return {
+      backgroundColor: interpolateColor(
+        scrollPhase,
+        [0, 360, 900],
+        [toneA, toneB, toneC]
+      ),
+    };
+  });
+  const ideaAmbientHighlightAnimatedStyle = useAnimatedStyle(() => {
+    const highlightPhase = Math.min(scrollY.value, 1200);
+    return {
+      opacity: 0.3 + Math.min(scrollY.value / 1000, 0.18),
+      transform: [
+        { translateY: -40 + Math.min(highlightPhase * 0.08, 90) },
+        { scale: 1.06 + Math.min(highlightPhase / 2400, 0.06) },
+      ],
+    };
+  });
   const ideaAmbientPalette = useMemo(() => {
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
-      forYou: ['rgba(56,189,248,0.34)', 'rgba(59,130,246,0.22)', 'rgba(168,85,247,0.16)'],
-      movie: ['rgba(249,115,22,0.34)', 'rgba(239,68,68,0.22)', 'rgba(245,158,11,0.14)'],
-      series: ['rgba(16,185,129,0.34)', 'rgba(34,197,94,0.22)', 'rgba(45,212,191,0.14)'],
+      forYou: ['rgba(56,189,248,0.56)', 'rgba(59,130,246,0.34)', 'rgba(168,85,247,0.24)'],
+      movie: ['rgba(249,115,22,0.56)', 'rgba(239,68,68,0.34)', 'rgba(245,158,11,0.24)'],
+      series: ['rgba(16,185,129,0.56)', 'rgba(34,197,94,0.34)', 'rgba(45,212,191,0.24)'],
     };
 
     return palettes[ideaHomeSection];
+  }, [ideaHomeSection]);
+  const ideaBackgroundColor = useMemo(() => {
+    const backgroundBySection: Record<IdeaHomeSection, string> = {
+      forYou: '#071521',
+      movie: '#1a0d0a',
+      series: '#071813',
+    };
+
+    return backgroundBySection[ideaHomeSection];
   }, [ideaHomeSection]);
   const memoizedIdeaSectionMenu = useMemo(() => {
     if (!settings.ideaMode) return null;
@@ -952,6 +988,7 @@ const HomeScreen = () => {
   // Track scroll direction manually for reliable behavior across platforms
   const lastScrollYRef = useRef(0);
   const lastToggleRef = useRef(0);
+  const lastIdeaMenuRevealAtRef = useRef(settings.ideaMode ? Date.now() : 0);
   const scrollAnimationFrameRef = useRef<number | null>(null);
   const isScrollingRef = useRef(false);
 
@@ -965,7 +1002,16 @@ const HomeScreen = () => {
   const syncIdeaMenuWithScroll = useCallback((y: number, dy: number) => {
     if (!settings.ideaMode) return;
 
-    const shouldShow = y <= 20 || dy < -4;
+    const now = Date.now();
+    const isNearTop = y <= 20;
+    const isScrollingUp = dy < -4;
+    const hideGracePeriodMs = 900;
+
+    if (isNearTop || isScrollingUp) {
+      lastIdeaMenuRevealAtRef.current = now;
+    }
+
+    const shouldShow = isNearTop || isScrollingUp || (now - lastIdeaMenuRevealAtRef.current) < hideGracePeriodMs;
     setIdeaMenuVisible((prev) => {
       if (prev === shouldShow) return prev;
       ideaMenuVisibilityProgress.value = withTiming(shouldShow ? 1 : 0, { duration: 220 });
@@ -1108,7 +1154,7 @@ const HomeScreen = () => {
     if (isLoading) return null;
 
     return (
-      <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+      <View style={[styles.container, { backgroundColor: settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground }]}>
         <StatusBar
           barStyle="light-content"
           backgroundColor="transparent"
@@ -1116,29 +1162,37 @@ const HomeScreen = () => {
         />
         {settings.ideaMode && (
           <View pointerEvents="none" style={styles.ideaAmbientBackground}>
+            <Animated.View style={[styles.ideaAmbientToneLayer, ideaAmbientToneAnimatedStyle]} />
             <LinearGradient
-              colors={['rgba(18,22,34,0.18)', 'rgba(8,10,16,0.42)', currentTheme.colors.darkBackground]}
-              locations={[0, 0.36, 1]}
+              colors={['rgba(34,42,64,0.54)', 'rgba(18,22,32,0.58)', settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground]}
+              locations={[0, 0.42, 1]}
               style={styles.ideaAmbientBaseGradient}
             />
+            <Animated.View style={[styles.ideaAmbientHighlightWrap, ideaAmbientHighlightAnimatedStyle]}>
+              <LinearGradient
+                colors={['rgba(255,255,255,0.045)', ideaAmbientPalette[0], 'rgba(0,0,0,0)']}
+                locations={[0, 0.42, 1]}
+                style={styles.ideaAmbientHighlightGradient}
+              />
+            </Animated.View>
             <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobPrimary, ideaAmbientPrimaryAnimatedStyle]}>
               <LinearGradient
-                colors={[ideaAmbientPalette[0], 'rgba(255,255,255,0.035)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.5, 1]}
+                colors={[ideaAmbientPalette[0], 'rgba(255,255,255,0.06)', 'rgba(0,0,0,0)']}
+                locations={[0, 0.58, 1]}
                 style={styles.ideaAmbientGradient}
               />
             </Animated.View>
             <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobSecondary, ideaAmbientSecondaryAnimatedStyle]}>
               <LinearGradient
-                colors={[ideaAmbientPalette[1], 'rgba(255,255,255,0.02)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.52, 1]}
+                colors={[ideaAmbientPalette[1], 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0)']}
+                locations={[0, 0.56, 1]}
                 style={styles.ideaAmbientGradient}
               />
             </Animated.View>
             <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobTertiary, ideaAmbientTertiaryAnimatedStyle]}>
               <LinearGradient
-                colors={[ideaAmbientPalette[2], 'rgba(255,255,255,0.016)', 'rgba(0,0,0,0)']}
-                locations={[0, 0.5, 1]}
+                colors={[ideaAmbientPalette[2], 'rgba(255,255,255,0.026)', 'rgba(0,0,0,0)']}
+                locations={[0, 0.56, 1]}
                 style={styles.ideaAmbientGradient}
               />
             </Animated.View>
@@ -1165,6 +1219,7 @@ const HomeScreen = () => {
     );
   }, [
     isLoading,
+    ideaBackgroundColor,
     currentTheme.colors.darkBackground,
     settings.ideaMode,
     listData,
@@ -1173,6 +1228,8 @@ const HomeScreen = () => {
     contentContainerStyle,
     memoizedHeader,
     memoizedIdeaSectionMenu,
+    ideaAmbientToneAnimatedStyle,
+    ideaAmbientHighlightAnimatedStyle,
     ideaAmbientPrimaryAnimatedStyle,
     ideaAmbientSecondaryAnimatedStyle,
     ideaAmbientTertiaryAnimatedStyle,
@@ -1232,8 +1289,23 @@ const styles = StyleSheet.create<any>({
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
   },
+  ideaAmbientToneLayer: {
+    ...StyleSheet.absoluteFillObject,
+  },
   ideaAmbientBaseGradient: {
     ...StyleSheet.absoluteFillObject,
+  },
+  ideaAmbientHighlightWrap: {
+    position: 'absolute',
+    top: -120,
+    left: -40,
+    right: -40,
+    height: 420,
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  ideaAmbientHighlightGradient: {
+    flex: 1,
   },
   ideaAmbientBlob: {
     position: 'absolute',
@@ -1241,22 +1313,22 @@ const styles = StyleSheet.create<any>({
     overflow: 'hidden',
   },
   ideaAmbientBlobPrimary: {
-    top: -120,
-    left: -70,
-    width: 320,
-    height: 320,
+    top: -150,
+    left: -90,
+    width: 430,
+    height: 430,
   },
   ideaAmbientBlobSecondary: {
-    top: 240,
-    right: -110,
-    width: 300,
-    height: 300,
+    top: 180,
+    right: -130,
+    width: 390,
+    height: 390,
   },
   ideaAmbientBlobTertiary: {
-    top: 420,
-    left: width * 0.18,
-    width: 360,
-    height: 240,
+    top: 360,
+    left: width * 0.04,
+    width: 420,
+    height: 300,
   },
   ideaAmbientGradient: {
     flex: 1,

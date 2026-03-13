@@ -778,13 +778,13 @@ const MainTabs = () => {
             borderRadius: 32,
             overflow: 'hidden',
             borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.12)',
+            borderColor: 'rgba(255,255,255,0.10)',
             shadowColor: currentTheme.colors.black,
             shadowOffset: { width: 0, height: 14 },
-            shadowOpacity: 0.34,
+            shadowOpacity: 0.26,
             shadowRadius: 24,
             elevation: 22,
-            backgroundColor: 'rgba(8,10,14,0.24)',
+            backgroundColor: 'rgba(6,8,12,0.14)',
           }}
         >
           {Platform.OS === 'ios' ? (
@@ -801,7 +801,7 @@ const MainTabs = () => {
             ) : (
                 <BlurView
                   tint="dark"
-                  intensity={100}
+                  intensity={72}
                   style={{
                     position: 'absolute',
                     height: '100%',
@@ -824,9 +824,9 @@ const MainTabs = () => {
               />
               <LinearGradient
                 colors={[
-                  'rgba(255,255,255,0.10)',
-                  'rgba(28,34,44,0.10)',
-                  'rgba(6,8,12,0.38)',
+                  'rgba(255,255,255,0.06)',
+                  'rgba(20,26,36,0.06)',
+                  'rgba(4,6,10,0.18)',
                 ]}
                 locations={[0, 0.24, 1]}
                 style={{
@@ -839,8 +839,8 @@ const MainTabs = () => {
           )}
           <LinearGradient
             colors={[
-              'rgba(255,255,255,0.14)',
-              'rgba(255,255,255,0.035)',
+              'rgba(255,255,255,0.08)',
+              'rgba(255,255,255,0.018)',
               'rgba(255,255,255,0.00)',
             ]}
             locations={[0, 0.14, 0.58]}
@@ -854,9 +854,9 @@ const MainTabs = () => {
           />
           <LinearGradient
             colors={[
-              'rgba(255,255,255,0.04)',
+              'rgba(255,255,255,0.015)',
               'rgba(255,255,255,0.00)',
-              'rgba(0,0,0,0.20)',
+              'rgba(0,0,0,0.10)',
             ]}
             locations={[0, 0.42, 1]}
             style={{
@@ -946,13 +946,13 @@ const MainTabs = () => {
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: isFocused ? 'rgba(255,255,255,0.12)' : 'transparent',
+                    backgroundColor: isFocused ? 'rgba(255,255,255,0.10)' : 'transparent',
                     borderRadius: 26,
                     marginHorizontal: 4,
                     minHeight: Platform.OS === 'android' ? 52 : 58,
                     paddingVertical: Platform.OS === 'android' ? 4 : 0,
                     borderWidth: isFocused ? 1 : 0,
-                    borderColor: isFocused ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    borderColor: isFocused ? 'rgba(255,255,255,0.06)' : 'transparent',
                   }}
                 >
                   <View

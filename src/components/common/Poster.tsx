@@ -140,6 +140,7 @@ export const Poster: React.FC<PosterProps> = ({
                             width: posterWidth,
                             aspectRatio,
                             borderRadius,
+                            marginBottom: showTitle ? 8 : 0,
                             backgroundColor: currentTheme.colors.elevation1,
                         },
                         posterStyle,
@@ -155,14 +156,15 @@ export const Poster: React.FC<PosterProps> = ({
             <View
                 style={[
                     styles.posterContainer,
-                    {
-                        width: posterWidth,
-                        aspectRatio,
-                        borderRadius,
-                        backgroundColor: currentTheme.colors.elevation1,
-                    },
-                    posterStyle,
-                ]}
+                {
+                    width: posterWidth,
+                    aspectRatio,
+                    borderRadius,
+                    marginBottom: showTitle ? 8 : 0,
+                    backgroundColor: currentTheme.colors.elevation1,
+                },
+                posterStyle,
+            ]}
             >
                 {optimizedUrl && !imageError ? (
                     <FastImage

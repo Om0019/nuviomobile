@@ -294,11 +294,12 @@ const ContentItem = ({ item, onPress, shouldLoadImage: shouldLoadImageProp, defe
               width: finalWidth,
               aspectRatio: finalAspectRatio,
               borderRadius,
+              marginBottom: settings.showPosterTitles ? 8 : 0,
               backgroundColor: currentTheme.colors.elevation1,
             },
           ]}
         />
-        <View style={{ height: 18, marginTop: 4 }} />
+        {settings.showPosterTitles && <View style={{ height: 18, marginTop: 4 }} />}
       </View>
     );
   }
@@ -307,7 +308,15 @@ const ContentItem = ({ item, onPress, shouldLoadImage: shouldLoadImageProp, defe
     <>
       <Animated.View style={[styles.itemContainer, { width: finalWidth }]} entering={FadeIn.duration(300)}>
         <TouchableOpacity
-          style={[styles.contentItem, { width: finalWidth, aspectRatio: finalAspectRatio, borderRadius }]}
+          style={[
+            styles.contentItem,
+            {
+              width: finalWidth,
+              aspectRatio: finalAspectRatio,
+              borderRadius,
+              marginBottom: settings.showPosterTitles ? 8 : 0,
+            }
+          ]}
           activeOpacity={0.7}
           onPress={handlePress}
           onLongPress={handleLongPress}

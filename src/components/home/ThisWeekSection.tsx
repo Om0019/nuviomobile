@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { NavigationProp } from '@react-navigation/native';
 import FastImage from '@d11/react-native-fast-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTraktContext } from '../../contexts/TraktContext';
@@ -370,25 +371,36 @@ export const ThisWeekSection = React.memo(() => {
             }
           ]} />
         </View>
-        <TouchableOpacity onPress={handleViewAll} style={[
-          styles.viewAllButton,
-          {
-            paddingVertical: isTV ? 12 : isLargeTablet ? 10 : isTablet ? 8 : 8,
-            paddingHorizontal: isTV ? 16 : isLargeTablet ? 14 : isTablet ? 12 : 10
-          }
-        ]}>
-          <Text style={[
-            styles.viewAllText,
-            {
-              color: currentTheme.colors.textMuted,
-              fontSize: isTV ? 18 : isLargeTablet ? 16 : isTablet ? 15 : 14
-            }
-          ]}>{t('home.view_all')}</Text>
-          <MaterialIcons
-            name="chevron-right"
-            size={isTV ? 24 : isLargeTablet ? 22 : isTablet ? 20 : 20}
-            color={currentTheme.colors.textMuted}
-          />
+        <TouchableOpacity onPress={handleViewAll} activeOpacity={0.85} style={styles.viewAllButton}>
+          <BlurView
+            tint="dark"
+            intensity={45}
+            style={[
+              styles.viewAllBlur,
+              {
+                paddingVertical: isTV ? 12 : isLargeTablet ? 10 : isTablet ? 8 : 8,
+                paddingHorizontal: isTV ? 16 : isLargeTablet ? 14 : isTablet ? 12 : 10
+              }
+            ]}
+          >
+            <LinearGradient
+              colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0.10)']}
+              locations={[0, 0.32, 1]}
+              style={styles.viewAllGlassLayer}
+            />
+            <Text style={[
+              styles.viewAllText,
+              {
+                color: currentTheme.colors.highEmphasis,
+                fontSize: isTV ? 18 : isLargeTablet ? 16 : isTablet ? 15 : 14
+              }
+            ]}>{t('home.view_all')}</Text>
+            <MaterialIcons
+              name="chevron-right"
+              size={isTV ? 24 : isLargeTablet ? 22 : isTablet ? 20 : 20}
+              color={currentTheme.colors.highEmphasis}
+            />
+          </BlurView>
         </TouchableOpacity>
       </View>
 
@@ -452,14 +464,18 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   viewAllButton: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+  },
+  viewAllBlur: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(8,10,14,0.16)',
+  },
+  viewAllGlassLayer: {
+    ...StyleSheet.absoluteFillObject,
   },
   viewAllText: {
     fontSize: 13,

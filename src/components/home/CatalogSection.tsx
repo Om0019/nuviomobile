@@ -4,6 +4,7 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { CatalogContent, StreamingContent } from '../../services/catalogService';
 import { useTheme } from '../../contexts/ThemeContext';
 import ContentItem from './ContentItem';
@@ -175,28 +176,45 @@ const CatalogSection = ({ catalog }: CatalogSectionProps) => {
               addonId: catalog.addon
             })
           }
+          activeOpacity={0.85}
           style={[
             styles.viewAllButton,
             {
-              paddingVertical: isTV ? 10 : isLargeTablet ? 9 : isTablet ? 8 : 8,
-              paddingHorizontal: isTV ? 12 : isLargeTablet ? 11 : isTablet ? 10 : 10,
               borderRadius: isTV ? 22 : isLargeTablet ? 20 : isTablet ? 20 : 20,
             }
           ]}
         >
-          <Text style={[
-            styles.viewAllText,
-            {
-              color: currentTheme.colors.textMuted,
-              fontSize: isTV ? 16 : isLargeTablet ? 15 : isTablet ? 14 : 14,
-              marginRight: isTV ? 6 : isLargeTablet ? 5 : 4,
-            }
-          ]}>{t('home.view_all')}</Text>
-          <MaterialIcons
-            name="chevron-right"
-            size={isTV ? 24 : isLargeTablet ? 22 : isTablet ? 20 : 20}
-            color={currentTheme.colors.textMuted}
-          />
+          <BlurView
+            tint="dark"
+            intensity={45}
+            style={[
+              styles.viewAllBlur,
+              {
+                borderRadius: isTV ? 22 : isLargeTablet ? 20 : isTablet ? 20 : 20,
+                paddingVertical: isTV ? 10 : isLargeTablet ? 9 : isTablet ? 8 : 8,
+                paddingHorizontal: isTV ? 12 : isLargeTablet ? 11 : isTablet ? 10 : 10,
+              }
+            ]}
+          >
+            <LinearGradient
+              colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0.10)']}
+              locations={[0, 0.32, 1]}
+              style={styles.viewAllGlassLayer}
+            />
+            <Text style={[
+              styles.viewAllText,
+              {
+                color: currentTheme.colors.highEmphasis,
+                fontSize: isTV ? 16 : isLargeTablet ? 15 : isTablet ? 14 : 14,
+                marginRight: isTV ? 6 : isLargeTablet ? 5 : 4,
+              }
+            ]}>{t('home.view_all')}</Text>
+            <MaterialIcons
+              name="chevron-right"
+              size={isTV ? 24 : isLargeTablet ? 22 : isTablet ? 20 : 20}
+              color={currentTheme.colors.highEmphasis}
+            />
+          </BlurView>
         </TouchableOpacity>
       </View>
 
@@ -259,12 +277,17 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   viewAllButton: {
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.10)',
+  },
+  viewAllBlur: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8, // overridden responsively
-    paddingHorizontal: 10, // overridden responsively
-    borderRadius: 20, // overridden responsively
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(8,10,14,0.16)',
+  },
+  viewAllGlassLayer: {
+    ...StyleSheet.absoluteFillObject,
   },
   viewAllText: {
     fontSize: 14, // overridden responsively

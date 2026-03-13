@@ -61,7 +61,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
         return Math.min(windowWidth * 0.8, 480);
       }
 
-      return Math.min(windowWidth * (isIdeaMode ? 0.72 : 0.76), 440);
+      return Math.min(windowWidth * (isIdeaMode ? 0.54 : 0.76), 440);
     },
     [windowWidth, isTablet, isIdeaMode]
   );
@@ -70,18 +70,18 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
     () => (
       isTablet
         ? Math.max(560, windowWidth - 2 * Math.round(0.1 * windowWidth))
-        : Math.min(windowWidth * (isIdeaMode ? 0.72 : 0.76), 440)
+        : Math.min(windowWidth * (isIdeaMode ? 0.54 : 0.76), 440)
     ),
     [isTablet, windowWidth, isIdeaMode]
   );
 
   const cardHeight = useMemo(
-    () => Math.round(baseCardWidthForHeight * 9 / 16) + (isIdeaMode && !isTablet ? 272 : 288),
+    () => Math.round(baseCardWidthForHeight * 9 / 16) + (isIdeaMode && !isTablet ? 176 : 288),
     [baseCardWidthForHeight, isIdeaMode, isTablet]
   );
 
   const stackOverlap = useMemo(
-    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.36) : 0),
+    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.28) : 0),
     [isIdeaMode, isTablet, cardWidth]
   );
   const interval = useMemo(

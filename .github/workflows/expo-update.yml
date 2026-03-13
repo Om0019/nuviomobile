@@ -9,6 +9,9 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +28,11 @@ jobs:
           eas-version: latest
 
       - run: npm install
+
+      - name: Verify OTA env
+        run: |
+          test -n "$EXPO_PUBLIC_SUPABASE_URL"
+          test -n "$EXPO_PUBLIC_SUPABASE_ANON_KEY"
 
       - name: Publish OTA update
         run: |

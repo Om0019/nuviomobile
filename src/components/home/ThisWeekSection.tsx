@@ -25,6 +25,19 @@ import { useCalendarData } from '../../hooks/useCalendarData';
 import { memoryManager } from '../../utils/memoryManager';
 import { tmdbService } from '../../services/tmdbService';
 
+let GlassViewComp: any = null;
+let liquidGlassAvailable = false;
+if (Platform.OS === 'ios') {
+  try {
+    const glass = require('expo-glass-effect');
+    GlassViewComp = glass.GlassView;
+    liquidGlassAvailable = typeof glass.isLiquidGlassAvailable === 'function' ? glass.isLiquidGlassAvailable() : false;
+  } catch {
+    GlassViewComp = null;
+    liquidGlassAvailable = false;
+  }
+}
+
 // Compute base sizes; actual tablet sizes will be adjusted inside component for responsiveness
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width * 0.75; // phone default
@@ -372,17 +385,28 @@ export const ThisWeekSection = React.memo(() => {
           ]} />
         </View>
         <TouchableOpacity onPress={handleViewAll} activeOpacity={0.85} style={styles.viewAllButton}>
-          <BlurView
-            tint="dark"
-            intensity={45}
+          <View
             style={[
               styles.viewAllBlur,
               {
                 paddingVertical: isTV ? 12 : isLargeTablet ? 10 : isTablet ? 8 : 8,
-                paddingHorizontal: isTV ? 16 : isLargeTablet ? 14 : isTablet ? 12 : 10
+                paddingHorizontal: isTV ? 16 : isLargeTablet ? 14 : isTablet ? 12 : 10,
+                overflow: 'hidden',
               }
             ]}
           >
+            {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+              <GlassViewComp
+                style={StyleSheet.absoluteFillObject}
+                glassEffectStyle="regular"
+              />
+            ) : (
+              <BlurView
+                tint="dark"
+                intensity={45}
+                style={StyleSheet.absoluteFillObject}
+              />
+            )}
             <LinearGradient
               colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0.10)']}
               locations={[0, 0.32, 1]}
@@ -400,7 +424,7 @@ export const ThisWeekSection = React.memo(() => {
               size={isTV ? 24 : isLargeTablet ? 22 : isTablet ? 20 : 20}
               color={currentTheme.colors.highEmphasis}
             />
-          </BlurView>
+          </View>
         </TouchableOpacity>
       </View>
 

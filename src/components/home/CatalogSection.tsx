@@ -12,6 +12,19 @@ import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { getFormattedCatalogName, getCatalogDisplayName } from '../../utils/catalogNameUtils';
 
+let GlassViewComp: any = null;
+let liquidGlassAvailable = false;
+if (Platform.OS === 'ios') {
+  try {
+    const glass = require('expo-glass-effect');
+    GlassViewComp = glass.GlassView;
+    liquidGlassAvailable = typeof glass.isLiquidGlassAvailable === 'function' ? glass.isLiquidGlassAvailable() : false;
+  } catch {
+    GlassViewComp = null;
+    liquidGlassAvailable = false;
+  }
+}
+
 interface CatalogSectionProps {
   catalog: CatalogContent;
 }
@@ -184,18 +197,29 @@ const CatalogSection = ({ catalog }: CatalogSectionProps) => {
             }
           ]}
         >
-          <BlurView
-            tint="dark"
-            intensity={45}
+          <View
             style={[
               styles.viewAllBlur,
               {
                 borderRadius: isTV ? 22 : isLargeTablet ? 20 : isTablet ? 20 : 20,
                 paddingVertical: isTV ? 10 : isLargeTablet ? 9 : isTablet ? 8 : 8,
                 paddingHorizontal: isTV ? 12 : isLargeTablet ? 11 : isTablet ? 10 : 10,
+                overflow: 'hidden',
               }
             ]}
           >
+            {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+              <GlassViewComp
+                style={StyleSheet.absoluteFillObject}
+                glassEffectStyle="regular"
+              />
+            ) : (
+              <BlurView
+                tint="dark"
+                intensity={45}
+                style={StyleSheet.absoluteFillObject}
+              />
+            )}
             <LinearGradient
               colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0.10)']}
               locations={[0, 0.32, 1]}
@@ -214,7 +238,7 @@ const CatalogSection = ({ catalog }: CatalogSectionProps) => {
               size={isTV ? 24 : isLargeTablet ? 22 : isTablet ? 20 : 20}
               color={currentTheme.colors.highEmphasis}
             />
-          </BlurView>
+          </View>
         </TouchableOpacity>
       </View>
 

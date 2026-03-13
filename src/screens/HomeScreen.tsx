@@ -30,6 +30,7 @@ import { stremioService } from '../services/stremioService';
 import { Stream } from '../types/metadata';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import FastImage from '@d11/react-native-fast-image';
 import Animated, { FadeIn, Layout, useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
@@ -71,6 +72,19 @@ import FirstTimeWelcome from '../components/FirstTimeWelcome';
 import { HeaderVisibility } from '../contexts/HeaderVisibility';
 import { useTrailer } from '../contexts/TrailerContext';
 import { useScrollToTop } from '../contexts/ScrollToTopContext';
+
+let GlassViewComp: any = null;
+let liquidGlassAvailable = false;
+if (Platform.OS === 'ios') {
+  try {
+    const glass = require('expo-glass-effect');
+    GlassViewComp = glass.GlassView;
+    liquidGlassAvailable = typeof glass.isLiquidGlassAvailable === 'function' ? glass.isLiquidGlassAvailable() : false;
+  } catch {
+    GlassViewComp = null;
+    liquidGlassAvailable = false;
+  }
+}
 
 // Constants
 const CATALOG_SETTINGS_KEY = 'catalog_settings';
@@ -790,49 +804,79 @@ const HomeScreen = () => {
     ];
 
     return (
-      <View style={styles.ideaSectionMenuWrap}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.ideaSectionMenuScroll}
-        >
-          {sectionOptions.map((section) => {
-            const isActive = ideaHomeSection === section.key;
-            return (
-              <TouchableOpacity
-                key={section.key}
-                activeOpacity={0.85}
-                onPress={() => setIdeaHomeSection(section.key)}
-                style={[
-                  styles.ideaSectionPill,
-                  {
-                    backgroundColor: isActive ? `${currentTheme.colors.primary}26` : 'rgba(255,255,255,0.05)',
-                    borderColor: isActive ? `${currentTheme.colors.primary}55` : 'rgba(255,255,255,0.08)',
-                  }
-                ]}
-              >
-                <Text
+      <View
+        style={[
+          styles.ideaSectionMenuWrap,
+          showHeroSection && styles.ideaSectionMenuOverlayWrap,
+          showHeroSection && { top: stableInsetsTop + 8 },
+        ]}
+      >
+        <View style={styles.ideaSectionGlassBar}>
+          {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+            <GlassViewComp
+              style={StyleSheet.absoluteFillObject}
+              glassEffectStyle="regular"
+            />
+          ) : (
+            <BlurView
+              tint="dark"
+              intensity={38}
+              style={StyleSheet.absoluteFillObject}
+            />
+          )}
+          <LinearGradient
+            colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.02)', 'rgba(0,0,0,0.08)']}
+            locations={[0, 0.28, 1]}
+            style={styles.ideaSectionGlassOverlay}
+          />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.ideaSectionMenuScroll}
+          >
+            {sectionOptions.map((section) => {
+              const isActive = ideaHomeSection === section.key;
+              return (
+                <TouchableOpacity
+                  key={section.key}
+                  activeOpacity={0.85}
+                  onPress={() => setIdeaHomeSection(section.key)}
                   style={[
-                    styles.ideaSectionPillText,
+                    styles.ideaSectionPill,
                     {
-                      color: isActive ? currentTheme.colors.primary : currentTheme.colors.highEmphasis,
-                      opacity: isActive ? 1 : 0.78,
+                      backgroundColor: isActive ? `${currentTheme.colors.primary}24` : 'rgba(255,255,255,0.04)',
+                      borderColor: isActive ? `${currentTheme.colors.primary}4d` : 'rgba(255,255,255,0.06)',
                     }
                   ]}
                 >
-                  {section.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+                  <Text
+                    style={[
+                      styles.ideaSectionPillText,
+                      {
+                        color: isActive ? currentTheme.colors.primary : currentTheme.colors.highEmphasis,
+                        opacity: isActive ? 1 : 0.78,
+                      }
+                    ]}
+                  >
+                    {section.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
       </View>
     );
-  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis]);
+  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis, showHeroSection, stableInsetsTop]);
   const memoizedHeader = useMemo(() => (
     <>
-      {showHeroSection ? memoizedFeaturedContent : null}
-      {memoizedIdeaSectionMenu}
+      {showHeroSection ? (
+        <View style={styles.ideaHeroContainer}>
+          {memoizedFeaturedContent}
+          {memoizedIdeaSectionMenu}
+        </View>
+      ) : null}
+      {!showHeroSection ? memoizedIdeaSectionMenu : null}
       {(!settings.ideaMode || ideaHomeSection === 'forYou') ? memoizedContinueWatchingSection : null}
     </>
   ), [showHeroSection, memoizedFeaturedContent, memoizedIdeaSectionMenu, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection]);
@@ -1529,13 +1573,34 @@ const styles = StyleSheet.create<any>({
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
+  ideaHeroContainer: {
+    position: 'relative',
+  },
   ideaSectionMenuWrap: {
     marginTop: 8,
     marginBottom: 6,
+    paddingHorizontal: 16,
+  },
+  ideaSectionMenuOverlayWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 20,
   },
   ideaSectionMenuScroll: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
     gap: 10,
+  },
+  ideaSectionGlassBar: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(10,12,18,0.12)',
+  },
+  ideaSectionGlassOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
   ideaSectionPill: {
     paddingHorizontal: 18,

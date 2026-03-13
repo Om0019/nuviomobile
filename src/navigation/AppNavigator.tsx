@@ -989,6 +989,129 @@ const MainTabs = () => {
     );
   };
 
+  // iOS: use the native system tab bar instead of the custom floating bar.
+  if (Platform.OS === 'ios') {
+    const { createNativeBottomTabNavigator } = require('@bottom-tabs/react-navigation');
+    const IOSTab = createNativeBottomTabNavigator();
+    const downloadsEnabled = appSettings?.enableDownloads !== false;
+
+    return (
+      <View style={{ flex: 1, backgroundColor: currentTheme.colors.darkBackground }}>
+        <StatusBar
+          translucent
+          barStyle="light-content"
+          backgroundColor="transparent"
+        />
+        <IOSTab.Navigator
+          key={`ios-tabs-${downloadsEnabled ? 'with-dl' : 'no-dl'}`}
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false,
+            tabBarActiveTintColor: currentTheme.colors.primary,
+            tabBarInactiveTintColor: currentTheme.colors.white,
+            scrollEdgeAppearance: 'transparent',
+            tabBarStyle: {
+              backgroundColor: 'transparent',
+            },
+            translucent: true,
+            lazy: true,
+            freezeOnBlur: true,
+          }}
+        >
+          <IOSTab.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{
+              title: t('navigation.home'),
+              tabBarIcon: () => ({ sfSymbol: 'house' }),
+              freezeOnBlur: true,
+            }}
+            listeners={({ navigation }: { navigation: any }) => ({
+              tabPress: () => {
+                if (navigation.isFocused()) {
+                  emitScrollToTop('Home');
+                }
+              },
+            })}
+          />
+          <IOSTab.Screen
+            name="Library"
+            component={LibraryScreen}
+            options={{
+              title: t('navigation.library'),
+              tabBarIcon: () => ({ sfSymbol: 'heart' }),
+            }}
+            listeners={({ navigation }: { navigation: any }) => ({
+              tabPress: () => {
+                if (navigation.isFocused()) {
+                  emitScrollToTop('Library');
+                }
+              },
+            })}
+          />
+          <IOSTab.Screen
+            name="Search"
+            component={SearchScreen}
+            options={{
+              title: t('navigation.search'),
+              tabBarIcon: () => ({ sfSymbol: 'magnifyingglass' }),
+            }}
+            listeners={({ navigation }: { navigation: any }) => ({
+              tabPress: () => {
+                const now = Date.now();
+                const DOUBLE_TAP_DELAY = 300;
+                const lastTap = lastTapRef.current.Search || 0;
+                const isDoubleTap = now - lastTap < DOUBLE_TAP_DELAY;
+
+                lastTapRef.current.Search = now;
+
+                if (navigation.isFocused()) {
+                  if (isDoubleTap) {
+                    DeviceEventEmitter.emit('FOCUS_SEARCH_INPUT');
+                  } else {
+                    emitScrollToTop('Search');
+                  }
+                }
+              },
+            })}
+          />
+          {downloadsEnabled && (
+            <IOSTab.Screen
+              name="Downloads"
+              component={DownloadsScreen}
+              options={{
+                title: t('navigation.downloads'),
+                tabBarIcon: () => ({ sfSymbol: 'arrow.down.circle' }),
+              }}
+              listeners={({ navigation }: { navigation: any }) => ({
+                tabPress: () => {
+                  if (navigation.isFocused()) {
+                    emitScrollToTop('Downloads');
+                  }
+                },
+              })}
+            />
+          )}
+          <IOSTab.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              title: t('navigation.settings'),
+              tabBarIcon: () => ({ sfSymbol: 'gear' }),
+            }}
+            listeners={({ navigation }: { navigation: any }) => ({
+              tabPress: () => {
+                if (navigation.isFocused()) {
+                  emitScrollToTop('Settings');
+                }
+              },
+            })}
+          />
+        </IOSTab.Navigator>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: currentTheme.colors.darkBackground }}>
       {/* Common StatusBar for all tabs */}

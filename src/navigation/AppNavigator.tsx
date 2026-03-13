@@ -767,7 +767,7 @@ const MainTabs = () => {
         bottom: Math.max(insets.bottom, 8),
         left: 14,
         right: 14,
-        height: Platform.OS === 'android' ? 76 : 64 + insets.bottom,
+        height: Platform.OS === 'android' ? 76 : 68 + insets.bottom,
         backgroundColor: 'transparent',
         overflow: 'visible',
       }}>
@@ -779,13 +779,13 @@ const MainTabs = () => {
             borderRadius: 24,
             overflow: 'hidden',
             borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.06)',
+            borderColor: 'rgba(255,255,255,0.08)',
             shadowColor: currentTheme.colors.black,
             shadowOffset: { width: 0, height: 10 },
             shadowOpacity: 0.3,
             shadowRadius: 20,
             elevation: 18,
-            backgroundColor: 'rgba(6,7,10,0.62)',
+            backgroundColor: 'rgba(7,8,12,0.36)',
           }}
         >
           {Platform.OS === 'ios' ? (
@@ -800,13 +800,13 @@ const MainTabs = () => {
                 glassEffectStyle="clear"
               />
             ) : (
-              <BlurView
-                tint="dark"
-                intensity={90}
-                style={{
-                  position: 'absolute',
-                  height: '100%',
-                  width: '100%',
+                <BlurView
+                  tint="dark"
+                  intensity={100}
+                  style={{
+                    position: 'absolute',
+                    height: '100%',
+                    width: '100%',
                   borderRadius: 24,
                 }}
               />
@@ -825,11 +825,11 @@ const MainTabs = () => {
               />
               <LinearGradient
                 colors={[
-                  'rgba(255,255,255,0.05)',
-                  'rgba(20,20,28,0.2)',
-                  'rgba(6,7,10,0.74)',
+                  'rgba(255,255,255,0.07)',
+                  'rgba(36,40,52,0.12)',
+                  'rgba(8,10,14,0.52)',
                 ]}
-                locations={[0, 0.18, 1]}
+                locations={[0, 0.22, 1]}
                 style={{
                   position: 'absolute',
                   height: '100%',
@@ -840,30 +840,43 @@ const MainTabs = () => {
           )}
           <LinearGradient
             colors={[
-              'rgba(255,255,255,0.08)',
-              'rgba(255,255,255,0.015)',
+              'rgba(255,255,255,0.12)',
+              'rgba(255,255,255,0.03)',
               'rgba(255,255,255,0.00)',
             ]}
-            locations={[0, 0.14, 0.55]}
+            locations={[0, 0.18, 0.62]}
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               right: 0,
-              height: 22,
+              height: 24,
+            }}
+          />
+          <LinearGradient
+            colors={[
+              'rgba(255,255,255,0.02)',
+              'rgba(255,255,255,0.00)',
+              'rgba(0,0,0,0.16)',
+            ]}
+            locations={[0, 0.45, 1]}
+            style={{
+              position: 'absolute',
+              inset: 0,
             }}
           />
         </View>
         <View
           style={{
             height: '100%',
-            paddingBottom: Platform.OS === 'android' ? 16 : 8 + insets.bottom,
+            paddingBottom: Platform.OS === 'android' ? 16 : insets.bottom + 6,
             paddingTop: Platform.OS === 'android' ? 10 : 6,
             paddingHorizontal: 8,
+            justifyContent: 'center',
             backgroundColor: 'transparent',
           }}
         >
-          <View style={{ flexDirection: 'row', paddingTop: Platform.OS === 'android' ? 4 : 0 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {props.state.routes.map((route, index) => {
               const { options } = props.descriptors[route.key];
               const label =
@@ -937,26 +950,35 @@ const MainTabs = () => {
                     backgroundColor: isFocused ? 'rgba(255,255,255,0.08)' : 'transparent',
                     borderRadius: 20,
                     marginHorizontal: 2,
-                    paddingVertical: Platform.OS === 'android' ? 4 : 2,
+                    minHeight: Platform.OS === 'android' ? 52 : 50,
+                    paddingVertical: Platform.OS === 'android' ? 4 : 0,
                   }}
                 >
-                  <TabIcon
-                    focused={isFocused}
-                    color={isFocused ? currentTheme.colors.primary : currentTheme.colors.white}
-                    iconName={iconName}
-                    iconLibrary={iconLibrary}
-                  />
-                  <Text
+                  <View
                     style={{
-                      fontSize: 12,
-                      fontWeight: '600',
-                      marginTop: Platform.OS === 'android' ? 4 : 2,
-                      color: isFocused ? currentTheme.colors.primary : currentTheme.colors.white,
-                      opacity: isFocused ? 1 : 0.7,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      paddingTop: 1,
                     }}
                   >
-                    {typeof label === 'string' ? label : ''}
-                  </Text>
+                    <TabIcon
+                      focused={isFocused}
+                      color={isFocused ? currentTheme.colors.primary : currentTheme.colors.white}
+                      iconName={iconName}
+                      iconLibrary={iconLibrary}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontWeight: '600',
+                        marginTop: 3,
+                        color: isFocused ? currentTheme.colors.primary : currentTheme.colors.white,
+                        opacity: isFocused ? 1 : 0.7,
+                      }}
+                    >
+                      {typeof label === 'string' ? label : ''}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               );
             })}

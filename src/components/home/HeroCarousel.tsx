@@ -33,12 +33,13 @@ import { useSettings } from '../../hooks/useSettings';
 interface HeroCarouselProps {
   items: StreamingContent[];
   loading?: boolean;
+  topOverlayOffset?: number;
 }
 
 // Offset to keep cards below a top tab navigator
 const TOP_TABS_OFFSET = Platform.OS === 'ios' ? 44 : 48;
 
-const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) => {
+const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, topOverlayOffset = 0 }) => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { currentTheme } = useTheme();
@@ -55,18 +56,28 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) =
 
   // Keep height based on baseline phone width; widen only on tablets
   const baseCardWidthForHeight = useMemo(
-    () => Math.min(windowWidth * 0.8, 480),
-    [windowWidth]
+    () => {
+      if (isTablet) {
+        return Math.min(windowWidth * 0.8, 480);
+      }
+
+      return Math.min(windowWidth * (isIdeaMode ? 0.72 : 0.76), 440);
+    },
+    [windowWidth, isTablet, isIdeaMode]
   );
 
   const cardWidth = useMemo(
-    () => (isTablet ? Math.max(560, windowWidth - 2 * Math.round(0.1 * windowWidth)) : Math.min(windowWidth * 0.8, 480)),
-    [isTablet, windowWidth]
+    () => (
+      isTablet
+        ? Math.max(560, windowWidth - 2 * Math.round(0.1 * windowWidth))
+        : Math.min(windowWidth * (isIdeaMode ? 0.72 : 0.76), 440)
+    ),
+    [isTablet, windowWidth, isIdeaMode]
   );
 
   const cardHeight = useMemo(
-    () => Math.round(baseCardWidthForHeight * 9 / 16) + 310,
-    [baseCardWidthForHeight]
+    () => Math.round(baseCardWidthForHeight * 9 / 16) + (isIdeaMode && !isTablet ? 272 : 288),
+    [baseCardWidthForHeight, isIdeaMode, isTablet]
   );
 
   const stackOverlap = useMemo(
@@ -76,6 +87,10 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) =
   const interval = useMemo(
     () => (isTablet ? cardWidth + 16 : cardWidth + 16 - stackOverlap),
     [isTablet, cardWidth, stackOverlap]
+  );
+  const heroTopBleed = useMemo(
+    () => (isIdeaMode && !isTablet ? topOverlayOffset : 0),
+    [isIdeaMode, isTablet, topOverlayOffset]
   );
 
   // Reduce top padding on phones while keeping tablets unchanged
@@ -259,7 +274,15 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) =
 
   if (loading) {
     return (
-      <View style={[styles.container, { paddingTop: 12 + effectiveTopOffset }] as StyleProp<ViewStyle>}>
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: 12 + effectiveTopOffset + heroTopBleed,
+            marginTop: -heroTopBleed,
+          }
+        ] as StyleProp<ViewStyle>}
+      >
         <View style={{ height: cardHeight }}>
           <ScrollView
             horizontal
@@ -353,7 +376,15 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false }) =
 
   return (
     <View>
-      <Animated.View style={[styles.container as ViewStyle, { paddingTop: 12 + effectiveTopOffset }]}>
+      <Animated.View
+        style={[
+          styles.container as ViewStyle,
+          {
+            paddingTop: 12 + effectiveTopOffset + heroTopBleed,
+            marginTop: -heroTopBleed,
+          }
+        ]}
+      >
         {/* Removed preload images for performance - let FastImage cache handle it naturally */}
         {settings.enableHomeHeroBackground && data[activeIndex] && (
           <BackgroundImage

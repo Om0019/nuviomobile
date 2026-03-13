@@ -30,6 +30,7 @@ import { stremioService } from '../services/stremioService';
 import { Stream } from '../types/metadata';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import FastImage from '@d11/react-native-fast-image';
 import Animated, { FadeIn, Layout, useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
@@ -71,6 +72,19 @@ import FirstTimeWelcome from '../components/FirstTimeWelcome';
 import { HeaderVisibility } from '../contexts/HeaderVisibility';
 import { useTrailer } from '../contexts/TrailerContext';
 import { useScrollToTop } from '../contexts/ScrollToTopContext';
+
+let GlassViewComp: any = null;
+let liquidGlassAvailable = false;
+if (Platform.OS === 'ios') {
+  try {
+    const glass = require('expo-glass-effect');
+    GlassViewComp = glass.GlassView;
+    liquidGlassAvailable = typeof glass.isLiquidGlassAvailable === 'function' ? glass.isLiquidGlassAvailable() : false;
+  } catch {
+    GlassViewComp = null;
+    liquidGlassAvailable = false;
+  }
+}
 
 // Constants
 const CATALOG_SETTINGS_KEY = 'catalog_settings';
@@ -750,6 +764,7 @@ const HomeScreen = () => {
         <HeroCarousel
           items={allFeaturedContent || (featuredContent ? [featuredContent] : [])}
           loading={featuredLoading}
+          topOverlayOffset={settings.ideaMode ? floatingIdeaMenuHeight + 22 : 0}
         />
       );
     } else {
@@ -780,6 +795,8 @@ const HomeScreen = () => {
 
   const memoizedThisWeekSection = useMemo(() => <ThisWeekSection />, []);
   const memoizedContinueWatchingSection = useMemo(() => <ContinueWatchingSection ref={continueWatchingRef} />, []);
+  const floatingIdeaMenuTop = stableInsetsTop + 8;
+  const floatingIdeaMenuHeight = 56;
   const memoizedIdeaSectionMenu = useMemo(() => {
     if (!settings.ideaMode) return null;
 
@@ -790,8 +807,26 @@ const HomeScreen = () => {
     ];
 
     return (
-      <View style={styles.ideaSectionMenuWrap}>
-        <View style={styles.ideaSectionMenuRow}>
+      <View style={[styles.ideaSectionMenuWrap, { top: floatingIdeaMenuTop }]}>
+        <View style={styles.ideaSectionGlassShell}>
+          {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+            <GlassViewComp
+              style={StyleSheet.absoluteFillObject}
+              glassEffectStyle="regular"
+            />
+          ) : (
+            <BlurView
+              tint="dark"
+              intensity={38}
+              style={StyleSheet.absoluteFillObject}
+            />
+          )}
+          <LinearGradient
+            colors={['rgba(255,255,255,0.14)', 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0.10)']}
+            locations={[0, 0.28, 1]}
+            style={styles.ideaSectionGlassOverlay}
+          />
+          <View style={styles.ideaSectionMenuRow}>
           {sectionOptions.map((section) => {
             const isActive = ideaHomeSection === section.key;
             return (
@@ -802,8 +837,8 @@ const HomeScreen = () => {
                 style={[
                   styles.ideaSectionPill,
                   {
-                    backgroundColor: isActive ? `${currentTheme.colors.primary}26` : 'rgba(255,255,255,0.05)',
-                    borderColor: isActive ? `${currentTheme.colors.primary}55` : 'rgba(255,255,255,0.08)',
+                    backgroundColor: isActive ? `${currentTheme.colors.primary}28` : 'rgba(255,255,255,0.07)',
+                    borderColor: isActive ? `${currentTheme.colors.primary}55` : 'rgba(255,255,255,0.12)',
                   }
                 ]}
               >
@@ -821,17 +856,18 @@ const HomeScreen = () => {
               </TouchableOpacity>
             );
           })}
+          </View>
         </View>
       </View>
     );
-  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis]);
+  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis, floatingIdeaMenuTop]);
   const memoizedHeader = useMemo(() => (
     <>
-      {memoizedIdeaSectionMenu}
+      {settings.ideaMode ? <View style={{ height: floatingIdeaMenuHeight + 22 }} /> : null}
       {showHeroSection ? memoizedFeaturedContent : null}
       {(!settings.ideaMode || ideaHomeSection === 'forYou') ? memoizedContinueWatchingSection : null}
     </>
-  ), [showHeroSection, memoizedFeaturedContent, memoizedIdeaSectionMenu, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection]);
+  ), [showHeroSection, memoizedFeaturedContent, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection, floatingIdeaMenuHeight]);
   // Track scroll direction manually for reliable behavior across platforms
   const lastScrollYRef = useRef(0);
   const lastToggleRef = useRef(0);
@@ -966,12 +1002,13 @@ const HomeScreen = () => {
   const contentContainerStyle = useMemo(() => {
     const heroStyleToUse = settings.heroStyle;
     const isUsingAppleTVHero = heroStyleToUse === 'appletv' && !isTablet && showHeroSection;
+    const isUsingIdeaCarousel = settings.ideaMode && heroStyleToUse === 'carousel' && showHeroSection;
 
     return StyleSheet.flatten([
       styles.scrollContent,
-      { paddingTop: isUsingAppleTVHero ? 0 : stableInsetsTop }
+      { paddingTop: isUsingAppleTVHero || isUsingIdeaCarousel ? 0 : stableInsetsTop }
     ]);
-  }, [stableInsetsTop, settings.heroStyle, isTablet, showHeroSection]);
+  }, [stableInsetsTop, settings.heroStyle, settings.ideaMode, isTablet, showHeroSection]);
 
   // Memoize the main content section
   const renderMainContent = useMemo(() => {
@@ -999,6 +1036,7 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
+        {memoizedIdeaSectionMenu}
         {/* Toasts are rendered globally at root */}
       </View>
     );
@@ -1010,6 +1048,7 @@ const HomeScreen = () => {
     keyExtractor,
     contentContainerStyle,
     memoizedHeader,
+    memoizedIdeaSectionMenu,
     ListFooterComponent,
     handleLoadMoreCatalogs,
     handleScroll
@@ -1526,16 +1565,28 @@ const styles = StyleSheet.create<any>({
     paddingBottom: 20,
   },
   ideaSectionMenuWrap: {
-    marginTop: 8,
-    marginBottom: 14,
-    position: 'relative',
-    zIndex: 40,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 80,
+    paddingHorizontal: 16,
+  },
+  ideaSectionGlassShell: {
+    borderRadius: 26,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(12,15,22,0.16)',
+  },
+  ideaSectionGlassOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
   ideaSectionMenuRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     gap: 10,
   },
   ideaSectionPill: {

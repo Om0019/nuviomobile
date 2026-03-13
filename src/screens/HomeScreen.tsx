@@ -144,12 +144,12 @@ const HomeScreen = () => {
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasContinueWatching, setHasContinueWatching] = useState(false);
   const [ideaHomeSection, setIdeaHomeSection] = useState<IdeaHomeSection>('forYou');
-  const [ideaMenuExpanded, setIdeaMenuExpanded] = useState(settings.ideaMode);
+  const [ideaMenuVisible, setIdeaMenuVisible] = useState(settings.ideaMode);
 
   // Shared value for scroll position (for parallax effects)
   const scrollY = useSharedValue(0);
-  const ideaMenuProgress = useSharedValue(0);
   const ideaMenuGlowOffset = useSharedValue(0);
+  const ideaMenuVisibilityProgress = useSharedValue(settings.ideaMode ? 1 : 0);
 
   const [catalogs, setCatalogs] = useState<(CatalogContent | null)[]>([]);
   const [catalogsLoading, setCatalogsLoading] = useState(true);
@@ -191,12 +191,9 @@ const HomeScreen = () => {
   }, [insets.top]);
 
   useEffect(() => {
-    ideaMenuProgress.value = withTiming(ideaMenuExpanded ? 1 : 0, { duration: 220 });
-  }, [ideaMenuExpanded, ideaMenuProgress]);
-
-  useEffect(() => {
-    setIdeaMenuExpanded(settings.ideaMode);
-  }, [settings.ideaMode]);
+    setIdeaMenuVisible(settings.ideaMode);
+    ideaMenuVisibilityProgress.value = withTiming(settings.ideaMode ? 1 : 0, { duration: 220 });
+  }, [settings.ideaMode, ideaMenuVisibilityProgress]);
 
   useEffect(() => {
     const offsets: Record<IdeaHomeSection, number> = {
@@ -816,27 +813,50 @@ const HomeScreen = () => {
   const memoizedThisWeekSection = useMemo(() => <ThisWeekSection />, []);
   const memoizedContinueWatchingSection = useMemo(() => <ContinueWatchingSection ref={continueWatchingRef} />, []);
   const floatingIdeaMenuTop = stableInsetsTop + 8;
-  const floatingIdeaMenuHeight = ideaMenuExpanded ? 120 : 58;
-  const ideaMenuOptionsAnimatedStyle = useAnimatedStyle(() => ({
-    maxHeight: 72 * ideaMenuProgress.value,
-    opacity: ideaMenuProgress.value,
-    marginTop: 8 * ideaMenuProgress.value,
-  }));
-  const ideaMenuArrowAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${180 * ideaMenuProgress.value}deg` }],
+  const floatingIdeaMenuHeight = 58;
+  const ideaMenuWrapAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: ideaMenuVisibilityProgress.value,
+    transform: [
+      { translateY: -18 * (1 - ideaMenuVisibilityProgress.value) },
+    ],
   }));
   const ideaMenuGlowAnimatedStyle = useAnimatedStyle(() => ({
     opacity: 0.18 + Math.min(scrollY.value / 900, 0.12),
     transform: [
       { translateX: ideaMenuGlowOffset.value },
       { translateY: Math.min(scrollY.value * 0.03, 8) },
-      { scale: 1 + ideaMenuProgress.value * 0.04 },
+      { scale: 1 + ideaMenuVisibilityProgress.value * 0.04 },
     ],
   }));
   const ideaMenuReflectionAnimatedStyle = useAnimatedStyle(() => ({
     opacity: 0.16 + Math.min(scrollY.value / 1400, 0.08),
     transform: [{ translateY: Math.min(scrollY.value * 0.02, 6) }],
   }));
+  const ideaAmbientPrimaryAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: 0.22 + Math.min(scrollY.value / 1600, 0.08),
+    transform: [
+      { translateX: ideaMenuGlowOffset.value * 0.4 },
+      { translateY: -24 + Math.min(scrollY.value * 0.05, 36) },
+      { scale: 1 + ideaMenuVisibilityProgress.value * 0.03 },
+    ],
+  }));
+  const ideaAmbientSecondaryAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: 0.14 + Math.min(scrollY.value / 1800, 0.06),
+    transform: [
+      { translateX: ideaMenuGlowOffset.value * -0.24 },
+      { translateY: 90 + Math.min(scrollY.value * 0.04, 44) },
+      { scale: 1 + ideaMenuVisibilityProgress.value * 0.02 },
+    ],
+  }));
+  const ideaAmbientPalette = useMemo(() => {
+    const palettes: Record<IdeaHomeSection, [string, string]> = {
+      forYou: ['rgba(56,189,248,0.22)', 'rgba(59,130,246,0.12)'],
+      movie: ['rgba(249,115,22,0.22)', 'rgba(239,68,68,0.12)'],
+      series: ['rgba(16,185,129,0.22)', 'rgba(34,197,94,0.12)'],
+    };
+
+    return palettes[ideaHomeSection];
+  }, [ideaHomeSection]);
   const memoizedIdeaSectionMenu = useMemo(() => {
     if (!settings.ideaMode) return null;
 
@@ -845,10 +865,9 @@ const HomeScreen = () => {
       { key: 'movie', label: 'Movies' },
       { key: 'series', label: 'Series' },
     ];
-    const activeSection = sectionOptions.find((section) => section.key === ideaHomeSection) ?? sectionOptions[0];
 
     return (
-      <View style={[styles.ideaSectionMenuWrap, { top: floatingIdeaMenuTop }]}>
+      <Animated.View style={[styles.ideaSectionMenuWrap, { top: floatingIdeaMenuTop }, ideaMenuWrapAnimatedStyle]}>
         <View style={styles.ideaSectionGlassShell}>
           {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
             <GlassViewComp
@@ -876,74 +895,40 @@ const HomeScreen = () => {
           </Animated.View>
           <Animated.View style={[styles.ideaSectionGlow, { backgroundColor: `${currentTheme.colors.primary}20` }, ideaMenuGlowAnimatedStyle]} />
           <Animated.View style={[styles.ideaSectionGlowSecondary, ideaMenuReflectionAnimatedStyle]} />
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => setIdeaMenuExpanded((prev) => !prev)}
-            style={styles.ideaSectionMenuRow}
-          >
-            <View
-              style={[
-                styles.ideaSectionPill,
-                styles.ideaSectionActivePill,
-                {
-                  backgroundColor: `${currentTheme.colors.primary}28`,
-                }
-              ]}
-            >
-              <Text
-                style={[
-                  styles.ideaSectionPillText,
-                  {
-                    color: currentTheme.colors.primary,
-                  }
-                ]}
-              >
-                {activeSection.label}
-              </Text>
-            </View>
-            <Animated.View style={[styles.ideaSectionArrowWrap, ideaMenuArrowAnimatedStyle]}>
-              <MaterialIcons name="keyboard-arrow-down" size={18} color={currentTheme.colors.highEmphasis} />
-            </Animated.View>
-          </View>
-          <Animated.View style={[styles.ideaSectionExpandedMenu, ideaMenuOptionsAnimatedStyle]}>
-            <View style={styles.ideaSectionExpandedRow}>
-              {sectionOptions.map((section) => {
-                const isActive = ideaHomeSection === section.key;
-                return (
-                  <TouchableOpacity
-                    key={section.key}
-                    activeOpacity={0.85}
-                    onPress={() => {
-                      setIdeaHomeSection(section.key);
-                      setIdeaMenuExpanded(false);
-                    }}
+          <View style={styles.ideaSectionMenuRow}>
+            {sectionOptions.map((section) => {
+              const isActive = ideaHomeSection === section.key;
+              return (
+                <TouchableOpacity
+                  key={section.key}
+                  activeOpacity={0.85}
+                  onPress={() => setIdeaHomeSection(section.key)}
+                  style={[
+                    styles.ideaSectionPill,
+                    {
+                      backgroundColor: isActive ? `${currentTheme.colors.primary}28` : 'rgba(255,255,255,0.06)',
+                    }
+                  ]}
+                >
+                  <Text
                     style={[
-                      styles.ideaSectionPill,
+                      styles.ideaSectionPillText,
                       {
-                        backgroundColor: isActive ? `${currentTheme.colors.primary}28` : 'rgba(255,255,255,0.06)',
+                        color: isActive ? currentTheme.colors.primary : currentTheme.colors.highEmphasis,
+                        opacity: isActive ? 1 : 0.8,
                       }
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.ideaSectionPillText,
-                        {
-                          color: isActive ? currentTheme.colors.primary : currentTheme.colors.highEmphasis,
-                          opacity: isActive ? 1 : 0.8,
-                        }
-                      ]}
-                    >
-                      {section.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </Animated.View>
+                    {section.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
-      </View>
+      </Animated.View>
     );
-  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis, floatingIdeaMenuTop, ideaMenuArrowAnimatedStyle, ideaMenuOptionsAnimatedStyle, ideaMenuGlowAnimatedStyle, ideaMenuReflectionAnimatedStyle]);
+  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis, floatingIdeaMenuTop, ideaMenuWrapAnimatedStyle, ideaMenuGlowAnimatedStyle, ideaMenuReflectionAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
     <>
       {settings.ideaMode ? <View style={{ height: floatingIdeaMenuHeight + 22 }} /> : null}
@@ -967,9 +952,13 @@ const HomeScreen = () => {
   const syncIdeaMenuWithScroll = useCallback((y: number) => {
     if (!settings.ideaMode) return;
 
-    const shouldExpand = y <= 24;
-    setIdeaMenuExpanded((prev) => (prev === shouldExpand ? prev : shouldExpand));
-  }, [settings.ideaMode]);
+    const shouldShow = y <= 24;
+    setIdeaMenuVisible((prev) => {
+      if (prev === shouldShow) return prev;
+      ideaMenuVisibilityProgress.value = withTiming(shouldShow ? 1 : 0, { duration: 220 });
+      return shouldShow;
+    });
+  }, [settings.ideaMode, ideaMenuVisibilityProgress]);
 
   // Stabilize renderItem to prevent FlashList re-renders
   const renderListItem = useCallback(({ item }: { item: HomeScreenListItem; index: number }) => {
@@ -1112,6 +1101,24 @@ const HomeScreen = () => {
           backgroundColor="transparent"
           translucent
         />
+        {settings.ideaMode && (
+          <View pointerEvents="none" style={styles.ideaAmbientBackground}>
+            <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobPrimary, ideaAmbientPrimaryAnimatedStyle]}>
+              <LinearGradient
+                colors={[ideaAmbientPalette[0], 'rgba(255,255,255,0.02)', 'rgba(0,0,0,0)']}
+                locations={[0, 0.45, 1]}
+                style={styles.ideaAmbientGradient}
+              />
+            </Animated.View>
+            <Animated.View style={[styles.ideaAmbientBlob, styles.ideaAmbientBlobSecondary, ideaAmbientSecondaryAnimatedStyle]}>
+              <LinearGradient
+                colors={[ideaAmbientPalette[1], 'rgba(255,255,255,0.015)', 'rgba(0,0,0,0)']}
+                locations={[0, 0.5, 1]}
+                style={styles.ideaAmbientGradient}
+              />
+            </Animated.View>
+          </View>
+        )}
         <FlashList
           ref={flashListRef}
           data={listData}
@@ -1134,12 +1141,16 @@ const HomeScreen = () => {
   }, [
     isLoading,
     currentTheme.colors.darkBackground,
+    settings.ideaMode,
     listData,
     renderListItem,
     keyExtractor,
     contentContainerStyle,
     memoizedHeader,
     memoizedIdeaSectionMenu,
+    ideaAmbientPrimaryAnimatedStyle,
+    ideaAmbientSecondaryAnimatedStyle,
+    ideaAmbientPalette,
     ListFooterComponent,
     handleLoadMoreCatalogs,
     handleScroll
@@ -1189,6 +1200,30 @@ const POSTER_WIDTH = posterLayout.posterWidth;
 
 const styles = StyleSheet.create<any>({
   container: {
+    flex: 1,
+  },
+  ideaAmbientBackground: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  ideaAmbientBlob: {
+    position: 'absolute',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  ideaAmbientBlobPrimary: {
+    top: -120,
+    left: -70,
+    width: 320,
+    height: 320,
+  },
+  ideaAmbientBlobSecondary: {
+    top: 240,
+    right: -110,
+    width: 300,
+    height: 300,
+  },
+  ideaAmbientGradient: {
     flex: 1,
   },
   scrollContent: {
@@ -1704,35 +1739,14 @@ const styles = StyleSheet.create<any>({
   },
   ideaSectionMenuRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 10,
   },
   ideaSectionPill: {
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 22,
-  },
-  ideaSectionActivePill: {
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  ideaSectionArrowWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
-  ideaSectionExpandedMenu: {
-    overflow: 'hidden',
-  },
-  ideaSectionExpandedRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    paddingBottom: 2,
   },
   ideaSectionPillText: {
     fontSize: 15,

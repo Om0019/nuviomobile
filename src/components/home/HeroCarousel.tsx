@@ -81,7 +81,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
   );
 
   const stackOverlap = useMemo(
-    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.22) : 0),
+    () => (isIdeaMode && !isTablet ? Math.round(cardWidth * 0.3) : 0),
     [isIdeaMode, isTablet, cardWidth]
   );
   const interval = useMemo(
@@ -91,6 +91,10 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
   const heroTopBleed = useMemo(
     () => (isIdeaMode && !isTablet ? topOverlayOffset : 0),
     [isIdeaMode, isTablet, topOverlayOffset]
+  );
+  const cardTopOffset = useMemo(
+    () => (isIdeaMode && !isTablet ? heroTopBleed : 0),
+    [isIdeaMode, isTablet, heroTopBleed]
   );
 
   // Reduce top padding on phones while keeping tablets unchanged
@@ -278,12 +282,12 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
         style={[
           styles.container,
           {
-            paddingTop: 12 + effectiveTopOffset + heroTopBleed,
+            paddingTop: 12 + effectiveTopOffset,
             marginTop: -heroTopBleed,
           }
         ] as StyleProp<ViewStyle>}
       >
-        <View style={{ height: cardHeight }}>
+        <View style={{ height: cardHeight, paddingTop: cardTopOffset }}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -380,7 +384,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
         style={[
           styles.container as ViewStyle,
           {
-            paddingTop: 12 + effectiveTopOffset + heroTopBleed,
+            paddingTop: 12 + effectiveTopOffset,
             marginTop: -heroTopBleed,
           }
         ]}
@@ -401,57 +405,58 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
             pointerEvents="none"
           />
         )}
-        <Animated.ScrollView
-          ref={scrollViewRef}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={interval}
-          decelerationRate="fast"
-          contentContainerStyle={contentPadding}
-          onScroll={scrollHandler}
-          scrollEventThrottle={32}
-          disableIntervalMomentum
-          pagingEnabled={false}
-          bounces={false}
-          overScrollMode="never"
-          style={{ opacity: isScrollReady ? 1 : 0 }}
-          contentOffset={{ x: loopingEnabled ? interval : 0, y: 0 }}
-          onMomentumScrollEnd={(e) => {
-            if (!loopingEnabled) return;
-            // Determine current page index in cloned space
-            const x = e?.nativeEvent?.contentOffset?.x ?? 0;
-            const page = Math.round(x / interval);
-            // If at leading clone (0), jump to last real item
-            if (page === 0) {
-              scrollToLogicalIndex(data.length - 1, false);
-            }
-            // If at trailing clone (last), jump to first real item
-            const lastPage = loopData.length - 1;
-            if (page === lastPage) {
-              scrollToLogicalIndex(0, false);
-            }
-          }}
-        >
-          {(loopingEnabled ? loopData : data).map((item, index) => (
-            /* TEST 5: ORIGINAL CARD WITHOUT LINEAR GRADIENT */
-            <CarouselCard
-              key={`${item.id}-${index}-${loopingEnabled ? 'loop' : 'base'}`}
-              item={item}
-              colors={currentTheme.colors}
-              logoFailed={failedLogoIds.has(item.id)}
-              onLogoError={() => setFailedLogoIds((prev) => new Set(prev).add(item.id))}
-              onPressInfo={() => handleNavigateToMetadata(item.id, item.type, item.addonId)}
-              scrollX={scrollX}
-              index={index}
-              flipped={!!flippedMap[item.id]}
-              onToggleFlip={() => toggleFlipById(item.id)}
-              interval={interval}
-              cardWidth={cardWidth}
-              cardHeight={cardHeight}
-              isTablet={isTablet}
-            />
-          ))}
-        </Animated.ScrollView>
+        <View style={{ paddingTop: cardTopOffset }}>
+          <Animated.ScrollView
+            ref={scrollViewRef}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={interval}
+            decelerationRate="fast"
+            contentContainerStyle={contentPadding}
+            onScroll={scrollHandler}
+            scrollEventThrottle={32}
+            disableIntervalMomentum
+            pagingEnabled={false}
+            bounces={false}
+            overScrollMode="never"
+            style={{ opacity: isScrollReady ? 1 : 0 }}
+            contentOffset={{ x: loopingEnabled ? interval : 0, y: 0 }}
+            onMomentumScrollEnd={(e) => {
+              if (!loopingEnabled) return;
+              // Determine current page index in cloned space
+              const x = e?.nativeEvent?.contentOffset?.x ?? 0;
+              const page = Math.round(x / interval);
+              // If at leading clone (0), jump to last real item
+              if (page === 0) {
+                scrollToLogicalIndex(data.length - 1, false);
+              }
+              // If at trailing clone (last), jump to first real item
+              const lastPage = loopData.length - 1;
+              if (page === lastPage) {
+                scrollToLogicalIndex(0, false);
+              }
+            }}
+          >
+            {(loopingEnabled ? loopData : data).map((item, index) => (
+              <CarouselCard
+                key={`${item.id}-${index}-${loopingEnabled ? 'loop' : 'base'}`}
+                item={item}
+                colors={currentTheme.colors}
+                logoFailed={failedLogoIds.has(item.id)}
+                onLogoError={() => setFailedLogoIds((prev) => new Set(prev).add(item.id))}
+                onPressInfo={() => handleNavigateToMetadata(item.id, item.type, item.addonId)}
+                scrollX={scrollX}
+                index={index}
+                flipped={!!flippedMap[item.id]}
+                onToggleFlip={() => toggleFlipById(item.id)}
+                interval={interval}
+                cardWidth={cardWidth}
+                cardHeight={cardHeight}
+                isTablet={isTablet}
+              />
+            ))}
+          </Animated.ScrollView>
+        </View>
       </Animated.View>
       {/* Pagination below the card row (library-based, worklet-driven) */}
       <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 6, position: 'relative', zIndex: 1 }} pointerEvents="auto">

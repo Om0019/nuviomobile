@@ -791,11 +791,7 @@ const HomeScreen = () => {
 
     return (
       <View style={styles.ideaSectionMenuWrap}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.ideaSectionMenuScroll}
-        >
+        <View style={styles.ideaSectionMenuRow}>
           {sectionOptions.map((section) => {
             const isActive = ideaHomeSection === section.key;
             return (
@@ -825,18 +821,14 @@ const HomeScreen = () => {
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
+        </View>
       </View>
     );
   }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis]);
   const memoizedHeader = useMemo(() => (
     <>
       {memoizedIdeaSectionMenu}
-      {showHeroSection ? (
-        <View style={styles.heroSectionWrap}>
-          {memoizedFeaturedContent}
-        </View>
-      ) : null}
+      {showHeroSection ? memoizedFeaturedContent : null}
       {(!settings.ideaMode || ideaHomeSection === 'forYou') ? memoizedContinueWatchingSection : null}
     </>
   ), [showHeroSection, memoizedFeaturedContent, memoizedIdeaSectionMenu, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection]);
@@ -1537,14 +1529,12 @@ const styles = StyleSheet.create<any>({
     marginTop: 8,
     marginBottom: 14,
   },
-  ideaSectionMenuScroll: {
+  ideaSectionMenuRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 16,
     gap: 10,
-  },
-  heroSectionWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
   },
   ideaSectionPill: {
     paddingHorizontal: 18,

@@ -804,9 +804,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: '#333',
-    // Consistent border styling matching ContentItem
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.15)',
     // Consistent shadow/elevation
     elevation: Platform.OS === 'android' ? 1 : 0,
     shadowColor: '#000',

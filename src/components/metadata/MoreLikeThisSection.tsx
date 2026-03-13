@@ -191,9 +191,6 @@ const styles = StyleSheet.create({
   poster: {
     borderRadius: 12,
     marginBottom: 8,
-    // Consistent border styling matching ContentItem
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.15)',
     // Consistent shadow/elevation
     elevation: Platform.OS === 'android' ? 1 : 0,
     shadowColor: '#000',

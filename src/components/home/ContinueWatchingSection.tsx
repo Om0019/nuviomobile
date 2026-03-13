@@ -1924,30 +1924,34 @@ const ContinueWatchingSection = React.forwardRef<ContinueWatchingRef>((props, re
 
   // Compute poster dimensions for poster-style cards
   const computedPosterWidth = useMemo(() => {
-    const sizeOffset = (() => {
-      switch (settings.posterSize) {
-        case 'small':
-          return -10;
-        case 'large':
-          return 18;
-        case 'xlarge':
-          return 32;
-        case 'medium':
+    const baseWidth = (() => {
+      switch (deviceType) {
+        case 'tv':
+          return 180;
+        case 'largeTablet':
+          return 160;
+        case 'tablet':
+          return 140;
         default:
-          return 0;
+          return 120;
       }
     })();
 
-    switch (deviceType) {
-      case 'tv':
-        return 180 + sizeOffset;
-      case 'largeTablet':
-        return 160 + sizeOffset;
-      case 'tablet':
-        return 140 + sizeOffset;
-      default:
-        return 120 + sizeOffset;
-    }
+    const sizeMultiplier = (() => {
+      switch (settings.posterSize) {
+        case 'small':
+          return 0.9;
+        case 'large':
+          return 1.1;
+        case 'xlarge':
+          return 1.125;
+        case 'medium':
+        default:
+          return 1;
+      }
+    })();
+
+    return Math.round(baseWidth * sizeMultiplier);
   }, [deviceType, settings.posterSize]);
 
   const computedPosterHeight = useMemo(() => {
@@ -2084,7 +2088,7 @@ const ContinueWatchingSection = React.forwardRef<ContinueWatchingRef>((props, re
         {
           width:
             (isTV ? 100 : isLargeTablet ? 90 : isTablet ? 85 : 80) +
-            (settings.posterSize === 'xlarge' ? 18 : settings.posterSize === 'large' ? 10 : settings.posterSize === 'small' ? -6 : 0)
+            (settings.posterSize === 'xlarge' ? 10 : settings.posterSize === 'large' ? 8 : settings.posterSize === 'small' ? -6 : 0)
         }
       ]}>
         <FastImage

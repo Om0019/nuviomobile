@@ -441,7 +441,12 @@ const HomeScreenSettings: React.FC = () => {
           <View style={styles.settingsRow}>
             <Text style={[styles.rowLabel, { color: isDarkMode ? colors.highEmphasis : colors.textDark }]}>{t('home_screen.poster_size')}</Text>
             <SegmentedControl
-              options={[{ label: t('home_screen.size_small'), value: 'small' }, { label: t('home_screen.size_medium'), value: 'medium' }, { label: t('home_screen.size_large'), value: 'large' }]}
+              options={[
+                { label: t('home_screen.size_small'), value: 'small' },
+                { label: t('home_screen.size_medium'), value: 'medium' },
+                { label: t('home_screen.size_large'), value: 'large' },
+                { label: 'XL', value: 'xlarge' },
+              ]}
               value={settings.posterSize}
               onChange={(val) => handleUpdateSetting('posterSize', val as any)}
             />

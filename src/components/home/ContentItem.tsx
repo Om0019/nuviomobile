@@ -136,6 +136,8 @@ const ContentItem = ({ item, onPress, shouldLoadImage: shouldLoadImageProp, defe
         return Math.max(110, POSTER_WIDTH + 10) * sizeMultiplier;
       case 'large':
         return Math.max(130, POSTER_WIDTH + 25) * sizeMultiplier;
+      case 'xlarge':
+        return Math.max(150, POSTER_WIDTH + 42) * sizeMultiplier;
       default:
         return POSTER_WIDTH * sizeMultiplier;
     }

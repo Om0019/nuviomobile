@@ -68,7 +68,7 @@ export interface AppSettings {
   customThemes: CustomThemeDef[];
   useDominantBackgroundColor: boolean;
   // Home screen poster customization
-  posterSize: 'small' | 'medium' | 'large'; // Predefined sizes
+  posterSize: 'small' | 'medium' | 'large' | 'xlarge'; // Predefined sizes
   posterBorderRadius: number; // 0-20 range for border radius
   postersPerRow: number; // 3-6 range for number of posters per row
   // Home screen content item

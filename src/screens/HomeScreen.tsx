@@ -133,7 +133,7 @@ const SkeletonCatalog = React.memo(() => {
 });
 
 const HomeScreen = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const isDarkMode = useColorScheme() === 'dark';
   const { currentTheme } = useTheme();
@@ -159,6 +159,7 @@ const HomeScreen = () => {
   const [genreDiscoverLoading, setGenreDiscoverLoading] = useState(false);
   const [genreDiscoverPage, setGenreDiscoverPage] = useState(1);
   const [genreDiscoverHasMore, setGenreDiscoverHasMore] = useState(false);
+  const [localizedGenreLabels, setLocalizedGenreLabels] = useState<Record<string, string>>({});
 
   // Shared value for scroll position (for parallax effects)
   const scrollY = useSharedValue(0);
@@ -847,6 +848,55 @@ const HomeScreen = () => {
   }, [catalogs]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const buildLocalizedGenreLabels = async () => {
+      const language = i18n.language || 'en';
+      if (language.toLowerCase().startsWith('en')) {
+        if (!cancelled) setLocalizedGenreLabels({});
+        return;
+      }
+
+      try {
+        const [movieGenresEn, movieGenresLocalized, tvGenresEn, tvGenresLocalized] = await Promise.all([
+          tmdbService.getMovieGenres('en-US'),
+          tmdbService.getMovieGenres(language),
+          tmdbService.getTvGenres('en-US'),
+          tmdbService.getTvGenres(language),
+        ]);
+
+        const localizedMovieById = new Map(movieGenresLocalized.map((genre) => [genre.id, genre.name]));
+        const localizedTvById = new Map(tvGenresLocalized.map((genre) => [genre.id, genre.name]));
+        const nextLabels: Record<string, string> = {};
+
+        movieGenresEn.forEach((genre) => {
+          const localizedName = localizedMovieById.get(genre.id);
+          if (localizedName) nextLabels[genre.name] = localizedName;
+        });
+
+        tvGenresEn.forEach((genre) => {
+          const localizedName = localizedTvById.get(genre.id);
+          if (localizedName) nextLabels[genre.name] = localizedName;
+        });
+
+        if (!cancelled) setLocalizedGenreLabels(nextLabels);
+      } catch {
+        if (!cancelled) setLocalizedGenreLabels({});
+      }
+    };
+
+    buildLocalizedGenreLabels();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [i18n.language]);
+
+  const getGenreDisplayName = useCallback((genre: string) => {
+    return localizedGenreLabels[genre] || genre;
+  }, [localizedGenreLabels]);
+
+  useEffect(() => {
     if (!selectedGenre) {
       setGenreDiscoverResults([]);
       setGenreDiscoverPage(1);
@@ -1139,7 +1189,7 @@ const HomeScreen = () => {
       <View style={styles.genreDiscoverHeader}>
         <View>
           <Text style={[styles.genreDiscoverTitle, { color: currentTheme.colors.white }]}>
-            {selectedGenre}
+            {selectedGenre ? getGenreDisplayName(selectedGenre) : ''}
           </Text>
           <Text style={[styles.genreDiscoverSubtitle, { color: currentTheme.colors.highEmphasis }]}>
             Trending picks across all sources
@@ -1162,7 +1212,7 @@ const HomeScreen = () => {
                   styles.genreDiscoverTypePillText,
                   { color: active ? currentTheme.colors.white : currentTheme.colors.highEmphasis },
                 ]}>
-                  {typeOption === 'movie' ? 'Movies' : 'Shows'}
+                  {typeOption === 'movie' ? t('home.movies') : t('home.tv_shows')}
                 </Text>
               </TouchableOpacity>
             );
@@ -1224,7 +1274,7 @@ const HomeScreen = () => {
         </>
       )}
     </View>
-  ), [selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, currentTheme.colors.primary, genreDiscoverType, genreDiscoverLoading, genreDiscoverResults, genreDiscoverHasMore, genreDiscoverCardWidth, settings.posterBorderRadius, navigation, loadMoreGenreDiscover]);
+  ), [selectedGenre, getGenreDisplayName, currentTheme.colors.white, currentTheme.colors.highEmphasis, currentTheme.colors.primary, genreDiscoverType, genreDiscoverLoading, genreDiscoverResults, genreDiscoverHasMore, genreDiscoverCardWidth, settings.posterBorderRadius, navigation, loadMoreGenreDiscover, t]);
   const memoizedTopActions = useMemo(() => (
     <View style={[styles.topActionBar, { top: topActionBarTop }]}>
       <TouchableOpacity
@@ -1473,7 +1523,7 @@ const HomeScreen = () => {
                 styles.topFilterPillText,
                 { color: ideaHomeSection === 'movie' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
               ]}>
-                Movies
+                {t('home.movies')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -1491,7 +1541,7 @@ const HomeScreen = () => {
                 styles.topFilterPillText,
                 { color: ideaHomeSection === 'series' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
               ]}>
-                Series
+                {t('home.series')}
               </Text>
             </TouchableOpacity>
           </>
@@ -1513,7 +1563,7 @@ const HomeScreen = () => {
                   color={currentTheme.colors.highEmphasis}
                 />
                 <Text style={[styles.topFilterPillText, { color: currentTheme.colors.highEmphasis }]}>
-                  Genres
+                  {t('home.genres_label', { defaultValue: 'Genres' })}
                 </Text>
               </TouchableOpacity>
             </Animated.View>
@@ -1546,7 +1596,7 @@ const HomeScreen = () => {
                       styles.genreChipText,
                       { color: isActive ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
                     ]}>
-                      {genre}
+                      {getGenreDisplayName(genre)}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -1557,7 +1607,7 @@ const HomeScreen = () => {
       </Animated.View>
       <View style={styles.topFilterDivider} />
     </View>
-  ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle, headerReflectionAnimatedStyle]);
+  ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle, headerReflectionAnimatedStyle, getGenreDisplayName, t]);
   const memoizedHeader = useMemo(() => (
     <>
       {!selectedGenre ? <View style={{ height: ideaHeroHeaderSpacing }} /> : null}

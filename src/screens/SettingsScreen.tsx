@@ -43,12 +43,9 @@ import { ContentDiscoverySettingsContent } from './settings/ContentDiscoverySett
 import { AppearanceSettingsContent } from './settings/AppearanceSettingsScreen';
 import { IntegrationsSettingsContent } from './settings/IntegrationsSettingsScreen';
 import { AboutSettingsContent, AboutFooter } from './settings/AboutSettingsScreen';
-import { PrivacySettingsContent } from './settings/PrivacySettingsScreen';
 import { SettingsCard, SettingItem, ChevronRight, CustomSwitch } from './settings/SettingsComponents';
 import { useBottomSheetBackHandler } from '../hooks/useBottomSheetBackHandler';
 import { LOCALES } from '../constants/locales';
-import { useSimklIntegration } from '../hooks/useSimklIntegration';
-import SimklIcon from '../components/icons/SimklIcon';
 
 const { width } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -148,7 +145,6 @@ const SettingsScreen: React.FC = () => {
     { id: 'playback', title: t('settings.playback'), icon: 'play-circle' },
     { id: 'backup', title: t('settings.backup_restore'), icon: 'archive' },
     { id: 'updates', title: t('settings.updates'), icon: 'refresh-ccw' },
-    { id: 'privacy', title: t('privacy.title'), icon: 'shield' },
     { id: 'about', title: t('settings.about'), icon: 'info' },
     { id: 'developer', title: t('settings.developer'), icon: 'code' },
     { id: 'cache', title: t('settings.cache'), icon: 'database' },
@@ -204,7 +200,6 @@ const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { lastUpdate } = useCatalogContext();
   const { isAuthenticated, userProfile, refreshAuthStatus } = useTraktContext();
-  const { isAuthenticated: isSimklAuthenticated } = useSimklIntegration();
   const { currentTheme } = useTheme();
 
   // Tablet-specific state
@@ -361,7 +356,6 @@ const SettingsScreen: React.FC = () => {
     return true;
   };
   const showTraktItem = isItemVisible('trakt');
-  const showSimklItem = isItemVisible('simkl');
   const showCloudSyncItem = isItemVisible('cloud_sync');
 
   // Filter categories based on conditions
@@ -391,7 +385,7 @@ const SettingsScreen: React.FC = () => {
                 }
                 renderControl={() => <ChevronRight />}
                 onPress={() => (navigation as any).navigate('SyncSettings')}
-                isLast={!showTraktItem && !showSimklItem}
+                isLast={!showTraktItem}
                 isTablet={isTablet}
               />
             )}
@@ -402,17 +396,6 @@ const SettingsScreen: React.FC = () => {
                 customIcon={<TraktIcon size={isTablet ? 24 : 20} />}
                 renderControl={() => <ChevronRight />}
                 onPress={() => navigation.navigate('TraktSettings')}
-                isLast={!showSimklItem}
-                isTablet={isTablet}
-              />
-            )}
-            {showSimklItem && (
-              <SettingItem
-                title={t('settings.items.simkl')}
-                description={isSimklAuthenticated ? t('settings.items.simkl_connected') : t('settings.items.simkl_desc')}
-                customIcon={<SimklIcon size={isTablet ? 24 : 20} />}
-                renderControl={() => <ChevronRight />}
-                onPress={() => navigation.navigate('SimklSettings')}
                 isLast={true}
                 isTablet={isTablet}
               />
@@ -449,10 +432,6 @@ const SettingsScreen: React.FC = () => {
 
       case 'about':
         return <AboutSettingsContent isTablet={isTablet} displayDownloads={displayDownloads} />;
-
-      case 'privacy':
-        return <PrivacySettingsContent isTablet={isTablet} />;
-
       case 'developer':
         return (__DEV__ || developerModeEnabled) ? (
           <SettingsCard title={t('settings.sections.testing')} isTablet={isTablet}>
@@ -726,7 +705,7 @@ const SettingsScreen: React.FC = () => {
             contentContainerStyle={styles.scrollContent}
           >
             {/* Account */}
-            {(settingsConfig?.categories?.['account']?.visible !== false) && (showTraktItem || showSimklItem || showCloudSyncItem) && (
+            {(settingsConfig?.categories?.['account']?.visible !== false) && (showTraktItem || showCloudSyncItem) && (
               <SettingsCard title={t('settings.account').toUpperCase()}>
                 {showCloudSyncItem && (
                   <SettingItem
@@ -741,7 +720,7 @@ const SettingsScreen: React.FC = () => {
                     }
                     renderControl={() => <ChevronRight />}
                     onPress={() => (navigation as any).navigate('SyncSettings')}
-                    isLast={!showTraktItem && !showSimklItem}
+                    isLast={!showTraktItem}
                   />
                 )}
                 {showTraktItem && (
@@ -751,16 +730,6 @@ const SettingsScreen: React.FC = () => {
                     customIcon={<TraktIcon size={20} />}
                     renderControl={() => <ChevronRight />}
                     onPress={() => navigation.navigate('TraktSettings')}
-                    isLast={!showSimklItem}
-                  />
-                )}
-                {showSimklItem && (
-                  <SettingItem
-                    title={t('settings.items.simkl')}
-                    description={isSimklAuthenticated ? t('settings.items.simkl_connected') : t('settings.items.simkl_desc')}
-                    customIcon={<SimklIcon size={20} />}
-                    renderControl={() => <ChevronRight />}
-                    onPress={() => navigation.navigate('SimklSettings')}
                     isLast={true}
                   />
                 )}
@@ -872,20 +841,6 @@ const SettingsScreen: React.FC = () => {
 
             {/* About */}
             <SettingsCard title={t('settings.about').toUpperCase()}>
-              <SettingItem
-                title={t('settings.items.contributors')}
-                description={t('settings.items.view_contributors')}
-                icon="users"
-                renderControl={() => <ChevronRight />}
-                onPress={() => navigation.navigate('Contributors')}
-              />
-              <SettingItem
-                title={t('privacy.title')}
-                description={t('privacy.settings_desc')}
-                icon="shield"
-                renderControl={() => <ChevronRight />}
-                onPress={() => navigation.navigate('PrivacySettings')}
-              />
               <SettingItem
                 title={t('settings.about_nuvio')}
                 description={getDisplayedAppVersion()}

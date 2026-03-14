@@ -47,6 +47,7 @@
             "channels": "Canais"
         },
         "movies": "Filmes",
+        "genres_label": "Gêneros",
         "tv_shows": "Séries de TV",
         "load_more_catalogs": "Carregar Mais Catálogos",
         "no_content": "Nenhum conteúdo disponível",

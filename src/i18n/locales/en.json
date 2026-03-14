@@ -47,6 +47,7 @@
             "channels": "Channels"
         },
         "movies": "Movies",
+        "genres_label": "Genres",
         "tv_shows": "TV Shows",
         "load_more_catalogs": "Load More Catalogs",
         "no_content": "No content available",

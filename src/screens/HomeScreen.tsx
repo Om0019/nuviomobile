@@ -763,8 +763,8 @@ const HomeScreen = () => {
   const topActionBarHeight = 48;
   const topFilterBarTop = topActionBarTop + topActionBarHeight + 12;
   const topFilterBarHeight = 42;
-  const topFilterDividerTop = topFilterBarTop + topFilterBarHeight + 14;
-  const homeListViewportTop = topFilterDividerTop + 1;
+  const topFilterFadeTop = topFilterBarTop;
+  const homeListViewportTop = topFilterBarTop + Math.round(topFilterBarHeight * 0.58);
   const ideaHeroHeaderSpacing = 16;
   const availableGenres = useMemo(() => {
     const genreSet = new Set<string>();
@@ -1178,7 +1178,6 @@ const HomeScreen = () => {
           </Animated.View>
         </View>
       </Animated.View>
-      <View style={styles.topFilterDivider} />
     </View>
   ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
@@ -1377,13 +1376,14 @@ const HomeScreen = () => {
           pointerEvents="none"
           colors={[
             `${ideaBackgroundColor}00`,
-            `${ideaBackgroundColor}18`,
-            `${ideaBackgroundColor}66`,
+            `${ideaBackgroundColor}12`,
+            `${ideaBackgroundColor}54`,
+            `${ideaBackgroundColor}D8`,
             `${ideaBackgroundColor}F2`,
             `${ideaBackgroundColor}FF`,
           ]}
-          locations={[0, 0.2, 0.42, 0.58, 1]}
-          style={[styles.homeListTopFade, { top: homeListViewportTop }]}
+          locations={[0, 0.24, 0.5, 0.62, 1]}
+          style={[styles.homeListTopFade, { top: topFilterFadeTop }]}
         />
         {memoizedTopActions}
         {memoizedHomeFilters}
@@ -1400,6 +1400,7 @@ const HomeScreen = () => {
     keyExtractor,
     contentContainerStyle,
     homeListViewportTop,
+    topFilterFadeTop,
     memoizedHeader,
     memoizedTopActions,
     memoizedHomeFilters,
@@ -1468,9 +1469,8 @@ const styles = StyleSheet.create<any>({
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 72,
+    height: 88,
     zIndex: 20,
-    overflow: 'hidden',
   },
   ideaAmbientBackground: {
     ...StyleSheet.absoluteFillObject,
@@ -2115,14 +2115,6 @@ const styles = StyleSheet.create<any>({
   genreChipText: {
     fontSize: 13,
     fontWeight: '600',
-  },
-  topFilterDivider: {
-    marginTop: 14,
-    alignSelf: 'stretch',
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.025)',
-    marginHorizontal: 12,
-    opacity: 0.55,
   },
   topActionButton: {
     width: 46,

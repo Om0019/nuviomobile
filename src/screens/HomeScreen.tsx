@@ -1054,15 +1054,14 @@ const HomeScreen = () => {
     </View>
   ), [topActionBarTop, navigation, currentTheme.colors.white]);
   const genreExpandAnimatedStyle = useAnimatedStyle(() => ({
-    width: genreExpandProgress.value * Math.max(windowWidth - 156, 180),
     opacity: genreExpandProgress.value,
     transform: [
-      { translateX: 10 * (1 - genreExpandProgress.value) },
+      { translateX: 6 * (1 - genreExpandProgress.value) },
     ],
   }));
   const filterRowShiftAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: -Math.min(windowWidth * 0.22, 92) * genreExpandProgress.value },
+      { translateX: 0 },
     ],
   }));
   const genreTriggerAnimatedStyle = useAnimatedStyle(() => ({
@@ -1125,7 +1124,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </>
         )}
-        <View style={styles.genreFilterWrap}>
+        <View style={[styles.genreFilterWrap, genresExpanded && styles.genreFilterWrapExpanded]}>
           {!genresExpanded && (
             <Animated.View style={genreTriggerAnimatedStyle}>
               <TouchableOpacity
@@ -1147,7 +1146,7 @@ const HomeScreen = () => {
               </TouchableOpacity>
             </Animated.View>
           )}
-          <Animated.View style={[styles.genreExpandContainer, genreExpandAnimatedStyle]}>
+          <Animated.View style={[styles.genreExpandContainer, !genresExpanded && styles.genreExpandContainerCollapsed, genreExpandAnimatedStyle]}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -2002,8 +2001,10 @@ const styles = StyleSheet.create<any>({
   },
   topFilterBarExpanded: {
     width: '100%',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingRight: 0,
+    position: 'relative',
   },
   topFilterPill: {
     height: 42,
@@ -2026,7 +2027,10 @@ const styles = StyleSheet.create<any>({
     gap: 0,
   },
   topFilterBackButton: {
-    marginRight: 2,
+    position: 'absolute',
+    left: 12,
+    top: 4,
+    zIndex: 2,
   },
   topFilterPillActive: {
     backgroundColor: 'rgba(239, 68, 68, 0.42)',
@@ -2046,19 +2050,34 @@ const styles = StyleSheet.create<any>({
     overflow: 'hidden',
     flex: 1,
   },
+  genreFilterWrapExpanded: {
+    flex: 1,
+    paddingLeft: 54,
+    paddingRight: 12,
+    minWidth: 0,
+  },
   genreExpandContainer: {
     height: 42,
     overflow: 'hidden',
     justifyContent: 'center',
-    flexShrink: 1,
+    flex: 1,
+    minWidth: 0,
+  },
+  genreExpandContainerCollapsed: {
+    width: 0,
+    flex: 0,
+    opacity: 0,
   },
   genreExpandScrollView: {
     flex: 1,
+    minWidth: 0,
   },
   genreExpandScroll: {
-    gap: 8,
-    paddingRight: 16,
+    gap: 10,
+    paddingLeft: 2,
+    paddingRight: 12,
     alignItems: 'center',
+    flexGrow: 1,
   },
   genreChip: {
     height: 34,

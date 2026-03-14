@@ -1053,10 +1053,10 @@ const HomeScreen = () => {
     </View>
   ), [topActionBarTop, navigation, currentTheme.colors.white]);
   const genreExpandAnimatedStyle = useAnimatedStyle(() => ({
-    width: genreExpandProgress.value * Math.min(windowWidth * 0.52, 240),
+    width: genreExpandProgress.value * Math.max(windowWidth - 156, 180),
     opacity: genreExpandProgress.value,
     transform: [
-      { translateX: 12 * (1 - genreExpandProgress.value) },
+      { translateX: 10 * (1 - genreExpandProgress.value) },
     ],
   }));
   const filterRowShiftAnimatedStyle = useAnimatedStyle(() => ({
@@ -1071,65 +1071,88 @@ const HomeScreen = () => {
   }));
   const memoizedHomeFilters = useMemo(() => (
     <View style={[styles.topFilterBand, { top: topFilterBarTop }]}>
-      <Animated.View style={[styles.topFilterBar, filterRowShiftAnimatedStyle]}>
-        <TouchableOpacity
-          activeOpacity={0.82}
-          style={[
-            styles.topFilterPill,
-            ideaHomeSection === 'movie' && styles.topFilterPillActive,
-          ]}
-          onPress={() => {
-            setIdeaHomeSection((prev) => (prev === 'movie' ? 'forYou' : 'movie'));
-            setSelectedGenre(null);
-          }}
-        >
-          <Text style={[
-            styles.topFilterPillText,
-            { color: ideaHomeSection === 'movie' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
-          ]}>
-            Movies
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.82}
-          style={[
-            styles.topFilterPill,
-            ideaHomeSection === 'series' && styles.topFilterPillActive,
-          ]}
-          onPress={() => {
-            setIdeaHomeSection((prev) => (prev === 'series' ? 'forYou' : 'series'));
-            setSelectedGenre(null);
-          }}
-        >
-          <Text style={[
-            styles.topFilterPillText,
-            { color: ideaHomeSection === 'series' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
-          ]}>
-            Series
-          </Text>
-        </TouchableOpacity>
-        <View style={styles.genreFilterWrap}>
-          <Animated.View style={genreTriggerAnimatedStyle}>
+      <Animated.View style={[styles.topFilterBar, genresExpanded && styles.topFilterBarExpanded, filterRowShiftAnimatedStyle]}>
+        {genresExpanded ? (
+          <TouchableOpacity
+            activeOpacity={0.82}
+            style={[styles.topFilterPill, styles.topFilterPillCompact, styles.topFilterBackButton]}
+            onPress={() => setGenresExpanded(false)}
+          >
+            <MaterialIcons
+              name="arrow-back-ios-new"
+              size={16}
+              color={currentTheme.colors.highEmphasis}
+            />
+          </TouchableOpacity>
+        ) : (
+          <>
             <TouchableOpacity
               activeOpacity={0.82}
               style={[
                 styles.topFilterPill,
-                (genresExpanded || !!selectedGenre) && styles.topFilterPillActiveSoft,
+                ideaHomeSection === 'movie' && styles.topFilterPillActive,
               ]}
-              onPress={() => setGenresExpanded((prev) => !prev)}
+              onPress={() => {
+                setIdeaHomeSection((prev) => (prev === 'movie' ? 'forYou' : 'movie'));
+                setSelectedGenre(null);
+              }}
             >
-              <MaterialIcons
-                name={genresExpanded ? 'arrow-back-ios-new' : 'chevron-right'}
-                size={genresExpanded ? 16 : 18}
-                color={currentTheme.colors.highEmphasis}
-              />
-              <Text style={[styles.topFilterPillText, { color: currentTheme.colors.highEmphasis }]}>
-                Genres
+              <Text style={[
+                styles.topFilterPillText,
+                { color: ideaHomeSection === 'movie' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
+              ]}>
+                Movies
               </Text>
             </TouchableOpacity>
-          </Animated.View>
+            <TouchableOpacity
+              activeOpacity={0.82}
+              style={[
+                styles.topFilterPill,
+                ideaHomeSection === 'series' && styles.topFilterPillActive,
+              ]}
+              onPress={() => {
+                setIdeaHomeSection((prev) => (prev === 'series' ? 'forYou' : 'series'));
+                setSelectedGenre(null);
+              }}
+            >
+              <Text style={[
+                styles.topFilterPillText,
+                { color: ideaHomeSection === 'series' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
+              ]}>
+                Series
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+        <View style={styles.genreFilterWrap}>
+          {!genresExpanded && (
+            <Animated.View style={genreTriggerAnimatedStyle}>
+              <TouchableOpacity
+                activeOpacity={0.82}
+                style={[
+                  styles.topFilterPill,
+                  (genresExpanded || !!selectedGenre) && styles.topFilterPillActiveSoft,
+                ]}
+                onPress={() => setGenresExpanded(true)}
+              >
+                <MaterialIcons
+                  name="chevron-right"
+                  size={18}
+                  color={currentTheme.colors.highEmphasis}
+                />
+                <Text style={[styles.topFilterPillText, { color: currentTheme.colors.highEmphasis }]}>
+                  Genres
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
           <Animated.View style={[styles.genreExpandContainer, genreExpandAnimatedStyle]}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreExpandScroll}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.genreExpandScrollView}
+              contentContainerStyle={styles.genreExpandScroll}
+            >
               {availableGenres.map((genre) => {
                 const isActive = selectedGenre === genre;
                 return (
@@ -1158,28 +1181,6 @@ const HomeScreen = () => {
       <View style={styles.topFilterDivider} />
     </View>
   ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle]);
-  const memoizedHeaderBoundary = useMemo(() => (
-    <View
-      pointerEvents="none"
-      style={[
-        styles.headerBoundaryMask,
-        {
-          height: topFilterDividerTop + 26,
-          backgroundColor: settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
-        },
-      ]}
-    >
-      <LinearGradient
-        colors={[
-          settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
-          settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
-          'rgba(0,0,0,0)',
-        ]}
-        locations={[0, 0.76, 1]}
-        style={styles.headerBoundaryFade}
-      />
-    </View>
-  ), [topFilterDividerTop, settings.ideaMode, ideaBackgroundColor, currentTheme.colors.darkBackground]);
   const memoizedHeader = useMemo(() => (
     <>
       <View style={{ height: ideaHeroHeaderSpacing }} />
@@ -1380,7 +1381,6 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
-        {memoizedHeaderBoundary}
         {memoizedTopActions}
         {memoizedHomeFilters}
         {/* Toasts are rendered globally at root */}
@@ -1396,7 +1396,6 @@ const HomeScreen = () => {
     keyExtractor,
     contentContainerStyle,
     memoizedHeader,
-    memoizedHeaderBoundary,
     memoizedTopActions,
     memoizedHomeFilters,
     ideaAmbientToneAnimatedStyle,
@@ -1996,20 +1995,6 @@ const styles = StyleSheet.create<any>({
     zIndex: 79,
     alignItems: 'center',
   },
-  headerBoundaryMask: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 78,
-  },
-  headerBoundaryFade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: -1,
-    height: 34,
-  },
   topFilterBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2017,6 +2002,11 @@ const styles = StyleSheet.create<any>({
     justifyContent: 'center',
     paddingHorizontal: 12,
     minHeight: 42,
+  },
+  topFilterBarExpanded: {
+    width: '100%',
+    justifyContent: 'flex-start',
+    paddingRight: 0,
   },
   topFilterPill: {
     height: 42,
@@ -2029,6 +2019,17 @@ const styles = StyleSheet.create<any>({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
     overflow: 'hidden',
+  },
+  topFilterPillCompact: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    paddingHorizontal: 0,
+    justifyContent: 'center',
+    gap: 0,
+  },
+  topFilterBackButton: {
+    marginRight: 2,
   },
   topFilterPillActive: {
     backgroundColor: 'rgba(239, 68, 68, 0.42)',
@@ -2046,15 +2047,20 @@ const styles = StyleSheet.create<any>({
     alignItems: 'center',
     gap: 8,
     overflow: 'hidden',
+    flex: 1,
   },
   genreExpandContainer: {
     height: 42,
     overflow: 'hidden',
     justifyContent: 'center',
+    flexShrink: 1,
+  },
+  genreExpandScrollView: {
+    flex: 1,
   },
   genreExpandScroll: {
     gap: 8,
-    paddingRight: 8,
+    paddingRight: 16,
     alignItems: 'center',
   },
   genreChip: {

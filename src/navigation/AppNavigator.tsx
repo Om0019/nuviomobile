@@ -1052,7 +1052,6 @@ const MainTabs = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-      <AppIdeaBackground />
       {/* Common StatusBar for all tabs */}
       <StatusBar
         translucent

@@ -1373,14 +1373,10 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
-        <LinearGradient
+        <BlurView
           pointerEvents="none"
-          colors={[
-            settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
-            settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
-            'rgba(0,0,0,0)',
-          ]}
-          locations={[0, 0.45, 1]}
+          intensity={24}
+          tint="dark"
           style={[styles.homeListTopFade, { top: homeListViewportTop }]}
         />
         {memoizedTopActions}
@@ -1466,8 +1462,9 @@ const styles = StyleSheet.create<any>({
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 42,
+    height: 28,
     zIndex: 20,
+    opacity: 0.72,
   },
   ideaAmbientBackground: {
     ...StyleSheet.absoluteFillObject,

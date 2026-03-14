@@ -374,7 +374,7 @@ export const ThisWeekSection = React.memo(() => {
         <TouchableOpacity onPress={handleViewAll} activeOpacity={0.85} style={styles.viewAllButton}>
           <BlurView
             tint="dark"
-            intensity={45}
+            intensity={58}
             style={[
               styles.viewAllBlur,
               {
@@ -384,9 +384,14 @@ export const ThisWeekSection = React.memo(() => {
             ]}
           >
             <LinearGradient
-              colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(0,0,0,0.10)']}
-              locations={[0, 0.32, 1]}
+              colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0.07)', 'rgba(255,255,255,0.00)']}
+              locations={[0, 0.16, 1]}
               style={styles.viewAllGlassLayer}
+            />
+            <LinearGradient
+              colors={['rgba(255,255,255,0.00)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.00)']}
+              locations={[0, 0.52, 1]}
+              style={styles.viewAllReflection}
             />
             <Text style={[
               styles.viewAllText,
@@ -467,15 +472,27 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: 'rgba(255,255,255,0.12)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.16,
+    shadowRadius: 24,
   },
   viewAllBlur: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(8,10,14,0.16)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   viewAllGlassLayer: {
     ...StyleSheet.absoluteFillObject,
+  },
+  viewAllReflection: {
+    position: 'absolute',
+    top: 0,
+    left: 12,
+    right: 12,
+    height: 20,
+    borderRadius: 12,
   },
   viewAllText: {
     fontSize: 13,

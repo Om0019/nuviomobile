@@ -1108,6 +1108,18 @@ const HomeScreen = () => {
       { scale: 1.02 + Math.min(scrollY.value / 2200, 0.04) },
     ],
   }));
+  const headerReflectionAnimatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      ideaDynamicGlowProgress.value,
+      [0, 1],
+      [ideaDynamicGlowFromColor.value, ideaDynamicGlowToColor.value]
+    ),
+    opacity: 0.12 + Math.min(scrollY.value / 1800, 0.08),
+    transform: [
+      { translateY: -14 + Math.min(scrollY.value * 0.025, 22) },
+      { scale: 1.04 + Math.min(scrollY.value / 2600, 0.03) },
+    ],
+  }));
   const genreDiscoverColumns = useMemo(() => {
     if (windowWidth >= 1200) return 5;
     if (windowWidth >= 900) return 4;
@@ -1294,10 +1306,10 @@ const HomeScreen = () => {
     return (
       <View style={styles.homeSearchOverlay} pointerEvents="box-none">
         <Pressable style={styles.homeSearchOverlayBackdrop} onPress={closeSearchOverlay}>
-          <BlurView tint="dark" intensity={48} style={StyleSheet.absoluteFillObject} />
+          <BlurView tint="dark" intensity={40} style={StyleSheet.absoluteFillObject} />
           <LinearGradient
-            colors={['rgba(23,17,18,0.24)', 'rgba(18,13,14,0.46)', 'rgba(14,10,11,0.62)']}
-            locations={[0, 0.36, 1]}
+            colors={['rgba(32,22,24,0.12)', 'rgba(24,16,17,0.28)', 'rgba(15,10,11,0.42)']}
+            locations={[0, 0.38, 1]}
             style={StyleSheet.absoluteFillObject}
           />
         </Pressable>
@@ -1311,11 +1323,11 @@ const HomeScreen = () => {
                   glassEffectStyle="regular"
                 />
               ) : (
-                <BlurView tint="dark" intensity={75} style={StyleSheet.absoluteFillObject} />
+                <BlurView tint="dark" intensity={58} style={StyleSheet.absoluteFillObject} />
               )}
               <LinearGradient
-                colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.00)']}
-                locations={[0, 0.18, 1]}
+                colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.00)']}
+                locations={[0, 0.16, 1]}
                 style={styles.homeSearchBarHighlight}
               />
               <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
@@ -1404,6 +1416,14 @@ const HomeScreen = () => {
   }));
   const memoizedHomeFilters = useMemo(() => (
     <View style={[styles.topFilterBand, { top: topFilterBarTop }]}>
+      <View pointerEvents="none" style={styles.topFilterReflectionShell}>
+        <Animated.View style={[styles.topFilterReflectionGlow, headerReflectionAnimatedStyle]} />
+        <LinearGradient
+          colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.025)', 'rgba(255,255,255,0.00)']}
+          locations={[0, 0.22, 1]}
+          style={styles.topFilterReflectionHighlight}
+        />
+      </View>
       <Animated.View style={[styles.topFilterBar, genresExpanded && styles.topFilterBarExpanded, filterRowShiftAnimatedStyle]}>
         {genresExpanded ? (
           <TouchableOpacity
@@ -1534,7 +1554,7 @@ const HomeScreen = () => {
       </Animated.View>
       <View style={styles.topFilterDivider} />
     </View>
-  ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle]);
+  ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle, headerReflectionAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
     <>
       {!selectedGenre ? <View style={{ height: ideaHeroHeaderSpacing }} /> : null}
@@ -2348,6 +2368,31 @@ const styles = StyleSheet.create<any>({
     right: 0,
     zIndex: 79,
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  topFilterReflectionShell: {
+    position: 'absolute',
+    top: -18,
+    left: -12,
+    right: -12,
+    height: 104,
+    overflow: 'hidden',
+  },
+  topFilterReflectionGlow: {
+    position: 'absolute',
+    top: -12,
+    left: '12%',
+    right: '12%',
+    height: 88,
+    borderRadius: 44,
+  },
+  topFilterReflectionHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 20,
+    right: 20,
+    height: 52,
+    borderRadius: 26,
   },
   topFilterBar: {
     flexDirection: 'row',
@@ -2580,8 +2625,12 @@ const styles = StyleSheet.create<any>({
     alignItems: 'center',
     gap: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: 'rgba(15,12,13,0.18)',
+    borderColor: 'rgba(255,255,255,0.11)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.18,
+    shadowRadius: 28,
   },
   homeSearchResultsScroll: {
     flex: 1,
@@ -2640,7 +2689,7 @@ const styles = StyleSheet.create<any>({
     borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   topActionButton: {
     width: 46,

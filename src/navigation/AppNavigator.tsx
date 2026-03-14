@@ -1850,7 +1850,16 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
         <Stack.Screen
           name="SyncSettings"
           component={SyncSettingsScreen}
-          options={{ headerShown: false }}
+          options={{
+            animation: 'none',
+            presentation: 'card',
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+            headerShown: false,
+            contentStyle: {
+              backgroundColor: 'transparent',
+            },
+          }}
         />
       </Stack.Navigator>
         </View>

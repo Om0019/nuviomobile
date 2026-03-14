@@ -1469,14 +1469,10 @@ const HomeScreen = () => {
   }));
   const memoizedHomeFilters = useMemo(() => (
     <View style={[styles.topFilterBand, { top: topFilterBarTop }]}>
-      <View pointerEvents="none" style={styles.topFilterReflectionShell}>
-        <Animated.View style={[styles.topFilterReflectionGlow, headerReflectionAnimatedStyle]} />
-        <LinearGradient
-          colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.025)', 'rgba(255,255,255,0.00)']}
-          locations={[0, 0.22, 1]}
-          style={styles.topFilterReflectionHighlight}
-        />
-      </View>
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.topFilterReflectionGlow, headerReflectionAnimatedStyle]}
+      />
       <Animated.View style={[styles.topFilterBar, genresExpanded && styles.topFilterBarExpanded, filterRowShiftAnimatedStyle]}>
         {genresExpanded ? (
           <TouchableOpacity
@@ -1605,7 +1601,6 @@ const HomeScreen = () => {
           </Animated.View>
         </View>
       </Animated.View>
-      <View style={styles.topFilterDivider} />
     </View>
   ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle, headerReflectionAnimatedStyle, getGenreDisplayName, t]);
   const memoizedHeader = useMemo(() => (
@@ -2421,31 +2416,16 @@ const styles = StyleSheet.create<any>({
     right: 0,
     zIndex: 79,
     alignItems: 'center',
-    overflow: 'hidden',
-  },
-  topFilterReflectionShell: {
-    position: 'absolute',
-    top: -18,
-    left: -12,
-    right: -12,
-    height: 104,
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   topFilterReflectionGlow: {
     position: 'absolute',
-    top: -12,
-    left: '12%',
-    right: '12%',
-    height: 88,
-    borderRadius: 44,
-  },
-  topFilterReflectionHighlight: {
-    position: 'absolute',
-    top: 0,
-    left: 20,
-    right: 20,
-    height: 52,
-    borderRadius: 26,
+    top: -10,
+    left: 18,
+    right: 18,
+    height: 76,
+    borderRadius: 38,
+    opacity: 0.42,
   },
   topFilterBar: {
     flexDirection: 'row',
@@ -2645,13 +2625,6 @@ const styles = StyleSheet.create<any>({
   genreChipText: {
     fontSize: 13,
     fontWeight: '600',
-  },
-  topFilterDivider: {
-    marginTop: 14,
-    alignSelf: 'stretch',
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.018)',
-    marginHorizontal: 12,
   },
   homeSearchOverlay: {
     ...StyleSheet.absoluteFillObject,

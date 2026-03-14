@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, StatusBar, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSettings } from '../../hooks/useSettings';
@@ -7,6 +9,7 @@ import ScreenHeader from '../../components/common/ScreenHeader';
 import { SettingsCard, SettingItem, CustomSwitch } from './SettingsComponents';
 import { useRealtimeConfig } from '../../hooks/useRealtimeConfig';
 import { useTranslation } from 'react-i18next';
+import { RootStackParamList } from '../../navigation/AppNavigator';
 
 const { width } = Dimensions.get('window');
 
@@ -85,11 +88,21 @@ const AppearanceSettingsScreen: React.FC = () => {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const screenIsTablet = width >= 768;
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+    const handleBack = () => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+            return;
+        }
+
+        (navigation as any).navigate('Settings');
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <StatusBar barStyle="light-content" />
-            <ScreenHeader title={t('settings.appearance')} showBackButton />
+            <ScreenHeader title={t('settings.appearance')} showBackButton onBackPress={handleBack} />
 
             <ScrollView
                 style={styles.scrollView}

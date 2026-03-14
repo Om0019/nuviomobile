@@ -41,7 +41,6 @@ import { useScrollToTop } from '../contexts/ScrollToTopContext';
 import { PlaybackSettingsContent } from './settings/PlaybackSettingsScreen';
 import { ContentDiscoverySettingsContent } from './settings/ContentDiscoverySettingsScreen';
 import { AppearanceSettingsContent } from './settings/AppearanceSettingsScreen';
-import { IntegrationsSettingsContent } from './settings/IntegrationsSettingsScreen';
 import { AboutSettingsContent, AboutFooter } from './settings/AboutSettingsScreen';
 import { SettingsCard, SettingItem, ChevronRight, CustomSwitch } from './settings/SettingsComponents';
 import { useBottomSheetBackHandler } from '../hooks/useBottomSheetBackHandler';
@@ -141,7 +140,6 @@ const SettingsScreen: React.FC = () => {
     { id: 'aa', title: t('settings.account'), icon: 'user' },
     { id: 'content', title: t('settings.content_discovery'), icon: 'compass' },
     { id: 'appearance', title: t('settings.appearance'), icon: 'sliders' },
-    { id: 'integrations', title: t('settings.integrations'), icon: 'layers' },
     { id: 'playback', title: t('settings.playback'), icon: 'play-circle' },
     { id: 'backup', title: t('settings.backup_restore'), icon: 'archive' },
     { id: 'updates', title: t('settings.updates'), icon: 'refresh-ccw' },
@@ -423,9 +421,6 @@ const SettingsScreen: React.FC = () => {
             <AppearanceSettingsContent isTablet={isTablet} />
           </>
         );
-
-      case 'integrations':
-        return <IntegrationsSettingsContent isTablet={isTablet} />;
 
       case 'playback':
         return <PlaybackSettingsContent isTablet={isTablet} />;
@@ -740,7 +735,6 @@ const SettingsScreen: React.FC = () => {
             {(
               (settingsConfig?.categories?.['content']?.visible !== false) ||
               (settingsConfig?.categories?.['appearance']?.visible !== false) ||
-              (settingsConfig?.categories?.['integrations']?.visible !== false) ||
               (settingsConfig?.categories?.['playback']?.visible !== false)
             ) && (
                 <SettingsCard title="GENERAL">
@@ -768,15 +762,6 @@ const SettingsScreen: React.FC = () => {
                       icon="sliders"
                       renderControl={() => <ChevronRight />}
                       onPress={() => navigation.navigate('AppearanceSettings')}
-                    />
-                  )}
-                  {(settingsConfig?.categories?.['integrations']?.visible !== false) && (
-                    <SettingItem
-                      title={t('settings.integrations')}
-                      description={t('settings.mdblist_tmdb_ai')}
-                      icon="layers"
-                      renderControl={() => <ChevronRight />}
-                      onPress={() => navigation.navigate('IntegrationsSettings')}
                     />
                   )}
                   {(settingsConfig?.categories?.['playback']?.visible !== false) && (

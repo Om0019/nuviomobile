@@ -764,7 +764,7 @@ const HomeScreen = () => {
   const topFilterBarTop = topActionBarTop + topActionBarHeight + 12;
   const topFilterBarHeight = 42;
   const topFilterFadeTop = topFilterBarTop;
-  const homeListViewportTop = topFilterBarTop + Math.round(topFilterBarHeight * 0.58);
+  const homeListViewportTop = topFilterBarTop + topFilterBarHeight + 12;
   const ideaHeroHeaderSpacing = 16;
   const availableGenres = useMemo(() => {
     const genreSet = new Set<string>();
@@ -1375,14 +1375,14 @@ const HomeScreen = () => {
         <LinearGradient
           pointerEvents="none"
           colors={[
-            `${ideaBackgroundColor}00`,
-            `${ideaBackgroundColor}12`,
-            `${ideaBackgroundColor}54`,
-            `${ideaBackgroundColor}D8`,
-            `${ideaBackgroundColor}F2`,
             `${ideaBackgroundColor}FF`,
+            `${ideaBackgroundColor}F2`,
+            `${ideaBackgroundColor}B8`,
+            `${ideaBackgroundColor}20`,
+            `${ideaBackgroundColor}08`,
+            `${ideaBackgroundColor}00`,
           ]}
-          locations={[0, 0.24, 0.5, 0.62, 1]}
+          locations={[0, 0.28, 0.5, 0.72, 0.9, 1]}
           style={[styles.homeListTopFade, { top: topFilterFadeTop }]}
         />
         {memoizedTopActions}
@@ -1469,7 +1469,7 @@ const styles = StyleSheet.create<any>({
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 88,
+    height: 58,
     zIndex: 20,
   },
   ideaAmbientBackground: {

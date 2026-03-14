@@ -1600,6 +1600,47 @@ export class TMDBService {
     }
   }
 
+  private resolveGenreMatch(
+    genreList: { id: number; name: string }[],
+    type: 'movie' | 'tv',
+    genreName: string
+  ): { id: number; name: string } | undefined {
+    const normalized = genreName.trim().toLowerCase();
+
+    const aliasMap: Record<'movie' | 'tv', Record<string, string[]>> = {
+      movie: {
+        anime: ['animation', 'family'],
+        children: ['family', 'animation'],
+        kids: ['family', 'animation'],
+        'sci fi': ['science fiction'],
+        scifi: ['science fiction'],
+        romcom: ['romance', 'comedy'],
+      },
+      tv: {
+        anime: ['animation'],
+        children: ['kids', 'family', 'animation'],
+        kids: ['kids', 'family', 'animation'],
+        'sci fi': ['science fiction & fantasy'],
+        scifi: ['science fiction & fantasy'],
+        romcom: ['comedy', 'drama'],
+      },
+    };
+
+    const directMatch = genreList.find((g) => g.name.trim().toLowerCase() === normalized);
+    if (directMatch) return directMatch;
+
+    const aliases = aliasMap[type][normalized] || [];
+    for (const alias of aliases) {
+      const aliasMatch = genreList.find((g) => g.name.trim().toLowerCase() === alias);
+      if (aliasMatch) return aliasMatch;
+    }
+
+    return genreList.find((g) => {
+      const candidate = g.name.trim().toLowerCase();
+      return candidate.includes(normalized) || normalized.includes(candidate);
+    });
+  }
+
   /**
    * Discover movies or TV shows by genre
    * @param type 'movie' or 'tv'
@@ -1620,7 +1661,7 @@ export class TMDBService {
         ? await this.getMovieGenres(language)
         : await this.getTvGenres(language);
 
-      const genre = genreList.find(g => g.name.toLowerCase() === genreName.toLowerCase());
+      const genre = this.resolveGenreMatch(genreList, type, genreName);
 
       if (!genre) {
         return [];

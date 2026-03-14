@@ -764,7 +764,8 @@ const HomeScreen = () => {
   const topFilterBarTop = topActionBarTop + topActionBarHeight + 12;
   const topFilterBarHeight = 42;
   const topFilterDividerTop = topFilterBarTop + topFilterBarHeight + 14;
-  const ideaHeroHeaderSpacing = topFilterDividerTop + 16;
+  const homeListViewportTop = topFilterDividerTop + 1;
+  const ideaHeroHeaderSpacing = 16;
   const availableGenres = useMemo(() => {
     const genreSet = new Set<string>();
 
@@ -1318,16 +1319,7 @@ const HomeScreen = () => {
 
   // Memoize content container style - use stable insets to prevent iOS shifting
   // Don't add paddingTop when using AppleTVHero as it handles its own top spacing
-  const contentContainerStyle = useMemo(() => {
-    const heroStyleToUse = settings.heroStyle;
-    const isUsingAppleTVHero = heroStyleToUse === 'appletv' && !isTablet && showHeroSection;
-    const isUsingIdeaCarousel = heroStyleToUse === 'carousel' && showHeroSection;
-
-    return StyleSheet.flatten([
-      styles.scrollContent,
-      { paddingTop: isUsingAppleTVHero || isUsingIdeaCarousel ? 0 : stableInsetsTop }
-    ]);
-  }, [stableInsetsTop, settings.heroStyle, isTablet, showHeroSection]);
+  const contentContainerStyle = useMemo(() => styles.scrollContent, []);
 
   // Memoize the main content section
   const renderMainContent = useMemo(() => {
@@ -1368,6 +1360,7 @@ const HomeScreen = () => {
         )}
         <FlashList
           ref={flashListRef}
+          style={[styles.homeListViewport, { marginTop: homeListViewportTop }]}
           data={listData}
           renderItem={renderListItem}
           keyExtractor={keyExtractor}
@@ -1395,6 +1388,7 @@ const HomeScreen = () => {
     renderListItem,
     keyExtractor,
     contentContainerStyle,
+    homeListViewportTop,
     memoizedHeader,
     memoizedTopActions,
     memoizedHomeFilters,
@@ -1454,6 +1448,9 @@ const POSTER_WIDTH = posterLayout.posterWidth;
 
 const styles = StyleSheet.create<any>({
   container: {
+    flex: 1,
+  },
+  homeListViewport: {
     flex: 1,
   },
   ideaAmbientBackground: {

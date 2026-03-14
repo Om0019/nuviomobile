@@ -1373,25 +1373,18 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
-        <View pointerEvents="none" style={[styles.homeListTopFade, { top: homeListViewportTop }]}>
-          <BlurView
-            intensity={18}
-            tint="dark"
-            style={StyleSheet.absoluteFillObject}
-          />
-          <LinearGradient
-            colors={[
-              `${ideaBackgroundColor}00`,
-              `${ideaBackgroundColor}08`,
-              `${ideaBackgroundColor}1A`,
-              `${ideaBackgroundColor}38`,
-              `${ideaBackgroundColor}70`,
-              `${ideaBackgroundColor}F2`,
-            ]}
-            locations={[0, 0.12, 0.28, 0.5, 0.78, 1]}
-            style={StyleSheet.absoluteFillObject}
-          />
-        </View>
+        <LinearGradient
+          pointerEvents="none"
+          colors={[
+            `${ideaBackgroundColor}00`,
+            `${ideaBackgroundColor}18`,
+            `${ideaBackgroundColor}66`,
+            `${ideaBackgroundColor}F2`,
+            `${ideaBackgroundColor}FF`,
+          ]}
+          locations={[0, 0.2, 0.42, 0.58, 1]}
+          style={[styles.homeListTopFade, { top: homeListViewportTop }]}
+        />
         {memoizedTopActions}
         {memoizedHomeFilters}
         {/* Toasts are rendered globally at root */}

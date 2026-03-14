@@ -374,25 +374,16 @@ export const ThisWeekSection = React.memo(() => {
         <TouchableOpacity onPress={handleViewAll} activeOpacity={0.85} style={styles.viewAllButton}>
           <BlurView
             tint="dark"
-            intensity={42}
+            intensity={32}
             style={[
               styles.viewAllBlur,
               {
-                paddingVertical: isTV ? 12 : isLargeTablet ? 10 : isTablet ? 8 : 8,
-                paddingHorizontal: isTV ? 16 : isLargeTablet ? 14 : isTablet ? 12 : 10
+                borderRadius: isTV ? 22 : 21,
+                minHeight: isTV ? 46 : 42,
+                paddingHorizontal: isTV ? 16 : isLargeTablet ? 15 : isTablet ? 14 : 16,
               }
             ]}
           >
-            <LinearGradient
-              colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.00)']}
-              locations={[0, 0.14, 1]}
-              style={styles.viewAllGlassLayer}
-            />
-            <LinearGradient
-              colors={['rgba(255,255,255,0.00)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
-              locations={[0, 0.52, 1]}
-              style={styles.viewAllReflection}
-            />
             <Text style={[
               styles.viewAllText,
               {
@@ -477,22 +468,13 @@ const styles = StyleSheet.create({
   viewAllBlur: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'rgba(12, 9, 9, 0.32)',
-  },
-  viewAllGlassLayer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  viewAllReflection: {
-    position: 'absolute',
-    top: 0,
-    left: 12,
-    right: 12,
-    height: 20,
-    borderRadius: 12,
+    minHeight: 42,
   },
   viewAllText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     marginRight: 4,
   },
   listContent: {

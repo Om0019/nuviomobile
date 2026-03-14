@@ -186,26 +186,16 @@ const CatalogSection = ({ catalog }: CatalogSectionProps) => {
         >
           <BlurView
             tint="dark"
-            intensity={42}
+            intensity={32}
             style={[
               styles.viewAllBlur,
               {
-                borderRadius: isTV ? 22 : isLargeTablet ? 20 : isTablet ? 20 : 20,
-                paddingVertical: isTV ? 10 : isLargeTablet ? 9 : isTablet ? 8 : 8,
-                paddingHorizontal: isTV ? 12 : isLargeTablet ? 11 : isTablet ? 10 : 10,
+                borderRadius: isTV ? 22 : isLargeTablet ? 21 : isTablet ? 21 : 21,
+                minHeight: isTV ? 46 : 42,
+                paddingHorizontal: isTV ? 16 : isLargeTablet ? 15 : isTablet ? 14 : 16,
               }
             ]}
           >
-            <LinearGradient
-              colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.00)']}
-              locations={[0, 0.14, 1]}
-              style={styles.viewAllGlassLayer}
-            />
-            <LinearGradient
-              colors={['rgba(255,255,255,0.00)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
-              locations={[0, 0.52, 1]}
-              style={styles.viewAllReflection}
-            />
             <Text style={[
               styles.viewAllText,
               {
@@ -289,22 +279,13 @@ const styles = StyleSheet.create({
   viewAllBlur: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'rgba(12, 9, 9, 0.32)',
-  },
-  viewAllGlassLayer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  viewAllReflection: {
-    position: 'absolute',
-    top: 0,
-    left: 12,
-    right: 12,
-    height: 20,
-    borderRadius: 12,
+    minHeight: 42,
   },
   viewAllText: {
     fontSize: 14, // overridden responsively
-    fontWeight: '600',
+    fontWeight: '700',
     marginRight: 4, // overridden responsively
   },
   catalogList: {

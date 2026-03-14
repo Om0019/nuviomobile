@@ -840,7 +840,10 @@ const HomeScreen = () => {
       });
     });
 
-    return Array.from(genreSet).sort((a, b) => a.localeCompare(b)).slice(0, 10);
+    return Array.from(genreSet)
+      .filter((genre) => genre.trim().toLowerCase() !== 'anime')
+      .sort((a, b) => a.localeCompare(b))
+      .slice(0, 10);
   }, [catalogs]);
 
   useEffect(() => {
@@ -1306,9 +1309,9 @@ const HomeScreen = () => {
     return (
       <View style={styles.homeSearchOverlay} pointerEvents="box-none">
         <Pressable style={styles.homeSearchOverlayBackdrop} onPress={closeSearchOverlay}>
-          <BlurView tint="dark" intensity={30} style={StyleSheet.absoluteFillObject} />
+          <BlurView tint="dark" intensity={24} style={StyleSheet.absoluteFillObject} />
           <LinearGradient
-            colors={['rgba(32,22,24,0.06)', 'rgba(24,16,17,0.16)', 'rgba(15,10,11,0.24)']}
+            colors={['rgba(32,22,24,0.03)', 'rgba(24,16,17,0.10)', 'rgba(15,10,11,0.18)']}
             locations={[0, 0.38, 1]}
             style={StyleSheet.absoluteFillObject}
           />
@@ -1323,11 +1326,11 @@ const HomeScreen = () => {
                   glassEffectStyle="regular"
                 />
               ) : (
-                <BlurView tint="dark" intensity={34} style={StyleSheet.absoluteFillObject} />
+                <BlurView tint="dark" intensity={26} style={StyleSheet.absoluteFillObject} />
               )}
               <LinearGradient
-                colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
-                locations={[0, 0.22, 1]}
+                colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.025)', 'rgba(255,255,255,0.00)']}
+                locations={[0, 0.18, 1]}
                 style={styles.homeSearchBarHighlight}
               />
               <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />

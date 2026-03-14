@@ -1132,10 +1132,10 @@ const MainTabs = () => {
             elevation: 0,
             backgroundColor: 'transparent',
           },
-          // Ensure background tabs are frozen and detached
-          freezeOnBlur: true,
+          // Keep tab screens alive so transparent shared backgrounds don't repaint as blank
+          freezeOnBlur: false,
           lazy: true,
-          detachInactiveScreens: true,
+          detachInactiveScreens: false,
         })}
       >
         <Tab.Screen
@@ -1146,7 +1146,7 @@ const MainTabs = () => {
             tabBarIcon: ({ color, size, focused }) => (
               <MaterialCommunityIcons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
             ),
-            freezeOnBlur: true,
+            freezeOnBlur: false,
           }}
         />
         <Tab.Screen
@@ -1299,8 +1299,8 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
             initialRouteName={initialRouteName || 'MainTabs'}
             screenOptions={{
               headerShown: false,
-              // Freeze non-focused stack screens to prevent background re-renders (e.g., SeriesContent behind player)
-              freezeOnBlur: true,
+              // Keep regular screens mounted so transparent shared backgrounds don't flash or go blank
+              freezeOnBlur: false,
               // Use default animation for Android (consistent non-slide transition), slide_from_right for iOS
               animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
               animationDuration: Platform.OS === 'android' ? 250 : 300,

@@ -480,17 +480,15 @@ const TabIcon = React.memo(({ focused, color, iconName, iconLibrary = 'material'
 });
 
 const AppIdeaBackground = React.memo(() => {
-  const { currentTheme } = useTheme();
-
-  const primary = `${currentTheme.colors.primary}1F`;
-  const secondary = `${currentTheme.colors.secondary}18`;
+  const warmPrimary = 'rgba(249,115,22,0.20)';
+  const warmSecondary = 'rgba(239,68,68,0.14)';
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
       <View
         style={[
           StyleSheet.absoluteFillObject,
-          { backgroundColor: currentTheme.colors.darkBackground },
+          { backgroundColor: '#1a0d0a' },
         ]}
       />
       <LinearGradient
@@ -499,13 +497,13 @@ const AppIdeaBackground = React.memo(() => {
         style={StyleSheet.absoluteFillObject}
       />
       <LinearGradient
-        colors={[primary, 'rgba(0,0,0,0)']}
+        colors={[warmPrimary, 'rgba(0,0,0,0)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.ideaAppWarmGlow}
       />
       <LinearGradient
-        colors={[secondary, 'rgba(0,0,0,0)']}
+        colors={[warmSecondary, 'rgba(0,0,0,0)']}
         start={{ x: 1, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.ideaAppAccentGlow}

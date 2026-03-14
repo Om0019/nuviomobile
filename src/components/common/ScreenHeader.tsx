@@ -104,7 +104,7 @@ const ScreenHeader: React.FC<ScreenHeaderProps> = ({
                 style={[
                     styles.headerBackground,
                     {
-                        backgroundColor: currentTheme.colors.darkBackground,
+                        backgroundColor: 'transparent',
                     },
                 ]}
             />

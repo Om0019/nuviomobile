@@ -145,9 +145,12 @@ const HomeScreen = () => {
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasContinueWatching, setHasContinueWatching] = useState(false);
   const [ideaHomeSection, setIdeaHomeSection] = useState<IdeaHomeSection>('forYou');
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [genresExpanded, setGenresExpanded] = useState(false);
 
   // Shared value for scroll position (for parallax effects)
   const scrollY = useSharedValue(0);
+  const genreExpandProgress = useSharedValue(0);
 
   const [catalogs, setCatalogs] = useState<(CatalogContent | null)[]>([]);
   const [catalogsLoading, setCatalogsLoading] = useState(true);
@@ -704,12 +707,21 @@ const HomeScreen = () => {
 
     const filteredCatalogs = catalogs.filter(catalog => {
       if (!catalog) return true;
-      if (!settings.ideaMode || ideaHomeSection === 'forYou') return true;
-      return catalog.type === ideaHomeSection;
+      const matchesType = ideaHomeSection === 'forYou' ? true : catalog.type === ideaHomeSection;
+      if (!matchesType) return false;
+      if (!selectedGenre) return true;
+
+      const genreLower = selectedGenre.toLowerCase();
+      const catalogNameMatch = catalog.name?.toLowerCase().includes(genreLower) || catalog.originalName?.toLowerCase().includes(genreLower);
+      const itemGenreMatch = catalog.items?.some((item) =>
+        item.genres?.some((genre) => genre.toLowerCase() === genreLower)
+      );
+
+      return !!(catalogNameMatch || itemGenreMatch);
     });
 
     // Normal flow when addons are present (featured moved to ListHeaderComponent)
-    if (settings.showThisWeekSection && (!settings.ideaMode || ideaHomeSection === 'forYou')) {
+    if (settings.showThisWeekSection && ideaHomeSection === 'forYou' && !selectedGenre) {
       data.push({ type: 'thisWeek', key: 'thisWeek' });
     }
 
@@ -731,7 +743,7 @@ const HomeScreen = () => {
     }
 
     return data;
-  }, [hasAddons, catalogs, visibleCatalogCount, settings.showThisWeekSection, settings.ideaMode, ideaHomeSection]);
+  }, [hasAddons, catalogs, visibleCatalogCount, settings.showThisWeekSection, ideaHomeSection, selectedGenre]);
 
   const handleLoadMoreCatalogs = useCallback(() => {
     setVisibleCatalogCount(prev => Math.min(prev + 3, catalogs.length));
@@ -747,6 +759,24 @@ const HomeScreen = () => {
   }, [windowWidth]);
 
   const [activeHeroItem, setActiveHeroItem] = useState<StreamingContent | null>(null);
+  const topActionBarTop = stableInsetsTop + 8;
+  const topActionBarHeight = 48;
+  const topFilterBarTop = topActionBarTop + topActionBarHeight + 12;
+  const topFilterBarHeight = 42;
+  const ideaHeroHeaderSpacing = topFilterBarTop + topFilterBarHeight + 14;
+  const availableGenres = useMemo(() => {
+    const genreSet = new Set<string>();
+
+    catalogs.forEach((catalog) => {
+      catalog?.items?.forEach((item) => {
+        item.genres?.forEach((genre) => {
+          if (genre) genreSet.add(genre);
+        });
+      });
+    });
+
+    return Array.from(genreSet).sort((a, b) => a.localeCompare(b)).slice(0, 10);
+  }, [catalogs]);
 
   // Memoize individual section components to prevent re-renders
   const memoizedFeaturedContent = useMemo(() => {
@@ -767,7 +797,7 @@ const HomeScreen = () => {
         <HeroCarousel
           items={allFeaturedContent || (featuredContent ? [featuredContent] : [])}
           loading={featuredLoading}
-          topOverlayOffset={settings.ideaMode ? ideaHeroHeaderSpacing : 0}
+          topOverlayOffset={ideaHeroHeaderSpacing}
           onActiveItemChange={setActiveHeroItem}
         />
       );
@@ -795,13 +825,10 @@ const HomeScreen = () => {
         </>
       );
     }
-  }, [isTablet, settings.heroStyle, settings.ideaMode, showHeroSection, featuredContentSource, allFeaturedContent, featuredContent, isSaved, handleSaveToLibrary, featuredLoading, ideaHeroHeaderSpacing]);
+  }, [isTablet, settings.heroStyle, showHeroSection, featuredContentSource, allFeaturedContent, featuredContent, isSaved, handleSaveToLibrary, featuredLoading, ideaHeroHeaderSpacing]);
 
   const memoizedThisWeekSection = useMemo(() => <ThisWeekSection />, []);
   const memoizedContinueWatchingSection = useMemo(() => <ContinueWatchingSection ref={continueWatchingRef} />, []);
-  const topActionBarTop = stableInsetsTop + 8;
-  const topActionBarHeight = 48;
-  const ideaHeroHeaderSpacing = settings.ideaMode ? topActionBarHeight + 18 : 0;
   const ideaAmbientTopBandAnimatedStyle = useAnimatedStyle(() => {
     const scrollPhase = Math.min(scrollY.value, 900);
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
@@ -918,6 +945,10 @@ const HomeScreen = () => {
   }, [allFeaturedContent, featuredContent]);
 
   useEffect(() => {
+    genreExpandProgress.value = withTiming(genresExpanded ? 1 : 0, { duration: 240 });
+  }, [genresExpanded, genreExpandProgress]);
+
+  useEffect(() => {
     const fallbackColor = '#7f1d1d';
     const targetColor =
       settings.ideaMode && activeHeroDominantColor && activeHeroDominantColor !== '#1a1a1a'
@@ -1020,13 +1051,102 @@ const HomeScreen = () => {
       </View>
     </View>
   ), [topActionBarTop, navigation, currentTheme.colors.white]);
+  const genreExpandAnimatedStyle = useAnimatedStyle(() => ({
+    width: genreExpandProgress.value * Math.min(windowWidth * 0.52, 240),
+    opacity: genreExpandProgress.value,
+    transform: [
+      { translateX: 12 * (1 - genreExpandProgress.value) },
+    ],
+  }));
+  const memoizedHomeFilters = useMemo(() => (
+    <View style={[styles.topFilterBar, { top: topFilterBarTop }]}>
+      <TouchableOpacity
+        activeOpacity={0.82}
+        style={[
+          styles.topFilterPill,
+          ideaHomeSection === 'movie' && styles.topFilterPillActive,
+        ]}
+        onPress={() => {
+          setIdeaHomeSection((prev) => (prev === 'movie' ? 'forYou' : 'movie'));
+          setSelectedGenre(null);
+        }}
+      >
+        <Text style={[
+          styles.topFilterPillText,
+          { color: ideaHomeSection === 'movie' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
+        ]}>
+          Movies
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.82}
+        style={[
+          styles.topFilterPill,
+          ideaHomeSection === 'series' && styles.topFilterPillActive,
+        ]}
+        onPress={() => {
+          setIdeaHomeSection((prev) => (prev === 'series' ? 'forYou' : 'series'));
+          setSelectedGenre(null);
+        }}
+      >
+        <Text style={[
+          styles.topFilterPillText,
+          { color: ideaHomeSection === 'series' ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
+        ]}>
+          Series
+        </Text>
+      </TouchableOpacity>
+      <View style={styles.genreFilterWrap}>
+        <TouchableOpacity
+          activeOpacity={0.82}
+          style={[
+            styles.topFilterPill,
+            (genresExpanded || !!selectedGenre) && styles.topFilterPillActiveSoft,
+          ]}
+          onPress={() => setGenresExpanded((prev) => !prev)}
+        >
+          <Text style={[styles.topFilterPillText, { color: currentTheme.colors.highEmphasis }]}>
+            Genres
+          </Text>
+          <Animated.View style={{ transform: [{ rotate: genresExpanded ? '90deg' : '0deg' }] }}>
+            <MaterialIcons name="chevron-right" size={18} color={currentTheme.colors.highEmphasis} />
+          </Animated.View>
+        </TouchableOpacity>
+        <Animated.View style={[styles.genreExpandContainer, genreExpandAnimatedStyle]}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreExpandScroll}>
+            {availableGenres.map((genre) => {
+              const isActive = selectedGenre === genre;
+              return (
+                <TouchableOpacity
+                  key={genre}
+                  activeOpacity={0.82}
+                  style={[styles.genreChip, isActive && styles.genreChipActive]}
+                  onPress={() => {
+                    setSelectedGenre((prev) => prev === genre ? null : genre);
+                    setIdeaHomeSection('forYou');
+                  }}
+                >
+                  <Text style={[
+                    styles.genreChipText,
+                    { color: isActive ? currentTheme.colors.white : currentTheme.colors.highEmphasis }
+                  ]}>
+                    {genre}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </Animated.View>
+      </View>
+    </View>
+  ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
     <>
-      {settings.ideaMode ? <View style={{ height: ideaHeroHeaderSpacing }} /> : null}
+      <View style={{ height: ideaHeroHeaderSpacing }} />
       {showHeroSection ? memoizedFeaturedContent : null}
-      {(!settings.ideaMode || ideaHomeSection === 'forYou') ? memoizedContinueWatchingSection : null}
+      {(ideaHomeSection === 'forYou' && !selectedGenre) ? memoizedContinueWatchingSection : null}
     </>
-  ), [showHeroSection, memoizedFeaturedContent, memoizedContinueWatchingSection, settings.ideaMode, ideaHomeSection, ideaHeroHeaderSpacing]);
+  ), [showHeroSection, memoizedFeaturedContent, memoizedContinueWatchingSection, ideaHomeSection, selectedGenre, ideaHeroHeaderSpacing]);
   // Track scroll direction manually for reliable behavior across platforms
   const lastScrollYRef = useRef(0);
   const lastToggleRef = useRef(0);
@@ -1160,13 +1280,13 @@ const HomeScreen = () => {
   const contentContainerStyle = useMemo(() => {
     const heroStyleToUse = settings.heroStyle;
     const isUsingAppleTVHero = heroStyleToUse === 'appletv' && !isTablet && showHeroSection;
-    const isUsingIdeaCarousel = settings.ideaMode && heroStyleToUse === 'carousel' && showHeroSection;
+    const isUsingIdeaCarousel = heroStyleToUse === 'carousel' && showHeroSection;
 
     return StyleSheet.flatten([
       styles.scrollContent,
       { paddingTop: isUsingAppleTVHero || isUsingIdeaCarousel ? 0 : stableInsetsTop }
     ]);
-  }, [stableInsetsTop, settings.heroStyle, settings.ideaMode, isTablet, showHeroSection]);
+  }, [stableInsetsTop, settings.heroStyle, isTablet, showHeroSection]);
 
   // Memoize the main content section
   const renderMainContent = useMemo(() => {
@@ -1221,6 +1341,7 @@ const HomeScreen = () => {
           onScroll={handleScroll}
         />
         {memoizedTopActions}
+        {memoizedHomeFilters}
         {/* Toasts are rendered globally at root */}
       </View>
     );
@@ -1235,6 +1356,7 @@ const HomeScreen = () => {
     contentContainerStyle,
     memoizedHeader,
     memoizedTopActions,
+    memoizedHomeFilters,
     ideaAmbientToneAnimatedStyle,
     ideaAmbientHighlightAnimatedStyle,
     ideaAmbientTopBandAnimatedStyle,
@@ -1824,6 +1946,73 @@ const styles = StyleSheet.create<any>({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+  },
+  topFilterBar: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    zIndex: 79,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  topFilterPill: {
+    height: 42,
+    borderRadius: 21,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(12, 9, 9, 0.32)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    overflow: 'hidden',
+  },
+  topFilterPillActive: {
+    backgroundColor: 'rgba(239, 68, 68, 0.42)',
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  topFilterPillActiveSoft: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  topFilterPillText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  genreFilterWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 8,
+    overflow: 'hidden',
+  },
+  genreExpandContainer: {
+    height: 42,
+    overflow: 'hidden',
+    justifyContent: 'center',
+  },
+  genreExpandScroll: {
+    gap: 8,
+    paddingRight: 8,
+    alignItems: 'center',
+  },
+  genreChip: {
+    height: 34,
+    paddingHorizontal: 14,
+    borderRadius: 17,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  genreChipActive: {
+    backgroundColor: 'rgba(239, 68, 68, 0.42)',
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  genreChipText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   topActionButton: {
     width: 46,

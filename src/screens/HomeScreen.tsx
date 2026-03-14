@@ -145,12 +145,9 @@ const HomeScreen = () => {
   const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [hasContinueWatching, setHasContinueWatching] = useState(false);
   const [ideaHomeSection, setIdeaHomeSection] = useState<IdeaHomeSection>('forYou');
-  const [ideaMenuVisible, setIdeaMenuVisible] = useState(settings.ideaMode);
 
   // Shared value for scroll position (for parallax effects)
   const scrollY = useSharedValue(0);
-  const ideaMenuGlowOffset = useSharedValue(0);
-  const ideaMenuVisibilityProgress = useSharedValue(settings.ideaMode ? 1 : 0);
 
   const [catalogs, setCatalogs] = useState<(CatalogContent | null)[]>([]);
   const [catalogsLoading, setCatalogsLoading] = useState(true);
@@ -190,20 +187,6 @@ const HomeScreen = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, [insets.top]);
-
-  useEffect(() => {
-    setIdeaMenuVisible(settings.ideaMode);
-    ideaMenuVisibilityProgress.value = withTiming(settings.ideaMode ? 1 : 0, { duration: 220 });
-  }, [settings.ideaMode, ideaMenuVisibilityProgress]);
-
-  useEffect(() => {
-    const offsets: Record<IdeaHomeSection, number> = {
-      forYou: -86,
-      movie: 0,
-      series: 86,
-    };
-    ideaMenuGlowOffset.value = withTiming(offsets[ideaHomeSection], { duration: 280 });
-  }, [ideaHomeSection, ideaMenuGlowOffset]);
 
   const {
     featuredContent,
@@ -816,27 +799,9 @@ const HomeScreen = () => {
 
   const memoizedThisWeekSection = useMemo(() => <ThisWeekSection />, []);
   const memoizedContinueWatchingSection = useMemo(() => <ContinueWatchingSection ref={continueWatchingRef} />, []);
-  const floatingIdeaMenuTop = stableInsetsTop + 8;
-  const floatingIdeaMenuHeight = 58;
-  const ideaHeroHeaderSpacing = settings.ideaMode ? floatingIdeaMenuHeight + 72 : 0;
-  const ideaMenuWrapAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: ideaMenuVisibilityProgress.value,
-    transform: [
-      { translateY: -18 * (1 - ideaMenuVisibilityProgress.value) },
-    ],
-  }));
-  const ideaMenuGlowAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.24 + Math.min(scrollY.value / 900, 0.14),
-    transform: [
-      { translateX: ideaMenuGlowOffset.value },
-      { translateY: Math.min(scrollY.value * 0.03, 8) },
-      { scale: 1 + ideaMenuVisibilityProgress.value * 0.04 },
-    ],
-  }));
-  const ideaMenuReflectionAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.18 + Math.min(scrollY.value / 1400, 0.1),
-    transform: [{ translateY: Math.min(scrollY.value * 0.02, 6) }],
-  }));
+  const topActionBarTop = stableInsetsTop + 8;
+  const topActionBarHeight = 48;
+  const ideaHeroHeaderSpacing = settings.ideaMode ? topActionBarHeight + 18 : 0;
   const ideaAmbientTopBandAnimatedStyle = useAnimatedStyle(() => {
     const scrollPhase = Math.min(scrollY.value, 900);
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
@@ -977,83 +942,58 @@ const HomeScreen = () => {
       { scale: 1.02 + Math.min(scrollY.value / 2200, 0.04) },
     ],
   }));
-  const memoizedIdeaSectionMenu = useMemo(() => {
-    if (!settings.ideaMode) return null;
-
-    const sectionOptions: Array<{ key: IdeaHomeSection; label: string }> = [
-      { key: 'forYou', label: 'For You' },
-      { key: 'movie', label: 'Movies' },
-      { key: 'series', label: 'Series' },
-    ];
-
-    return (
-      <Animated.View style={[styles.ideaSectionMenuWrap, { top: floatingIdeaMenuTop }, ideaMenuWrapAnimatedStyle]}>
-        <View style={styles.ideaSectionGlassShell}>
-          {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
-            <GlassViewComp
-              style={StyleSheet.absoluteFillObject}
-              glassEffectStyle="regular"
-            />
-          ) : (
-            <BlurView
-              tint="dark"
-              intensity={72}
-              style={StyleSheet.absoluteFillObject}
-            />
-          )}
-          <LinearGradient
-            colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.018)', 'rgba(255,255,255,0.00)']}
-            locations={[0, 0.14, 0.58]}
-            style={styles.ideaSectionGlassOverlay}
+  const memoizedTopActions = useMemo(() => (
+    <View style={[styles.topActionBar, { top: topActionBarTop }]}>
+      <TouchableOpacity
+        activeOpacity={0.82}
+        style={styles.topActionButton}
+        onPress={() => navigation.navigate('Search')}
+      >
+        {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+          <GlassViewComp
+            style={StyleSheet.absoluteFillObject}
+            glassEffectStyle="regular"
           />
-          <LinearGradient
-            colors={['rgba(255,255,255,0.015)', 'rgba(255,255,255,0.00)', 'rgba(0,0,0,0.10)']}
-            locations={[0, 0.42, 1]}
-            style={styles.ideaSectionGlassDepthOverlay}
+        ) : (
+          <BlurView
+            tint="dark"
+            intensity={70}
+            style={StyleSheet.absoluteFillObject}
           />
-          <Animated.View style={[styles.ideaSectionReflectionWrap, ideaMenuReflectionAnimatedStyle]}>
-            <LinearGradient
-              colors={['rgba(255,255,255,0.14)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0)']}
-              locations={[0, 0.55, 1]}
-              style={styles.ideaSectionReflection}
-            />
-          </Animated.View>
-          <Animated.View style={[styles.ideaSectionGlow, { backgroundColor: `${currentTheme.colors.primary}20` }, ideaMenuGlowAnimatedStyle]} />
-          <Animated.View style={[styles.ideaSectionGlowSecondary, ideaMenuReflectionAnimatedStyle]} />
-          <View style={styles.ideaSectionMenuRow}>
-            {sectionOptions.map((section) => {
-              const isActive = ideaHomeSection === section.key;
-              return (
-                <TouchableOpacity
-                  key={section.key}
-                  activeOpacity={0.85}
-                  onPress={() => setIdeaHomeSection(section.key)}
-                  style={[
-                    styles.ideaSectionPill,
-                    {
-                      backgroundColor: isActive ? `${currentTheme.colors.primary}28` : 'rgba(255,255,255,0.06)',
-                    }
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.ideaSectionPillText,
-                      {
-                        color: isActive ? currentTheme.colors.primary : currentTheme.colors.highEmphasis,
-                        opacity: isActive ? 1 : 0.8,
-                      }
-                    ]}
-                  >
-                    {section.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-      </Animated.View>
-    );
-  }, [settings.ideaMode, ideaHomeSection, currentTheme.colors.primary, currentTheme.colors.highEmphasis, floatingIdeaMenuTop, ideaMenuWrapAnimatedStyle, ideaMenuGlowAnimatedStyle, ideaMenuReflectionAnimatedStyle]);
+        )}
+        <LinearGradient
+          colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
+          locations={[0, 0.22, 1]}
+          style={styles.topActionButtonHighlight}
+        />
+        <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.82}
+        style={styles.topActionButton}
+        onPress={() => Alert.alert('Voice Search', 'Voice search is coming soon.')}
+      >
+        {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+          <GlassViewComp
+            style={StyleSheet.absoluteFillObject}
+            glassEffectStyle="regular"
+          />
+        ) : (
+          <BlurView
+            tint="dark"
+            intensity={70}
+            style={StyleSheet.absoluteFillObject}
+          />
+        )}
+        <LinearGradient
+          colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
+          locations={[0, 0.22, 1]}
+          style={styles.topActionButtonHighlight}
+        />
+        <MaterialIcons name="keyboard-voice" size={22} color={currentTheme.colors.white} />
+      </TouchableOpacity>
+    </View>
+  ), [topActionBarTop, navigation, currentTheme.colors.white]);
   const memoizedHeader = useMemo(() => (
     <>
       {settings.ideaMode ? <View style={{ height: ideaHeroHeaderSpacing }} /> : null}
@@ -1064,7 +1004,6 @@ const HomeScreen = () => {
   // Track scroll direction manually for reliable behavior across platforms
   const lastScrollYRef = useRef(0);
   const lastToggleRef = useRef(0);
-  const lastIdeaMenuRevealAtRef = useRef(settings.ideaMode ? Date.now() : 0);
   const scrollAnimationFrameRef = useRef<number | null>(null);
   const isScrollingRef = useRef(false);
 
@@ -1074,26 +1013,6 @@ const HomeScreen = () => {
     lastToggleRef.current = now;
     HeaderVisibility.setHidden(hide);
   }, []);
-
-  const syncIdeaMenuWithScroll = useCallback((y: number, dy: number) => {
-    if (!settings.ideaMode) return;
-
-    const now = Date.now();
-    const isNearTop = y <= 20;
-    const isScrollingUp = dy < -4;
-    const hideGracePeriodMs = 900;
-
-    if (isNearTop || isScrollingUp) {
-      lastIdeaMenuRevealAtRef.current = now;
-    }
-
-    const shouldShow = isNearTop || isScrollingUp || (now - lastIdeaMenuRevealAtRef.current) < hideGracePeriodMs;
-    setIdeaMenuVisible((prev) => {
-      if (prev === shouldShow) return prev;
-      ideaMenuVisibilityProgress.value = withTiming(shouldShow ? 1 : 0, { duration: 220 });
-      return shouldShow;
-    });
-  }, [settings.ideaMode, ideaMenuVisibilityProgress]);
 
   // Stabilize renderItem to prevent FlashList re-renders
   const renderListItem = useCallback(({ item }: { item: HomeScreenListItem; index: number }) => {
@@ -1193,8 +1112,6 @@ const HomeScreen = () => {
       const y = scrollYValue;
       const dy = y - lastScrollYRef.current;
       lastScrollYRef.current = y;
-      syncIdeaMenuWithScroll(y, dy);
-
       isScrollingRef.current = Math.abs(dy) > 0;
 
       if (y <= 10) {
@@ -1210,7 +1127,7 @@ const HomeScreen = () => {
 
       scrollAnimationFrameRef.current = null;
     });
-  }, [toggleHeader, syncIdeaMenuWithScroll, scrollY]);
+  }, [toggleHeader, scrollY]);
 
   // Memoize content container style - use stable insets to prevent iOS shifting
   // Don't add paddingTop when using AppleTVHero as it handles its own top spacing
@@ -1277,7 +1194,7 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
-        {memoizedIdeaSectionMenu}
+        {memoizedTopActions}
         {/* Toasts are rendered globally at root */}
       </View>
     );
@@ -1291,7 +1208,7 @@ const HomeScreen = () => {
     keyExtractor,
     contentContainerStyle,
     memoizedHeader,
-    memoizedIdeaSectionMenu,
+    memoizedTopActions,
     ideaAmbientToneAnimatedStyle,
     ideaAmbientHighlightAnimatedStyle,
     ideaAmbientTopBandAnimatedStyle,
@@ -1868,84 +1785,36 @@ const styles = StyleSheet.create<any>({
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
-  ideaSectionMenuWrap: {
+  topActionBar: {
     position: 'absolute',
-    left: 0,
-    right: 0,
+    right: 12,
     zIndex: 80,
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
-  ideaSectionGlassShell: {
-    borderRadius: 26,
+  topActionButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    justifyContent: 'center',
+    alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: 'rgba(6,8,12,0.14)',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    backgroundColor: 'rgba(10, 8, 8, 0.18)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.10)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.26,
-    shadowRadius: 24,
-    elevation: 22,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.24,
+    shadowRadius: 18,
+    elevation: 14,
   },
-  ideaSectionGlassOverlay: {
+  topActionButtonHighlight: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     height: 18,
-  },
-  ideaSectionGlassDepthOverlay: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  ideaSectionReflectionWrap: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  ideaSectionReflection: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    height: 34,
-  },
-  ideaSectionGlow: {
-    position: 'absolute',
-    top: -6,
-    left: '50%',
-    marginLeft: -58,
-    width: 116,
-    height: 58,
-    borderRadius: 999,
-    opacity: 0.3,
-  },
-  ideaSectionGlowSecondary: {
-    position: 'absolute',
-    right: 18,
-    bottom: -10,
-    width: 128,
-    height: 42,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    opacity: 0.28,
-  },
-  ideaSectionMenuRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-  },
-  ideaSectionPill: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  ideaSectionPillText: {
-    fontSize: 15,
-    fontWeight: '700',
-    letterSpacing: 0.15,
   },
   featuredTitleText: {
     fontSize: 28,

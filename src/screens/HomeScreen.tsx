@@ -1375,18 +1375,20 @@ const HomeScreen = () => {
         />
         <View pointerEvents="none" style={[styles.homeListTopFade, { top: homeListViewportTop }]}>
           <BlurView
-            intensity={26}
+            intensity={18}
             tint="dark"
             style={StyleSheet.absoluteFillObject}
           />
           <LinearGradient
             colors={[
-              `${ideaBackgroundColor}E8`,
-              `${ideaBackgroundColor}B8`,
-              `${ideaBackgroundColor}5C`,
+              'rgba(26,13,10,0)',
+              'rgba(26,13,10,0.03)',
+              'rgba(26,13,10,0.10)',
+              'rgba(26,13,10,0.22)',
+              'rgba(26,13,10,0.42)',
               'rgba(0,0,0,0)',
             ]}
-            locations={[0, 0.18, 0.52, 1]}
+            locations={[0, 0.12, 0.28, 0.5, 0.78, 1]}
             style={StyleSheet.absoluteFillObject}
           />
         </View>
@@ -1473,7 +1475,7 @@ const styles = StyleSheet.create<any>({
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 52,
+    height: 72,
     zIndex: 20,
     overflow: 'hidden',
   },
@@ -2125,9 +2127,9 @@ const styles = StyleSheet.create<any>({
     marginTop: 14,
     alignSelf: 'stretch',
     height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.035)',
+    backgroundColor: 'rgba(255,255,255,0.025)',
     marginHorizontal: 12,
-    opacity: 0.8,
+    opacity: 0.55,
   },
   topActionButton: {
     width: 46,

@@ -499,13 +499,13 @@ const AppIdeaBackground = React.memo(() => {
       <LinearGradient
         colors={[warmPrimary, 'rgba(0,0,0,0)']}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0.95, y: 0.75 }}
         style={styles.ideaAppWarmGlow}
       />
       <LinearGradient
         colors={[warmSecondary, 'rgba(0,0,0,0)']}
         start={{ x: 1, y: 0 }}
-        end={{ x: 0, y: 1 }}
+        end={{ x: 0.2, y: 1 }}
         style={styles.ideaAppAccentGlow}
       />
       <LinearGradient
@@ -527,17 +527,17 @@ const styles = StyleSheet.create({
   },
   ideaAppWarmGlow: {
     position: 'absolute',
-    top: -80,
-    left: -80,
-    width: 420,
-    height: 520,
+    top: -40,
+    left: 0,
+    right: 0,
+    height: 360,
   },
   ideaAppAccentGlow: {
     position: 'absolute',
-    right: -120,
-    bottom: -160,
-    width: 420,
-    height: 540,
+    left: 0,
+    right: 0,
+    top: 180,
+    bottom: 0,
   },
 });
 

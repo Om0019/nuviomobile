@@ -39,22 +39,6 @@ export const AppearanceSettingsContent: React.FC<AppearanceSettingsContentProps>
 
     return (
         <>
-            <SettingsCard title={t('settings.sections.appearance', { defaultValue: 'APPEARANCE' })} isTablet={isTablet}>
-                <SettingItem
-                    title={t('settings.items.idea', { defaultValue: 'Idea' })}
-                    description={t('settings.items.idea_desc', { defaultValue: 'Change the overall visual style of the app' })}
-                    icon="sparkles"
-                    renderControl={() => (
-                        <CustomSwitch
-                            value={settings?.ideaMode ?? false}
-                            onValueChange={(value) => updateSetting('ideaMode', value)}
-                        />
-                    )}
-                    isLast
-                    isTablet={isTablet}
-                />
-            </SettingsCard>
-
             {hasVisibleItems(['episode_layout', 'streams_backdrop']) && (
                 <SettingsCard title={t('settings.sections.layout')} isTablet={isTablet}>
                     {isItemVisible('episode_layout') && (
@@ -103,7 +87,7 @@ const AppearanceSettingsScreen: React.FC = () => {
     const screenIsTablet = width >= 768;
 
     return (
-        <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <StatusBar barStyle="light-content" />
             <ScreenHeader title={t('settings.appearance')} showBackButton />
 

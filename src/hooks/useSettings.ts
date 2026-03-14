@@ -158,10 +158,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   enableDownloads: false,
   useExternalPlayerForDownloads: false,
   // Theme defaults
-  themeId: 'default',
+  themeId: 'movie',
   customThemes: [],
-  useDominantBackgroundColor: false,
-  ideaMode: false,
+  useDominantBackgroundColor: true,
+  ideaMode: true,
   // Home screen poster customization
   posterSize: 'medium',
   posterBorderRadius: 12,
@@ -269,6 +269,10 @@ export const useSettings = () => {
       }
 
       const finalSettings = merged ? { ...DEFAULT_SETTINGS, ...merged } : DEFAULT_SETTINGS;
+      finalSettings.themeId = 'movie';
+      finalSettings.customThemes = [];
+      finalSettings.useDominantBackgroundColor = true;
+      finalSettings.ideaMode = true;
 
       // Update cache
       cachedSettings = finalSettings;
@@ -310,7 +314,25 @@ export const useSettings = () => {
         }
       }
 
-      const newSettings = { ...baseSettings, [key]: value };
+      const lockedVisualSettings: Partial<AppSettings> = {
+        themeId: 'movie',
+        customThemes: [],
+        useDominantBackgroundColor: true,
+        ideaMode: true,
+      };
+
+      const nextValue =
+        key === 'themeId' ? 'movie'
+        : key === 'customThemes' ? []
+        : key === 'useDominantBackgroundColor' ? true
+        : key === 'ideaMode' ? true
+        : value;
+
+      const newSettings = { ...baseSettings, ...lockedVisualSettings, [key]: nextValue };
+      newSettings.themeId = 'movie';
+      newSettings.customThemes = [];
+      newSettings.useDominantBackgroundColor = true;
+      newSettings.ideaMode = true;
 
       // Update cache/UI immediately so subsequent updates in the same tick see fresh state.
       cachedSettings = newSettings;

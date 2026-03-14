@@ -286,7 +286,7 @@ const CalendarScreen = () => {
   
   if ((loading || !uiReady) && !refreshing) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]}>
         <StatusBar barStyle="light-content" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={currentTheme.colors.primary} />
@@ -297,7 +297,7 @@ const CalendarScreen = () => {
   }
   
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]}>
       <StatusBar barStyle="light-content" />
       
       <View style={[styles.header, { borderBottomColor: currentTheme.colors.border }]}>

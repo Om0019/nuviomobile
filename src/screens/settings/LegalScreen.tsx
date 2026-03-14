@@ -38,7 +38,7 @@ const LegalScreen: React.FC = () => {
     ];
 
     return (
-        <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <StatusBar barStyle="light-content" />
             <ScreenHeader
                 title={t('legal.title')}

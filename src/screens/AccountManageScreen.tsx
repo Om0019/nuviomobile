@@ -79,7 +79,7 @@ const AccountManageScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <StatusBar translucent barStyle="light-content" backgroundColor="transparent" />
 
       {/* Header */}

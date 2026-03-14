@@ -165,7 +165,7 @@ const PlayerSettingsScreen: React.FC = () => {
     <SafeAreaView
       style={[
         styles.container,
-        { backgroundColor: currentTheme.colors.darkBackground },
+        { backgroundColor: 'transparent' },
       ]}
     >
       <StatusBar

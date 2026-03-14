@@ -763,7 +763,7 @@ const AIChatScreen: React.FC = () => {
 
   if (isLoadingContext) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: currentTheme.colors.darkBackground }]}>
+      <View style={[styles.loadingContainer, { backgroundColor: 'transparent' }]}>
         <StatusBar barStyle="light-content" />
         <ActivityIndicator size="large" color={currentTheme.colors.primary} />
         <Text style={[styles.loadingText, { color: currentTheme.colors.mediumEmphasis }]}>
@@ -775,7 +775,7 @@ const AIChatScreen: React.FC = () => {
 
   return (
     <Animated.View style={{ flex: 1, opacity: modalOpacity }}>
-      <SafeAreaView edges={['top', 'bottom']} style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+      <SafeAreaView edges={['top', 'bottom']} style={[styles.container, { backgroundColor: 'transparent' }]}>
         {backdropUrl && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             <FastImage

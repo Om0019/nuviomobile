@@ -608,7 +608,7 @@ const ContributorsScreen: React.FC = () => {
     return (
       <View style={[
         styles.container,
-        { backgroundColor: currentTheme.colors.darkBackground }
+        { backgroundColor: 'transparent' }
       ]}>
         <StatusBar barStyle={'light-content'} />
         <View style={[styles.headerContainer, { paddingTop: topSpacing }]}>
@@ -642,7 +642,7 @@ const ContributorsScreen: React.FC = () => {
   return (
     <View style={[
       styles.container,
-      { backgroundColor: currentTheme.colors.darkBackground }
+      { backgroundColor: 'transparent' }
     ]}>
       <StatusBar barStyle={'light-content'} />
 

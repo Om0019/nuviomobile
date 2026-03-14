@@ -582,11 +582,24 @@ const SettingsScreen: React.FC = () => {
 
   // Keep headers below floating top navigator on tablets
   const tabletNavOffset = isTablet ? 64 : 0;
+  const handleGoHome = useCallback(() => {
+    (navigation as any).navigate('MainTabs', { screen: 'Home' });
+  }, [navigation]);
+
+  const homeHeaderAction = (
+    <TouchableOpacity
+      style={styles.headerHomeButton}
+      onPress={handleGoHome}
+      activeOpacity={0.7}
+    >
+      <Feather name="home" size={22} color={currentTheme.colors.text} />
+    </TouchableOpacity>
+  );
 
   // TABLET LAYOUT
   if (isTablet) {
     return (
-      <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+      <View style={[styles.container, { backgroundColor: 'transparent' }]}>
         <StatusBar barStyle={'light-content'} />
         <View style={styles.tabletContainer}>
           <Sidebar
@@ -603,6 +616,9 @@ const SettingsScreen: React.FC = () => {
               paddingTop: (Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 24 : 48) + tabletNavOffset,
             }
           ]}>
+            <View style={styles.tabletHeaderActions}>
+              {homeHeaderAction}
+            </View>
             <ScrollView
               ref={tabletScrollViewRef}
               style={styles.tabletScrollView}
@@ -689,9 +705,9 @@ const SettingsScreen: React.FC = () => {
 
   // MOBILE LAYOUT - Simplified navigation hub
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <StatusBar barStyle={'light-content'} />
-      <ScreenHeader title={t('settings.settings_title')} />
+      <ScreenHeader title={t('settings.settings_title')} rightActionComponent={homeHeaderAction} />
       <View style={{ flex: 1 }}>
         <View style={styles.contentContainer}>
           <ScrollView
@@ -770,7 +786,7 @@ const SettingsScreen: React.FC = () => {
                   {(settingsConfig?.categories?.['appearance']?.visible !== false) && (
                     <SettingItem
                       title={t('settings.appearance')}
-                      description={t('settings.items.idea_desc', { defaultValue: 'Change the overall visual style of the app' })}
+                      description={t('settings.items.visual_style_desc', { defaultValue: 'Layout and display preferences' })}
                       icon="sliders"
                       renderControl={() => <ChevronRight />}
                       onPress={() => navigation.navigate('AppearanceSettings')}
@@ -1071,6 +1087,19 @@ const styles = StyleSheet.create({
   tabletScrollContent: {
     paddingTop: 8,
     paddingBottom: 40,
+  },
+  tabletHeaderActions: {
+    position: 'absolute',
+    top: 0,
+    right: 40,
+    zIndex: 5,
+  },
+  headerHomeButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   // Footer and social styles
   footer: {

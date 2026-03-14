@@ -439,7 +439,7 @@ const UpdateScreen: React.FC = () => {
   return (
     <SafeAreaView style={[
       styles.container,
-      { backgroundColor: currentTheme.colors.darkBackground }
+      { backgroundColor: 'transparent' }
     ]}>
       <StatusBar barStyle="light-content" />
 

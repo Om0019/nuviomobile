@@ -89,7 +89,7 @@ const DeveloperSettingsScreen: React.FC = () => {
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <StatusBar barStyle="light-content" />
             <ScreenHeader title={t('settings.developer')} showBackButton onBackPress={() => navigation.goBack()} />
 

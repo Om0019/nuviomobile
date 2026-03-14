@@ -631,7 +631,7 @@ const DownloadsScreen: React.FC = () => {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <StatusBar
         translucent
         barStyle="light-content"
@@ -682,7 +682,7 @@ const DownloadsScreen: React.FC = () => {
               onRequestRemove={handleRequestRemove}
             />
           )}
-          style={{ backgroundColor: currentTheme.colors.darkBackground }}
+          style={{ backgroundColor: 'transparent' }}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           refreshControl={

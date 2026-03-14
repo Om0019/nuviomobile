@@ -729,7 +729,7 @@ const SearchScreen = () => {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <ScreenHeader title={t('search.title')} isTablet={isTV || isLargeTablet || isTablet}>

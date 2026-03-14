@@ -481,11 +481,6 @@ const TabIcon = React.memo(({ focused, color, iconName, iconLibrary = 'material'
 
 const AppIdeaBackground = React.memo(() => {
   const { currentTheme } = useTheme();
-  const { settings } = useSettings();
-
-  if (!settings.ideaMode) {
-    return <View style={[StyleSheet.absoluteFillObject, { backgroundColor: currentTheme.colors.darkBackground }]} pointerEvents="none" />;
-  }
 
   const primary = `${currentTheme.colors.primary}2E`;
   const secondary = `${currentTheme.colors.secondary}24`;
@@ -587,7 +582,7 @@ const TabScreenWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   return (
     <View style={{
       flex: 1,
-      backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+      backgroundColor: 'transparent',
       // Lock the layout to prevent shifts
       position: 'relative',
       overflow: 'hidden'
@@ -597,7 +592,7 @@ const TabScreenWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
       <View style={{
         height: isTablet ? (insets.top + 64) : (Platform.OS === 'android' ? 80 : 60),
         width: '100%',
-        backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+        backgroundColor: 'transparent',
         position: 'absolute',
         top: 0,
         left: 0,
@@ -691,6 +686,10 @@ const MainTabs = () => {
   const fade = headerAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
 
   const renderTabBar = (props: BottomTabBarProps) => {
+    if (!isTablet) {
+      return null;
+    }
+
     // Hide tab bar when home is loading
     if (isHomeLoading) {
       return null;
@@ -1052,7 +1051,7 @@ const MainTabs = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground }}>
+    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <AppIdeaBackground />
       {/* Common StatusBar for all tabs */}
       <StatusBar
@@ -1096,13 +1095,13 @@ const MainTabs = () => {
           headerShown: false,
           tabBarShowLabel: false,
           sceneStyle: {
-            backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+            backgroundColor: 'transparent',
           },
           tabBarStyle: {
             position: 'absolute',
             borderTopWidth: 0,
             elevation: 0,
-            backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+            backgroundColor: 'transparent',
           },
           // Ensure background tabs are frozen and detached
           freezeOnBlur: true,
@@ -1259,7 +1258,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
       <PaperProvider theme={CustomDarkTheme}>
         <View style={{
           flex: 1,
-          backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+          backgroundColor: 'transparent',
           ...(Platform.OS === 'android' && {
             paddingBottom: insets.bottom, // Respect safe area bottom for Android nav bar
             // Prevent white flashes on Android
@@ -1278,7 +1277,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               animationDuration: Platform.OS === 'android' ? 250 : 300,
               // Ensure consistent background during transitions
               contentStyle: {
-                backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                backgroundColor: 'transparent',
               },
             }}
           >
@@ -1288,7 +1287,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               options={{
                 headerShown: false,
                 animation: 'fade',
-                contentStyle: { backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground },
+                contentStyle: { backgroundColor: 'transparent' },
               }}
             />
             <Stack.Screen
@@ -1299,7 +1298,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 animation: 'fade',
                 animationDuration: 300,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1308,7 +1307,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               component={MainTabs as any}
               options={{
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1320,7 +1319,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 animation: Platform.OS === 'android' ? 'default' : 'fade',
                 animationDuration: Platform.OS === 'android' ? 250 : 200,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1338,7 +1337,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                   gestureDirection: 'horizontal',
                 }),
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1353,7 +1352,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: Platform.OS === 'ios' ? 'vertical' : 'horizontal',
                 ...(Platform.OS === 'ios' && { presentation: 'modal' }),
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
                 // Freeze when blurred to stop timers/network without full unmount
                 freezeOnBlur: true,
@@ -1406,7 +1405,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 animation: 'slide_from_right',
                 animationDuration: Platform.OS === 'android' ? 250 : 300,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1417,7 +1416,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 animation: 'slide_from_right',
                 animationDuration: Platform.OS === 'android' ? 250 : 300,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1430,7 +1429,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1441,7 +1440,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 animation: 'slide_from_right',
                 animationDuration: Platform.OS === 'android' ? 250 : 300,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1456,7 +1455,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1471,7 +1470,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1486,7 +1485,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1501,7 +1500,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1527,7 +1526,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 animation: 'slide_from_right',
                 animationDuration: Platform.OS === 'android' ? 250 : 300,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1538,7 +1537,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 animation: 'slide_from_right',
                 animationDuration: Platform.OS === 'android' ? 250 : 300,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1553,7 +1552,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1568,7 +1567,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1583,7 +1582,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1598,7 +1597,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1613,7 +1612,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1628,7 +1627,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1643,7 +1642,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1658,7 +1657,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1673,7 +1672,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1688,7 +1687,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1704,7 +1703,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1719,7 +1718,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: Platform.OS === 'ios' ? 'horizontal' : 'vertical',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1746,7 +1745,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1761,7 +1760,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1776,7 +1775,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1791,7 +1790,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1806,7 +1805,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1821,7 +1820,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1836,7 +1835,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />
@@ -1851,7 +1850,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
                 gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
+                  backgroundColor: 'transparent',
                 },
               }}
             />

@@ -553,7 +553,7 @@ const PlaybackSettingsScreen: React.FC = () => {
     const screenIsTablet = width >= 768;
 
     return (
-        <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
             <StatusBar barStyle="light-content" />
             <ScreenHeader title={t('settings.playback')} showBackButton onBackPress={() => navigation.goBack()} />
 

@@ -247,7 +247,7 @@ const NotificationSettingsScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]}>
         <View style={[styles.header, { borderBottomColor: currentTheme.colors.border }]}>
           <TouchableOpacity
             style={styles.backButton}
@@ -266,7 +266,7 @@ const NotificationSettingsScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: 'transparent' }]}>
       <StatusBar barStyle="light-content" />
 
       <View style={styles.header}>

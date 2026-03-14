@@ -1438,8 +1438,22 @@ const LibraryScreen = () => {
     return (Platform.OS === 'ios' ? (Platform as any).isPad === true : smallestDimension >= 768);
   }, [width, height]);
 
+  const handleGoHome = useCallback(() => {
+    (navigation as any).navigate('MainTabs', { screen: 'Home' });
+  }, [navigation]);
+
+  const homeHeaderAction = useMemo(() => (
+    <TouchableOpacity
+      style={styles.headerHomeButton}
+      onPress={handleGoHome}
+      activeOpacity={0.7}
+    >
+      <MaterialIcons name="home-filled" size={24} color={currentTheme.colors.text} />
+    </TouchableOpacity>
+  ), [handleGoHome, currentTheme.colors.text]);
+
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <ScreenHeader
         title={showTraktContent
           ? (selectedTraktFolder
@@ -1467,13 +1481,12 @@ const LibraryScreen = () => {
             }
           }
         } : undefined}
-        useMaterialIcons={showTraktContent}
-        rightActionIcon={!showTraktContent ? 'calendar' : undefined}
-        onRightActionPress={!showTraktContent ? () => navigation.navigate('Calendar') : undefined}
+        useMaterialIcons
+        rightActionComponent={homeHeaderAction}
         isTablet={isTablet}
       />
 
-      <View style={[styles.contentContainer, { backgroundColor: currentTheme.colors.darkBackground }]}>
+      <View style={[styles.contentContainer, { backgroundColor: 'transparent' }]}>
         {!showTraktContent && !showSimklContent && (
           <View style={styles.filtersContainer}>
             {renderFilter('trakt', 'Trakt')}
@@ -1545,6 +1558,13 @@ const LibraryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerHomeButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   watchedIndicator: {
     position: 'absolute',

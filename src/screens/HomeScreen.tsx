@@ -680,7 +680,7 @@ const HomeScreen = () => {
   const renderLoadingScreen = useMemo(() => {
     if (isLoading) {
       return (
-        <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
+        <View style={[styles.container, { backgroundColor: 'transparent' }]}>
           <StatusBar
             barStyle="light-content"
             backgroundColor="transparent"
@@ -999,7 +999,7 @@ const HomeScreen = () => {
           locations={[0, 0.22, 1]}
           style={styles.topActionButtonHighlight}
         />
-        <MaterialIcons name="person-outline" size={22} color={currentTheme.colors.white} />
+        <MaterialIcons name="settings" size={22} color={currentTheme.colors.white} />
       </TouchableOpacity>
       <View style={styles.topActionBarRight}>
         <TouchableOpacity
@@ -1029,7 +1029,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           activeOpacity={0.82}
           style={styles.topActionButton}
-          onPress={() => Alert.alert('Voice Search', 'Voice search is coming soon.')}
+          onPress={() => navigation.navigate('Library')}
         >
           {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
             <GlassViewComp
@@ -1048,7 +1048,7 @@ const HomeScreen = () => {
             locations={[0, 0.22, 1]}
             style={styles.topActionButtonHighlight}
           />
-          <MaterialIcons name="keyboard-voice" size={22} color={currentTheme.colors.white} />
+          <MaterialIcons name="video-library" size={22} color={currentTheme.colors.white} />
         </TouchableOpacity>
       </View>
     </View>
@@ -1373,6 +1373,16 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
+        <LinearGradient
+          pointerEvents="none"
+          colors={[
+            settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
+            settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
+            'rgba(0,0,0,0)',
+          ]}
+          locations={[0, 0.45, 1]}
+          style={[styles.homeListTopFade, { top: homeListViewportTop }]}
+        />
         {memoizedTopActions}
         {memoizedHomeFilters}
         {/* Toasts are rendered globally at root */}
@@ -1451,6 +1461,13 @@ const styles = StyleSheet.create<any>({
   },
   homeListViewport: {
     flex: 1,
+  },
+  homeListTopFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 42,
+    zIndex: 20,
   },
   ideaAmbientBackground: {
     ...StyleSheet.absoluteFillObject,

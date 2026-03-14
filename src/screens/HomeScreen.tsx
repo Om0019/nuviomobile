@@ -763,8 +763,8 @@ const HomeScreen = () => {
   const topActionBarHeight = 48;
   const topFilterBarTop = topActionBarTop + topActionBarHeight + 12;
   const topFilterBarHeight = 42;
-  const topFilterFadeTop = topFilterBarTop;
-  const homeListViewportTop = topFilterBarTop + topFilterBarHeight + 12;
+  const topFilterDividerTop = topFilterBarTop + topFilterBarHeight + 14;
+  const homeListViewportTop = topFilterDividerTop + 1;
   const ideaHeroHeaderSpacing = 16;
   const availableGenres = useMemo(() => {
     const genreSet = new Set<string>();
@@ -1178,6 +1178,7 @@ const HomeScreen = () => {
           </Animated.View>
         </View>
       </Animated.View>
+      <View style={styles.topFilterDivider} />
     </View>
   ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
@@ -1372,19 +1373,6 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
-        <LinearGradient
-          pointerEvents="none"
-          colors={[
-            `${ideaBackgroundColor}FF`,
-            `${ideaBackgroundColor}F2`,
-            `${ideaBackgroundColor}B8`,
-            `${ideaBackgroundColor}20`,
-            `${ideaBackgroundColor}08`,
-            `${ideaBackgroundColor}00`,
-          ]}
-          locations={[0, 0.28, 0.5, 0.72, 0.9, 1]}
-          style={[styles.homeListTopFade, { top: topFilterFadeTop }]}
-        />
         {memoizedTopActions}
         {memoizedHomeFilters}
         {/* Toasts are rendered globally at root */}
@@ -1400,7 +1388,6 @@ const HomeScreen = () => {
     keyExtractor,
     contentContainerStyle,
     homeListViewportTop,
-    topFilterFadeTop,
     memoizedHeader,
     memoizedTopActions,
     memoizedHomeFilters,
@@ -1464,13 +1451,6 @@ const styles = StyleSheet.create<any>({
   },
   homeListViewport: {
     flex: 1,
-  },
-  homeListTopFade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 58,
-    zIndex: 20,
   },
   ideaAmbientBackground: {
     ...StyleSheet.absoluteFillObject,
@@ -2115,6 +2095,13 @@ const styles = StyleSheet.create<any>({
   genreChipText: {
     fontSize: 13,
     fontWeight: '600',
+  },
+  topFilterDivider: {
+    marginTop: 14,
+    alignSelf: 'stretch',
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    marginHorizontal: 12,
   },
   topActionButton: {
     width: 46,

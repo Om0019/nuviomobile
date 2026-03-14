@@ -1609,7 +1609,6 @@ export class TMDBService {
 
     const aliasMap: Record<'movie' | 'tv', Record<string, string[]>> = {
       movie: {
-        anime: ['animation', 'family'],
         children: ['family', 'animation'],
         kids: ['family', 'animation'],
         'sci fi': ['science fiction'],
@@ -1617,7 +1616,6 @@ export class TMDBService {
         romcom: ['romance', 'comedy'],
       },
       tv: {
-        anime: ['animation'],
         children: ['kids', 'family', 'animation'],
         kids: ['kids', 'family', 'animation'],
         'sci fi': ['science fiction & fantasy'],
@@ -1661,7 +1659,11 @@ export class TMDBService {
         ? await this.getMovieGenres(language)
         : await this.getTvGenres(language);
 
-      const genre = this.resolveGenreMatch(genreList, type, genreName);
+      const normalizedGenreName = genreName.trim().toLowerCase();
+      const isAnimeGenre = normalizedGenreName === 'anime';
+      const genre = isAnimeGenre
+        ? this.resolveGenreMatch(genreList, type, 'Animation')
+        : this.resolveGenreMatch(genreList, type, genreName);
 
       if (!genre) {
         return [];
@@ -1676,6 +1678,7 @@ export class TMDBService {
           include_video: false,
           page,
           with_genres: genre.id.toString(),
+          ...(isAnimeGenre ? { with_original_language: 'ja' } : {}),
         }),
       });
 

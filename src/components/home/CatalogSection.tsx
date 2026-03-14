@@ -186,7 +186,7 @@ const CatalogSection = ({ catalog }: CatalogSectionProps) => {
         >
           <BlurView
             tint="dark"
-            intensity={58}
+            intensity={42}
             style={[
               styles.viewAllBlur,
               {
@@ -197,12 +197,12 @@ const CatalogSection = ({ catalog }: CatalogSectionProps) => {
             ]}
           >
             <LinearGradient
-              colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0.07)', 'rgba(255,255,255,0.00)']}
-              locations={[0, 0.16, 1]}
+              colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.00)']}
+              locations={[0, 0.14, 1]}
               style={styles.viewAllGlassLayer}
             />
             <LinearGradient
-              colors={['rgba(255,255,255,0.00)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.00)']}
+              colors={['rgba(255,255,255,0.00)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
               locations={[0, 0.52, 1]}
               style={styles.viewAllReflection}
             />
@@ -284,16 +284,12 @@ const styles = StyleSheet.create({
   viewAllButton: {
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.16,
-    shadowRadius: 24,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   viewAllBlur: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(12, 9, 9, 0.32)',
   },
   viewAllGlassLayer: {
     ...StyleSheet.absoluteFillObject,

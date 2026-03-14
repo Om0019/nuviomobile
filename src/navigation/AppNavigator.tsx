@@ -1466,8 +1466,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="CatalogSettings"
               component={CatalogSettingsScreen as any}
               options={{
-                animation: 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 contentStyle: {
                   backgroundColor: 'transparent',
                 },
@@ -1477,11 +1476,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="HomeScreenSettings"
               component={HomeScreenSettings}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'default',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1492,11 +1489,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="ContinueWatchingSettings"
               component={ContinueWatchingSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'default',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1507,11 +1502,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="Contributors"
               component={ContributorsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'default',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1522,11 +1515,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="HeroCatalogs"
               component={HeroCatalogsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'default',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1563,8 +1554,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="NotificationSettings"
               component={NotificationSettingsScreen as any}
               options={{
-                animation: 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 contentStyle: {
                   backgroundColor: 'transparent',
                 },
@@ -1574,11 +1564,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="MDBListSettings"
               component={MDBListSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'fade',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1589,11 +1577,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="TMDBSettings"
               component={TMDBSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'fade',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1604,11 +1590,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="TraktSettings"
               component={TraktSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'fade',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1619,11 +1603,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="SimklSettings"
               component={SimklSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'fade',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1634,11 +1616,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="PlayerSettings"
               component={PlayerSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'fade',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1649,11 +1629,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="ScraperSettings"
               component={PluginsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'fade',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1694,11 +1672,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="Update"
               component={UpdateScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1709,11 +1685,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="AISettings"
               component={AISettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',
@@ -1725,11 +1699,9 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="Backup"
               component={BackupScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
-                gestureDirection: 'horizontal',
                 headerShown: false,
                 contentStyle: {
                   backgroundColor: 'transparent',

@@ -1306,9 +1306,9 @@ const HomeScreen = () => {
     return (
       <View style={styles.homeSearchOverlay} pointerEvents="box-none">
         <Pressable style={styles.homeSearchOverlayBackdrop} onPress={closeSearchOverlay}>
-          <BlurView tint="dark" intensity={40} style={StyleSheet.absoluteFillObject} />
+          <BlurView tint="dark" intensity={30} style={StyleSheet.absoluteFillObject} />
           <LinearGradient
-            colors={['rgba(32,22,24,0.12)', 'rgba(24,16,17,0.28)', 'rgba(15,10,11,0.42)']}
+            colors={['rgba(32,22,24,0.06)', 'rgba(24,16,17,0.16)', 'rgba(15,10,11,0.24)']}
             locations={[0, 0.38, 1]}
             style={StyleSheet.absoluteFillObject}
           />
@@ -1323,11 +1323,11 @@ const HomeScreen = () => {
                   glassEffectStyle="regular"
                 />
               ) : (
-                <BlurView tint="dark" intensity={58} style={StyleSheet.absoluteFillObject} />
+                <BlurView tint="dark" intensity={34} style={StyleSheet.absoluteFillObject} />
               )}
               <LinearGradient
-                colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.00)']}
-                locations={[0, 0.16, 1]}
+                colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
+                locations={[0, 0.22, 1]}
                 style={styles.homeSearchBarHighlight}
               />
               <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
@@ -2422,9 +2422,9 @@ const styles = StyleSheet.create<any>({
     overflow: 'hidden',
   },
   topFilterPillCompact: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     paddingHorizontal: 0,
     justifyContent: 'center',
     gap: 0,
@@ -2472,12 +2472,12 @@ const styles = StyleSheet.create<any>({
   },
   genreDiscoverTypePill: {
     minWidth: 88,
-    height: 38,
+    height: 42,
     paddingHorizontal: 16,
-    borderRadius: 19,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(12, 9, 9, 0.32)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
   },
@@ -2528,7 +2528,7 @@ const styles = StyleSheet.create<any>({
     minHeight: 42,
     paddingHorizontal: 18,
     borderRadius: 21,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(12, 9, 9, 0.32)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
     flexDirection: 'row',
@@ -2579,7 +2579,7 @@ const styles = StyleSheet.create<any>({
     height: 34,
     paddingHorizontal: 14,
     borderRadius: 17,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(12, 9, 9, 0.32)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.07)',
     justifyContent: 'center',
@@ -2625,12 +2625,12 @@ const styles = StyleSheet.create<any>({
     alignItems: 'center',
     gap: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.11)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(12, 9, 9, 0.22)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.18,
-    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
   },
   homeSearchResultsScroll: {
     flex: 1,
@@ -2689,7 +2689,9 @@ const styles = StyleSheet.create<any>({
     borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(12, 9, 9, 0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   topActionButton: {
     width: 46,
@@ -2698,14 +2700,14 @@ const styles = StyleSheet.create<any>({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: 'rgba(10, 8, 8, 0.18)',
+    backgroundColor: 'rgba(12, 9, 9, 0.32)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: 'rgba(255,255,255,0.08)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.24,
+    shadowOpacity: 0.14,
     shadowRadius: 18,
-    elevation: 14,
+    elevation: 10,
   },
   topActionButtonHighlight: {
     position: 'absolute',

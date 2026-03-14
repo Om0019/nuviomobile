@@ -2048,7 +2048,6 @@ const styles = StyleSheet.create<any>({
     alignItems: 'center',
     gap: 8,
     overflow: 'hidden',
-    flex: 1,
   },
   genreFilterWrapExpanded: {
     flex: 1,

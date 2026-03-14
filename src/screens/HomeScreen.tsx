@@ -1373,12 +1373,23 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
-        <BlurView
-          pointerEvents="none"
-          intensity={24}
-          tint="dark"
-          style={[styles.homeListTopFade, { top: homeListViewportTop }]}
-        />
+        <View pointerEvents="none" style={[styles.homeListTopFade, { top: homeListViewportTop }]}>
+          <BlurView
+            intensity={26}
+            tint="dark"
+            style={StyleSheet.absoluteFillObject}
+          />
+          <LinearGradient
+            colors={[
+              `${ideaBackgroundColor}E8`,
+              `${ideaBackgroundColor}B8`,
+              `${ideaBackgroundColor}5C`,
+              'rgba(0,0,0,0)',
+            ]}
+            locations={[0, 0.18, 0.52, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
+        </View>
         {memoizedTopActions}
         {memoizedHomeFilters}
         {/* Toasts are rendered globally at root */}
@@ -1462,9 +1473,9 @@ const styles = StyleSheet.create<any>({
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 28,
+    height: 52,
     zIndex: 20,
-    opacity: 0.72,
+    overflow: 'hidden',
   },
   ideaAmbientBackground: {
     ...StyleSheet.absoluteFillObject,
@@ -2114,8 +2125,9 @@ const styles = StyleSheet.create<any>({
     marginTop: 14,
     alignSelf: 'stretch',
     height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255,255,255,0.035)',
     marginHorizontal: 12,
+    opacity: 0.8,
   },
   topActionButton: {
     width: 46,

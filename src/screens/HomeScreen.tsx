@@ -1381,12 +1381,12 @@ const HomeScreen = () => {
           />
           <LinearGradient
             colors={[
-              'rgba(26,13,10,0)',
-              'rgba(26,13,10,0.03)',
-              'rgba(26,13,10,0.10)',
-              'rgba(26,13,10,0.22)',
-              'rgba(26,13,10,0.42)',
-              'rgba(0,0,0,0)',
+              `${ideaBackgroundColor}00`,
+              `${ideaBackgroundColor}08`,
+              `${ideaBackgroundColor}1A`,
+              `${ideaBackgroundColor}38`,
+              `${ideaBackgroundColor}70`,
+              `${ideaBackgroundColor}F2`,
             ]}
             locations={[0, 0.12, 0.28, 0.5, 0.78, 1]}
             style={StyleSheet.absoluteFillObject}

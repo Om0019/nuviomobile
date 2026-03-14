@@ -1158,6 +1158,28 @@ const HomeScreen = () => {
       <View style={styles.topFilterDivider} />
     </View>
   ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle]);
+  const memoizedHeaderBoundary = useMemo(() => (
+    <View
+      pointerEvents="none"
+      style={[
+        styles.headerBoundaryMask,
+        {
+          height: topFilterDividerTop + 26,
+          backgroundColor: settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
+        },
+      ]}
+    >
+      <LinearGradient
+        colors={[
+          settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
+          settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
+          'rgba(0,0,0,0)',
+        ]}
+        locations={[0, 0.76, 1]}
+        style={styles.headerBoundaryFade}
+      />
+    </View>
+  ), [topFilterDividerTop, settings.ideaMode, ideaBackgroundColor, currentTheme.colors.darkBackground]);
   const memoizedHeader = useMemo(() => (
     <>
       <View style={{ height: ideaHeroHeaderSpacing }} />
@@ -1358,6 +1380,7 @@ const HomeScreen = () => {
           onEndReachedThreshold={0.6}
           onScroll={handleScroll}
         />
+        {memoizedHeaderBoundary}
         {memoizedTopActions}
         {memoizedHomeFilters}
         {/* Toasts are rendered globally at root */}
@@ -1373,6 +1396,7 @@ const HomeScreen = () => {
     keyExtractor,
     contentContainerStyle,
     memoizedHeader,
+    memoizedHeaderBoundary,
     memoizedTopActions,
     memoizedHomeFilters,
     ideaAmbientToneAnimatedStyle,
@@ -1971,6 +1995,20 @@ const styles = StyleSheet.create<any>({
     right: 0,
     zIndex: 79,
     alignItems: 'center',
+  },
+  headerBoundaryMask: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 78,
+  },
+  headerBoundaryFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: -1,
+    height: 34,
   },
   topFilterBar: {
     flexDirection: 'row',

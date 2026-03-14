@@ -72,6 +72,7 @@ import FirstTimeWelcome from '../components/FirstTimeWelcome';
 import { HeaderVisibility } from '../contexts/HeaderVisibility';
 import { useTrailer } from '../contexts/TrailerContext';
 import { useScrollToTop } from '../contexts/ScrollToTopContext';
+import useDominantColor from '../hooks/useDominantColor';
 
 let GlassViewComp: any = null;
 let liquidGlassAvailable = false;
@@ -762,6 +763,8 @@ const HomeScreen = () => {
     return windowWidth >= 768;
   }, [windowWidth]);
 
+  const [activeHeroItem, setActiveHeroItem] = useState<StreamingContent | null>(null);
+
   // Memoize individual section components to prevent re-renders
   const memoizedFeaturedContent = useMemo(() => {
     const heroStyleToUse = settings.heroStyle;
@@ -782,6 +785,7 @@ const HomeScreen = () => {
           items={allFeaturedContent || (featuredContent ? [featuredContent] : [])}
           loading={featuredLoading}
           topOverlayOffset={settings.ideaMode ? ideaHeroHeaderSpacing : 0}
+          onActiveItemChange={setActiveHeroItem}
         />
       );
     } else {
@@ -836,9 +840,9 @@ const HomeScreen = () => {
   const ideaAmbientTopBandAnimatedStyle = useAnimatedStyle(() => {
     const scrollPhase = Math.min(scrollY.value, 900);
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
-      forYou: ['#0A2233', '#123049', '#183C58'],
+      forYou: ['#2B140F', '#381811', '#472016'],
       movie: ['#2B140F', '#381811', '#472016'],
-      series: ['#0B211A', '#133026', '#1A3E31'],
+      series: ['#2B140F', '#381811', '#472016'],
     };
     const [toneA, toneB, toneC] = palettes[ideaHomeSection];
 
@@ -851,9 +855,9 @@ const HomeScreen = () => {
   const ideaAmbientMidBandAnimatedStyle = useAnimatedStyle(() => {
     const scrollPhase = Math.min(scrollY.value, 1200);
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
-      forYou: ['#091521', '#102033', '#162B42'],
+      forYou: ['#160E0C', '#24130F', '#321A14'],
       movie: ['#160E0C', '#24130F', '#321A14'],
-      series: ['#091510', '#10211A', '#183026'],
+      series: ['#160E0C', '#24130F', '#321A14'],
     };
     const [toneA, toneB, toneC] = palettes[ideaHomeSection];
 
@@ -866,9 +870,9 @@ const HomeScreen = () => {
   const ideaAmbientBottomBandAnimatedStyle = useAnimatedStyle(() => {
     const scrollPhase = Math.min(scrollY.value, 1400);
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
-      forYou: ['#070D15', '#0B121D', '#0F1824'],
+      forYou: ['#0D0908', '#140D0B', '#1B110D'],
       movie: ['#0D0908', '#140D0B', '#1B110D'],
-      series: ['#070E0B', '#0B1511', '#101C16'],
+      series: ['#0D0908', '#140D0B', '#1B110D'],
     };
     const [toneA, toneB, toneC] = palettes[ideaHomeSection];
 
@@ -880,9 +884,9 @@ const HomeScreen = () => {
   const ideaAmbientToneAnimatedStyle = useAnimatedStyle(() => {
     const scrollPhase = Math.min(scrollY.value, 900);
     const palettes: Record<IdeaHomeSection, [string, string, string]> = {
-      forYou: ['#08111A', '#0A1C2B', '#13283A'],
+      forYou: ['#120B09', '#24110D', '#321712'],
       movie: ['#120B09', '#24110D', '#321712'],
-      series: ['#07120F', '#0B2018', '#133126'],
+      series: ['#120B09', '#24110D', '#321712'],
     };
     const [toneA, toneB, toneC] = palettes[ideaHomeSection];
 
@@ -906,22 +910,73 @@ const HomeScreen = () => {
   });
   const ideaAmbientPalette = useMemo(() => {
     const palettes: Record<IdeaHomeSection, [string, string]> = {
-      forYou: ['rgba(56,189,248,0.22)', 'rgba(99,102,241,0.16)'],
+      forYou: ['rgba(249,115,22,0.22)', 'rgba(239,68,68,0.16)'],
       movie: ['rgba(249,115,22,0.22)', 'rgba(239,68,68,0.16)'],
-      series: ['rgba(16,185,129,0.22)', 'rgba(45,212,191,0.16)'],
+      series: ['rgba(249,115,22,0.22)', 'rgba(239,68,68,0.16)'],
     };
 
     return palettes[ideaHomeSection];
   }, [ideaHomeSection]);
   const ideaBackgroundColor = useMemo(() => {
     const backgroundBySection: Record<IdeaHomeSection, string> = {
-      forYou: '#071521',
+      forYou: '#1a0d0a',
       movie: '#1a0d0a',
-      series: '#071813',
+      series: '#1a0d0a',
     };
 
     return backgroundBySection[ideaHomeSection];
   }, [ideaHomeSection]);
+  const activeHeroImageUri = useMemo(
+    () => activeHeroItem?.poster || activeHeroItem?.banner || null,
+    [activeHeroItem]
+  );
+  const { dominantColor: activeHeroDominantColor } = useDominantColor(
+    settings.ideaMode && settings.heroStyle === 'carousel' ? activeHeroImageUri : null
+  );
+  const ideaDynamicGlowFromColor = useSharedValue(ideaBackgroundColor);
+  const ideaDynamicGlowToColor = useSharedValue(ideaBackgroundColor);
+  const ideaDynamicGlowProgress = useSharedValue(1);
+
+  useEffect(() => {
+    const heroItems = allFeaturedContent || (featuredContent ? [featuredContent] : []);
+    if (!heroItems.length) {
+      setActiveHeroItem(null);
+      return;
+    }
+
+    setActiveHeroItem((prev) => {
+      if (prev && heroItems.some((item) => item.id === prev.id)) {
+        return prev;
+      }
+      return heroItems[0];
+    });
+  }, [allFeaturedContent, featuredContent]);
+
+  useEffect(() => {
+    const fallbackColor = '#7f1d1d';
+    const targetColor =
+      settings.ideaMode && activeHeroDominantColor && activeHeroDominantColor !== '#1a1a1a'
+        ? activeHeroDominantColor
+        : fallbackColor;
+
+    ideaDynamicGlowFromColor.value = ideaDynamicGlowToColor.value;
+    ideaDynamicGlowToColor.value = targetColor;
+    ideaDynamicGlowProgress.value = 0;
+    ideaDynamicGlowProgress.value = withTiming(1, { duration: 420 });
+  }, [activeHeroDominantColor, settings.ideaMode, ideaDynamicGlowFromColor, ideaDynamicGlowToColor, ideaDynamicGlowProgress]);
+
+  const ideaDynamicGlowAnimatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      ideaDynamicGlowProgress.value,
+      [0, 1],
+      [ideaDynamicGlowFromColor.value, ideaDynamicGlowToColor.value]
+    ),
+    opacity: 0.32 + Math.min(scrollY.value / 1600, 0.08),
+    transform: [
+      { translateY: -20 + Math.min(scrollY.value * 0.03, 28) },
+      { scale: 1.02 + Math.min(scrollY.value / 2200, 0.04) },
+    ],
+  }));
   const memoizedIdeaSectionMenu = useMemo(() => {
     if (!settings.ideaMode) return null;
 
@@ -1187,6 +1242,7 @@ const HomeScreen = () => {
             <Animated.View style={[styles.ideaAmbientMidBand, ideaAmbientMidBandAnimatedStyle]} />
             <Animated.View style={[styles.ideaAmbientTopBand, ideaAmbientTopBandAnimatedStyle]} />
             <Animated.View style={[styles.ideaAmbientToneLayer, ideaAmbientToneAnimatedStyle]} />
+            <Animated.View style={[styles.ideaAmbientDynamicGlow, ideaDynamicGlowAnimatedStyle]} />
             <LinearGradient
               colors={['rgba(34,42,64,0.54)', 'rgba(18,22,32,0.58)', settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground]}
               locations={[0, 0.42, 1]}
@@ -1241,6 +1297,7 @@ const HomeScreen = () => {
     ideaAmbientTopBandAnimatedStyle,
     ideaAmbientMidBandAnimatedStyle,
     ideaAmbientBottomBandAnimatedStyle,
+    ideaDynamicGlowAnimatedStyle,
     ideaAmbientPalette,
     ListFooterComponent,
     handleLoadMoreCatalogs,
@@ -1316,6 +1373,15 @@ const styles = StyleSheet.create<any>({
   },
   ideaAmbientToneLayer: {
     ...StyleSheet.absoluteFillObject,
+  },
+  ideaAmbientDynamicGlow: {
+    position: 'absolute',
+    top: -80,
+    left: -40,
+    right: -40,
+    height: 420,
+    borderBottomLeftRadius: 220,
+    borderBottomRightRadius: 220,
   },
   ideaAmbientBaseGradient: {
     ...StyleSheet.absoluteFillObject,

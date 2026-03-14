@@ -60,7 +60,6 @@ import HeroCatalogsScreen from '../screens/HeroCatalogsScreen';
 import TraktSettingsScreen from '../screens/TraktSettingsScreen';
 import SimklSettingsScreen from '../screens/SimklSettingsScreen';
 import PlayerSettingsScreen from '../screens/PlayerSettingsScreen';
-import ThemeScreen from '../screens/ThemeScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import AuthScreen from '../screens/AuthScreen';
 import AccountManageScreen from '../screens/AccountManageScreen';
@@ -193,7 +192,6 @@ export type RootStackParamList = {
   TraktSettings: undefined;
   SimklSettings: undefined;
   PlayerSettings: undefined;
-  ThemeSettings: undefined;
   ScraperSettings: undefined;
   CastMovies: {
     castMember: {
@@ -1607,21 +1605,6 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
             <Stack.Screen
               name="PlayerSettings"
               component={PlayerSettingsScreen}
-              options={{
-                animation: Platform.OS === 'android' ? 'default' : 'fade',
-                animationDuration: Platform.OS === 'android' ? 250 : 200,
-                presentation: 'card',
-                gestureEnabled: true,
-                gestureDirection: 'horizontal',
-                headerShown: false,
-                contentStyle: {
-                  backgroundColor: settings.ideaMode ? 'transparent' : currentTheme.colors.darkBackground,
-                },
-              }}
-            />
-            <Stack.Screen
-              name="ThemeSettings"
-              component={ThemeScreen}
               options={{
                 animation: Platform.OS === 'android' ? 'default' : 'fade',
                 animationDuration: Platform.OS === 'android' ? 250 : 200,

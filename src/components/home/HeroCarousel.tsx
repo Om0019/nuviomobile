@@ -34,12 +34,13 @@ interface HeroCarouselProps {
   items: StreamingContent[];
   loading?: boolean;
   topOverlayOffset?: number;
+  onActiveItemChange?: (item: StreamingContent | null) => void;
 }
 
 // Offset to keep cards below a top tab navigator
 const TOP_TABS_OFFSET = Platform.OS === 'ios' ? 44 : 48;
 
-const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, topOverlayOffset = 0 }) => {
+const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, topOverlayOffset = 0, onActiveItemChange }) => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { currentTheme } = useTheme();
@@ -125,6 +126,11 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ items, loading = false, top
   // Note: do not early-return before hooks. Loading UI is returned later.
 
   const hasData = data.length > 0;
+
+  useEffect(() => {
+    if (!onActiveItemChange) return;
+    onActiveItemChange(data[activeIndex] || data[0] || null);
+  }, [activeIndex, data, onActiveItemChange]);
 
   // Optimized: update background as soon as scroll starts, without waiting for momentum end
   const scrollX = useSharedValue(0);

@@ -1,13 +1,10 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, StatusBar, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSettings } from '../../hooks/useSettings';
-import { RootStackParamList } from '../../navigation/AppNavigator';
 import ScreenHeader from '../../components/common/ScreenHeader';
-import { SettingsCard, SettingItem, CustomSwitch, ChevronRight } from './SettingsComponents';
+import { SettingsCard, SettingItem, CustomSwitch } from './SettingsComponents';
 import { useRealtimeConfig } from '../../hooks/useRealtimeConfig';
 import { useTranslation } from 'react-i18next';
 
@@ -22,8 +19,6 @@ interface AppearanceSettingsContentProps {
  * Can be used inline (tablets) or wrapped in a screen (mobile)
  */
 export const AppearanceSettingsContent: React.FC<AppearanceSettingsContentProps> = ({ isTablet = false }) => {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const { currentTheme } = useTheme();
     const { settings, updateSetting } = useSettings();
     const { t } = useTranslation();
     const config = useRealtimeConfig();
@@ -44,52 +39,21 @@ export const AppearanceSettingsContent: React.FC<AppearanceSettingsContentProps>
 
     return (
         <>
-            {hasVisibleItems(['theme']) && (
-                <SettingsCard title={t('settings.sections.colors', { defaultValue: 'COLORS' })} isTablet={isTablet}>
-                    {isItemVisible('theme') && (
-                        <SettingItem
-                            title={t('settings.items.colors', { defaultValue: 'Colors' })}
-                            description={currentTheme.name}
-                            icon="palette"
-                            renderControl={() => <ChevronRight />}
-                            onPress={() => navigation.navigate('ThemeSettings')}
-                            isLast
-                            isTablet={isTablet}
+            <SettingsCard title={t('settings.sections.appearance', { defaultValue: 'APPEARANCE' })} isTablet={isTablet}>
+                <SettingItem
+                    title={t('settings.items.idea', { defaultValue: 'Idea' })}
+                    description={t('settings.items.idea_desc', { defaultValue: 'Change the overall visual style of the app' })}
+                    icon="sparkles"
+                    renderControl={() => (
+                        <CustomSwitch
+                            value={settings?.ideaMode ?? false}
+                            onValueChange={(value) => updateSetting('ideaMode', value)}
                         />
                     )}
-                </SettingsCard>
-            )}
-
-            {hasVisibleItems(['theme']) && (
-                <SettingsCard title={t('settings.sections.themes', { defaultValue: 'THEMES' })} isTablet={isTablet}>
-                    {isItemVisible('theme') && (
-                        <SettingItem
-                            title={t('settings.items.themes', { defaultValue: 'Themes' })}
-                            description={t('settings.items.themes_desc', { defaultValue: 'Browse and customize themes' })}
-                            icon="sliders"
-                            renderControl={() => <ChevronRight />}
-                            onPress={() => navigation.navigate('ThemeSettings')}
-                            isLast={false}
-                            isTablet={isTablet}
-                        />
-                    )}
-                    {isItemVisible('theme') && (
-                        <SettingItem
-                            title={t('settings.items.idea', { defaultValue: 'Idea' })}
-                            description={t('settings.items.idea_desc', { defaultValue: 'Change the overall visual style of the app' })}
-                            icon="sparkles"
-                            renderControl={() => (
-                                <CustomSwitch
-                                    value={settings?.ideaMode ?? false}
-                                    onValueChange={(value) => updateSetting('ideaMode', value)}
-                                />
-                            )}
-                            isLast
-                            isTablet={isTablet}
-                        />
-                    )}
-                </SettingsCard>
-            )}
+                    isLast
+                    isTablet={isTablet}
+                />
+            </SettingsCard>
 
             {hasVisibleItems(['episode_layout', 'streams_backdrop']) && (
                 <SettingsCard title={t('settings.sections.layout')} isTablet={isTablet}>
@@ -133,7 +97,6 @@ export const AppearanceSettingsContent: React.FC<AppearanceSettingsContentProps>
  * AppearanceSettingsScreen - Wrapper for mobile navigation
  */
 const AppearanceSettingsScreen: React.FC = () => {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const { currentTheme } = useTheme();
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
@@ -142,7 +105,7 @@ const AppearanceSettingsScreen: React.FC = () => {
     return (
         <View style={[styles.container, { backgroundColor: currentTheme.colors.darkBackground }]}>
             <StatusBar barStyle="light-content" />
-            <ScreenHeader title={t('settings.appearance')} showBackButton onBackPress={() => navigation.goBack()} />
+            <ScreenHeader title={t('settings.appearance')} showBackButton />
 
             <ScrollView
                 style={styles.scrollView}

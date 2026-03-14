@@ -1061,7 +1061,12 @@ const HomeScreen = () => {
   }));
   const filterRowShiftAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: -Math.min(windowWidth * 0.16, 64) * genreExpandProgress.value },
+      { translateX: -Math.min(windowWidth * 0.22, 92) * genreExpandProgress.value },
+    ],
+  }));
+  const genreTriggerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: -Math.min(windowWidth * 0.08, 26) * genreExpandProgress.value },
     ],
   }));
   const memoizedHomeFilters = useMemo(() => (
@@ -1104,23 +1109,25 @@ const HomeScreen = () => {
           </Text>
         </TouchableOpacity>
         <View style={styles.genreFilterWrap}>
-          <TouchableOpacity
-            activeOpacity={0.82}
-            style={[
-              styles.topFilterPill,
-              (genresExpanded || !!selectedGenre) && styles.topFilterPillActiveSoft,
-            ]}
-            onPress={() => setGenresExpanded((prev) => !prev)}
-          >
-            <MaterialIcons
-              name={genresExpanded ? 'arrow-back-ios-new' : 'chevron-right'}
-              size={genresExpanded ? 16 : 18}
-              color={currentTheme.colors.highEmphasis}
-            />
-            <Text style={[styles.topFilterPillText, { color: currentTheme.colors.highEmphasis }]}>
-              Genres
-            </Text>
-          </TouchableOpacity>
+          <Animated.View style={genreTriggerAnimatedStyle}>
+            <TouchableOpacity
+              activeOpacity={0.82}
+              style={[
+                styles.topFilterPill,
+                (genresExpanded || !!selectedGenre) && styles.topFilterPillActiveSoft,
+              ]}
+              onPress={() => setGenresExpanded((prev) => !prev)}
+            >
+              <MaterialIcons
+                name={genresExpanded ? 'arrow-back-ios-new' : 'chevron-right'}
+                size={genresExpanded ? 16 : 18}
+                color={currentTheme.colors.highEmphasis}
+              />
+              <Text style={[styles.topFilterPillText, { color: currentTheme.colors.highEmphasis }]}>
+                Genres
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
           <Animated.View style={[styles.genreExpandContainer, genreExpandAnimatedStyle]}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreExpandScroll}>
               {availableGenres.map((genre) => {
@@ -1150,7 +1157,7 @@ const HomeScreen = () => {
       </Animated.View>
       <View style={styles.topFilterDivider} />
     </View>
-  ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle]);
+  ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
     <>
       <View style={{ height: ideaHeroHeaderSpacing }} />
@@ -1336,18 +1343,6 @@ const HomeScreen = () => {
             />
           </View>
         )}
-        <View pointerEvents="none" style={[styles.topHeaderShield, { height: topFilterDividerTop }]}>
-          <View style={[styles.topHeaderShieldFill, { backgroundColor: settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground }]} />
-          <LinearGradient
-            colors={[
-              settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground,
-              `${settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground}F2`,
-              `${settings.ideaMode ? ideaBackgroundColor : currentTheme.colors.darkBackground}00`,
-            ]}
-            locations={[0, 0.58, 1]}
-            style={styles.topHeaderShieldFade}
-          />
-        </View>
         <FlashList
           ref={flashListRef}
           data={listData}
@@ -1389,8 +1384,7 @@ const HomeScreen = () => {
     ideaAmbientPalette,
     ListFooterComponent,
     handleLoadMoreCatalogs,
-    handleScroll,
-    topFilterDividerTop
+    handleScroll
   ]);
 
   return isLoading ? renderLoadingScreen : renderMainContent;
@@ -2049,24 +2043,6 @@ const styles = StyleSheet.create<any>({
     height: StyleSheet.hairlineWidth,
     backgroundColor: 'rgba(255,255,255,0.10)',
     marginHorizontal: 12,
-  },
-  topHeaderShield: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 72,
-    pointerEvents: 'none',
-  },
-  topHeaderShieldFill: {
-    flex: 1,
-  },
-  topHeaderShieldFade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: -28,
-    height: 56,
   },
   topActionButton: {
     width: 46,

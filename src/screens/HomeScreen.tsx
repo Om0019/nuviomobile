@@ -135,6 +135,7 @@ const SkeletonCatalog = React.memo(() => {
 const HomeScreen = () => {
   const { t, i18n } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const tabNavigation = navigation.getParent();
   const isDarkMode = useColorScheme() === 'dark';
   const { currentTheme } = useTheme();
   const { setHomeLoading } = useLoading();
@@ -1268,7 +1269,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           activeOpacity={0.82}
           style={styles.topActionButton}
-          onPress={() => navigation.navigate('Settings')}
+          onPress={() => tabNavigation?.navigate('Settings')}
         >
           <MaterialIcons name="settings" size={22} color={currentTheme.colors.white} />
         </TouchableOpacity>
@@ -1283,13 +1284,13 @@ const HomeScreen = () => {
         <TouchableOpacity
           activeOpacity={0.82}
           style={styles.topActionButton}
-          onPress={() => navigation.navigate('Library')}
+          onPress={() => tabNavigation?.navigate('Library')}
         >
           <MaterialIcons name="video-library" size={22} color={currentTheme.colors.white} />
         </TouchableOpacity>
       </View>
     </View>
-  ), [topActionBarTop, navigation, currentTheme.colors.white, openSearchOverlay]);
+  ), [topActionBarTop, tabNavigation, currentTheme.colors.white, openSearchOverlay]);
   const memoizedSearchOverlay = useMemo(() => {
     if (!searchOverlayVisible) return null;
 

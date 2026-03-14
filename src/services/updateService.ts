@@ -1,5 +1,7 @@
 import * as Updates from 'expo-updates';
 import { Platform } from 'react-native';
+import { mmkvStorage } from './mmkvStorage';
+import { notificationService } from './notificationService';
 
 export interface UpdateInfo {
   isAvailable: boolean;
@@ -18,6 +20,7 @@ export class UpdateService {
   private readonly MAX_LOGS = 100; // Keep last 100 logs
   private updateCheckCallbacks: UpdateCheckCallback[] = [];
   private readonly easUpdateUrl = 'https://u.expo.dev/d06f0c70-4b02-4871-a6f1-b6446b17ff4f';
+  private readonly updateBadgeKey = '@update_badge_pending';
 
   private constructor() { }
 
@@ -323,6 +326,20 @@ export class UpdateService {
           this.addLog('Update found and installation is possible', 'INFO');
         }
 
+        try {
+          await mmkvStorage.setItem(this.updateBadgeKey, 'true');
+          const updateMessage =
+            (update.manifest as any)?.metadata?.message ||
+            (update.manifest as any)?.extra?.expoClient?.message ||
+            'A new Nuvio update is ready to install.';
+          await notificationService.notifyAppUpdateAvailable(update.manifest?.id, updateMessage);
+        } catch (notificationError) {
+          this.addLog(
+            `Update notification failed: ${notificationError instanceof Error ? notificationError.message : String(notificationError)}`,
+            'WARN'
+          );
+        }
+
         return {
           isAvailable: true,
           manifest: update.manifest,
@@ -486,5 +503,4 @@ export class UpdateService {
 }
 
 export default UpdateService.getInstance();
-
 

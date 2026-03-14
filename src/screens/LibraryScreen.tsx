@@ -22,7 +22,7 @@ import {
   Image,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import FastImage from '@d11/react-native-fast-image';
@@ -266,10 +266,12 @@ const LibraryScreen = () => {
   const { showInfo, showError } = useToast();
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null);
+  const [listRenderKey, setListRenderKey] = useState(0);
   const insets = useSafeAreaInsets();
   const { currentTheme } = useTheme();
   const { settings } = useSettings();
   const flashListRef = useRef<any>(null);
+  const tabNavigation = navigation.getParent();
 
   const scrollToTop = useCallback(() => {
     flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
@@ -354,38 +356,39 @@ const LibraryScreen = () => {
     return () => backHandler.remove();
   }, [showTraktContent, showSimklContent, selectedTraktFolder, selectedSimklFolder]);
 
+  const loadLibrary = useCallback(async () => {
+    setLoading(true);
+    try {
+      const items = await catalogService.getLibraryItems();
+
+      const sortedItems = items.sort((a, b) => {
+        const timeA = (a as any).addedToLibraryAt || 0;
+        const timeB = (b as any).addedToLibraryAt || 0;
+        return timeB - timeA;
+      });
+
+      const updatedItems = await Promise.all(sortedItems.map(async (item) => {
+        const libraryItem: LibraryItem = {
+          ...item,
+          gradient: Array.isArray((item as any).gradient) ? (item as any).gradient : ['#222', '#444'],
+          traktId: typeof (item as any).traktId === 'number' ? (item as any).traktId : 0,
+        };
+        const key = `watched:${item.type}:${item.id}`;
+        const watched = await mmkvStorage.getItem(key);
+        return {
+          ...libraryItem,
+          watched: watched === 'true'
+        };
+      }));
+      setLibraryItems(updatedItems);
+    } catch (error) {
+      logger.error('Failed to load library:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const loadLibrary = async () => {
-      setLoading(true);
-      try {
-        const items = await catalogService.getLibraryItems();
-
-        const sortedItems = items.sort((a, b) => {
-          const timeA = (a as any).addedToLibraryAt || 0;
-          const timeB = (b as any).addedToLibraryAt || 0;
-          return timeB - timeA;
-        });
-
-        const updatedItems = await Promise.all(sortedItems.map(async (item) => {
-          const libraryItem: LibraryItem = {
-            ...item,
-            gradient: Array.isArray((item as any).gradient) ? (item as any).gradient : ['#222', '#444'],
-            traktId: typeof (item as any).traktId === 'number' ? (item as any).traktId : 0,
-          };
-          const key = `watched:${item.type}:${item.id}`;
-          const watched = await mmkvStorage.getItem(key);
-          return {
-            ...libraryItem,
-            watched: watched === 'true'
-          };
-        }));
-        setLibraryItems(updatedItems);
-      } catch (error) {
-        logger.error('Failed to load library:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     loadLibrary();
 
@@ -413,14 +416,25 @@ const LibraryScreen = () => {
     });
 
     const watchedSub = DeviceEventEmitter.addListener('watchedStatusChanged', loadLibrary);
-    const focusSub = navigation.addListener('focus', loadLibrary);
+    const focusSub = navigation.addListener('focus', () => {
+      setListRenderKey(prev => prev + 1);
+      loadLibrary();
+    });
 
     return () => {
       unsubscribe();
       watchedSub.remove();
       focusSub();
     };
-  }, [navigation]);
+  }, [loadLibrary, navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setMenuVisible(false);
+      setSelectedItem(null);
+      return undefined;
+    }, [])
+  );
 
   const filteredItems = libraryItems.filter(item => {
     if (filter === 'movies') return item.type === 'movie';
@@ -1153,6 +1167,7 @@ const LibraryScreen = () => {
 
       return (
         <FlashList
+          key={`trakt-folders-${listRenderKey}`}
           ref={flashListRef}
           data={traktFolders}
           renderItem={({ item }) => renderTraktCollectionFolder({ folder: item })}
@@ -1195,6 +1210,7 @@ const LibraryScreen = () => {
 
     return (
       <FlashList
+        key={`trakt-items-${selectedTraktFolder || 'root'}-${listRenderKey}`}
         ref={flashListRef}
         data={folderItems}
         renderItem={({ item }) => renderTraktItem({ item })}
@@ -1279,6 +1295,7 @@ const LibraryScreen = () => {
 
       return (
         <FlashList
+          key={`simkl-folders-${listRenderKey}`}
           ref={flashListRef}
           data={simklFolders}
           renderItem={({ item }) => renderSimklCollectionFolder({ folder: item })}
@@ -1321,6 +1338,7 @@ const LibraryScreen = () => {
 
     return (
       <FlashList
+        key={`simkl-items-${selectedSimklFolder || 'root'}-${listRenderKey}`}
         ref={flashListRef}
         data={folderItems}
         renderItem={({ item }) => renderTraktItem({ item })}
@@ -1420,6 +1438,7 @@ const LibraryScreen = () => {
 
     return (
       <FlashList
+        key={`library-${filter}-${listRenderKey}`}
         ref={flashListRef}
         data={filteredItems}
         renderItem={({ item }) => renderItem({ item: item as LibraryItem })}
@@ -1462,8 +1481,8 @@ const LibraryScreen = () => {
       return;
     }
 
-    (navigation as any).navigate('MainTabs', { screen: 'Home' });
-  }, [navigation, showTraktContent, selectedTraktFolder, showSimklContent, selectedSimklFolder]);
+    tabNavigation?.navigate('Home');
+  }, [navigation, selectedSimklFolder, selectedTraktFolder, showSimklContent, showTraktContent, tabNavigation]);
 
   return (
     <View style={[styles.container, { backgroundColor: 'transparent' }]}>
@@ -1488,7 +1507,6 @@ const LibraryScreen = () => {
         {!showTraktContent && !showSimklContent && (
           <View style={styles.filtersContainer}>
             {renderFilter('trakt', 'Trakt')}
-            {renderFilter('simkl', 'SIMKL')}
             {renderFilter('movies', t('search.movies'))}
             {renderFilter('series', t('search.tv_shows'))}
           </View>
@@ -1634,8 +1652,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 1,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.15)',
   },
   poster: {
     width: '100%',

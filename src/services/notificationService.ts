@@ -12,6 +12,7 @@ import { memoryManager } from '../utils/memoryManager';
 // Define notification storage keys
 const NOTIFICATION_STORAGE_KEY = 'stremio-notifications';
 const NOTIFICATION_SETTINGS_KEY = 'stremio-notification-settings';
+const APP_UPDATE_NOTIFICATION_KEY = 'app-update-last-notified';
 
 // Import the correct type from Notifications
 const { SchedulableTriggerInputTypes } = Notifications;
@@ -379,6 +380,32 @@ class NotificationService {
       this.lastDownloadNotificationTime.delete(title);
     } catch (error) {
       logger.error('[NotificationService] notifyDownloadComplete error:', error);
+    }
+  }
+
+  // Immediate notification for app updates (foreground or background)
+  public async notifyAppUpdateAvailable(updateId?: string, message?: string): Promise<void> {
+    try {
+      if (!this.settings.enabled) return;
+
+      const normalizedUpdateId = updateId || 'unknown-update';
+      const lastNotifiedUpdate = await mmkvStorage.getItem(APP_UPDATE_NOTIFICATION_KEY);
+      if (lastNotifiedUpdate === normalizedUpdateId) {
+        return;
+      }
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: 'New update available',
+          body: message || 'A new Nuvio update is ready to install.',
+          data: { kind: 'app-update', updateId: normalizedUpdateId },
+        },
+        trigger: null,
+      });
+
+      await mmkvStorage.setItem(APP_UPDATE_NOTIFICATION_KEY, normalizedUpdateId);
+    } catch (error) {
+      logger.error('[NotificationService] notifyAppUpdateAvailable error:', error);
     }
   }
 

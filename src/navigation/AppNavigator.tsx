@@ -20,6 +20,7 @@ import { PostHogProvider, usePostHog } from 'posthog-react-native';
 import { ScrollToTopProvider, useScrollToTopEmitter } from '../contexts/ScrollToTopContext';
 import { telemetryService, TELEMETRY_EVENTS } from '../services/telemetryService';
 import { useTranslation } from 'react-i18next';
+import UpdateService from '../services/updateService';
 
 // Optional iOS Glass effect (expo-glass-effect) with safe fallback
 let GlassViewComp: any = null;
@@ -702,6 +703,51 @@ const MainTabs = () => {
   const [hidden, setHidden] = React.useState(HeaderVisibility.isHidden());
   React.useEffect(() => HeaderVisibility.subscribe(setHidden), []);
   const emitScrollToTop = useScrollToTopEmitter();
+  const otaPollingIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const lastOtaCheckAtRef = React.useRef(0);
+
+  React.useEffect(() => {
+    const OTA_CHECK_INTERVAL_MS = 2 * 60 * 1000;
+    const OTA_ACTIVE_THROTTLE_MS = 60 * 1000;
+
+    const runOtaCheck = async (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastOtaCheckAtRef.current < OTA_ACTIVE_THROTTLE_MS) {
+        return;
+      }
+      lastOtaCheckAtRef.current = now;
+      try {
+        await UpdateService.checkForUpdates();
+      } catch {
+        // Silent by design - UpdateService handles its own logging.
+      }
+    };
+
+    UpdateService.initialize().catch(() => {
+      // Silent by design - UpdateService handles its own logging.
+    });
+    runOtaCheck(true);
+
+    otaPollingIntervalRef.current = setInterval(() => {
+      if (AppState.currentState === 'active') {
+        runOtaCheck();
+      }
+    }, OTA_CHECK_INTERVAL_MS);
+
+    const appStateSub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        runOtaCheck(true);
+      }
+    });
+
+    return () => {
+      appStateSub.remove();
+      if (otaPollingIntervalRef.current) {
+        clearInterval(otaPollingIntervalRef.current);
+        otaPollingIntervalRef.current = null;
+      }
+    };
+  }, []);
   // Smooth animate header hide/show
   const headerAnim = React.useRef(new Animated.Value(0)).current; // 0: shown, 1: hidden
   React.useEffect(() => {

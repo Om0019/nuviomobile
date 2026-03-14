@@ -480,63 +480,87 @@ const TabIcon = React.memo(({ focused, color, iconName, iconLibrary = 'material'
 });
 
 const AppIdeaBackground = React.memo(() => {
-  const warmPrimary = 'rgba(249,115,22,0.20)';
-  const warmSecondary = 'rgba(239,68,68,0.14)';
-
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
-      <View
-        style={[
-          StyleSheet.absoluteFillObject,
-          { backgroundColor: '#1a0d0a' },
-        ]}
-      />
+      <View style={[StyleSheet.absoluteFillObject, styles.ideaAppBase]} />
+      <View style={styles.ideaAppBottomBand} />
+      <View style={styles.ideaAppMidBand} />
+      <View style={styles.ideaAppTopBand} />
+      <View style={styles.ideaAppToneLayer} />
+      <View style={styles.ideaAppDynamicGlow} />
       <LinearGradient
-        colors={['#1A0D0A', '#140A08', '#0D0707']}
-        locations={[0, 0.52, 1]}
+        colors={['rgba(34,42,64,0.54)', 'rgba(18,22,32,0.58)', '#1A0D0A']}
+        locations={[0, 0.42, 1]}
         style={StyleSheet.absoluteFillObject}
       />
       <LinearGradient
-        colors={[warmPrimary, 'rgba(0,0,0,0)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.95, y: 0.75 }}
-        style={styles.ideaAppWarmGlow}
+        colors={['rgba(255,255,255,0.03)', 'rgba(249,115,22,0.22)', 'rgba(0,0,0,0)']}
+        locations={[0, 0.42, 1]}
+        style={styles.ideaAppHighlightGradient}
       />
       <LinearGradient
-        colors={[warmSecondary, 'rgba(0,0,0,0)']}
-        start={{ x: 1, y: 0 }}
-        end={{ x: 0.2, y: 1 }}
-        style={styles.ideaAppAccentGlow}
-      />
-      <LinearGradient
-        colors={['rgba(255,255,255,0.018)', 'rgba(0,0,0,0)']}
-        locations={[0, 1]}
-        style={styles.ideaAppTopSheen}
+        colors={['rgba(255,255,255,0.02)', 'rgba(239,68,68,0.16)', 'rgba(0,0,0,0)']}
+        locations={[0, 0.36, 1]}
+        style={styles.ideaAppAccentGradient}
       />
     </View>
   );
 });
 
 const styles = StyleSheet.create({
-  ideaAppTopSheen: {
-    position: 'absolute',
-    top: -40,
-    left: -20,
-    right: -20,
-    height: 260,
+  ideaAppBase: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#1A0D0A',
   },
-  ideaAppWarmGlow: {
+  ideaAppTopBand: {
     position: 'absolute',
     top: -40,
+    left: 0,
+    right: 0,
+    height: 340,
+    backgroundColor: '#2B140F',
+    opacity: 0.88,
+  },
+  ideaAppMidBand: {
+    position: 'absolute',
+    top: 140,
     left: 0,
     right: 0,
     height: 360,
+    backgroundColor: '#160E0C',
+    opacity: 0.74,
   },
-  ideaAppAccentGlow: {
+  ideaAppBottomBand: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#0D0908',
+    opacity: 0.92,
+  },
+  ideaAppToneLayer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#120B09',
+  },
+  ideaAppDynamicGlow: {
     position: 'absolute',
+    top: -80,
+    left: -40,
+    right: -40,
+    height: 420,
+    borderBottomLeftRadius: 220,
+    borderBottomRightRadius: 220,
+    backgroundColor: 'rgba(127,29,29,0.14)',
+  },
+  ideaAppHighlightGradient: {
+    position: 'absolute',
+    top: -120,
     left: 0,
     right: 0,
-    top: 180,
+    height: 320,
+  },
+  ideaAppAccentGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     bottom: 0,
   },
 });

@@ -482,30 +482,38 @@ const TabIcon = React.memo(({ focused, color, iconName, iconLibrary = 'material'
 const AppIdeaBackground = React.memo(() => {
   const { currentTheme } = useTheme();
 
-  const primary = `${currentTheme.colors.primary}2E`;
-  const secondary = `${currentTheme.colors.secondary}24`;
+  const primary = `${currentTheme.colors.primary}1F`;
+  const secondary = `${currentTheme.colors.secondary}18`;
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+      <View
+        style={[
+          StyleSheet.absoluteFillObject,
+          { backgroundColor: currentTheme.colors.darkBackground },
+        ]}
+      />
       <LinearGradient
-        colors={['#090D14', '#0B111A', '#070A10']}
-        locations={[0, 0.45, 1]}
+        colors={['#1A0D0A', '#140A08', '#0D0707']}
+        locations={[0, 0.52, 1]}
         style={StyleSheet.absoluteFillObject}
       />
       <LinearGradient
-        colors={['rgba(255,255,255,0.035)', 'rgba(255,255,255,0.01)', 'rgba(0,0,0,0)']}
-        locations={[0, 0.22, 1]}
+        colors={[primary, 'rgba(0,0,0,0)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.ideaAppWarmGlow}
+      />
+      <LinearGradient
+        colors={[secondary, 'rgba(0,0,0,0)']}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.ideaAppAccentGlow}
+      />
+      <LinearGradient
+        colors={['rgba(255,255,255,0.018)', 'rgba(0,0,0,0)']}
+        locations={[0, 1]}
         style={styles.ideaAppTopSheen}
-      />
-      <LinearGradient
-        colors={[primary, 'rgba(255,255,255,0.025)', 'rgba(0,0,0,0)']}
-        locations={[0, 0.45, 1]}
-        style={styles.ideaAppTopGradient}
-      />
-      <LinearGradient
-        colors={[secondary, 'rgba(255,255,255,0.012)', 'rgba(0,0,0,0)']}
-        locations={[0, 0.5, 1]}
-        style={styles.ideaAppBottomGradient}
       />
     </View>
   );
@@ -514,24 +522,24 @@ const AppIdeaBackground = React.memo(() => {
 const styles = StyleSheet.create({
   ideaAppTopSheen: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 240,
+    top: -40,
+    left: -20,
+    right: -20,
+    height: 260,
   },
-  ideaAppTopGradient: {
+  ideaAppWarmGlow: {
     position: 'absolute',
-    top: -20,
-    left: 0,
-    right: 0,
-    height: 320,
+    top: -80,
+    left: -80,
+    width: 420,
+    height: 520,
   },
-  ideaAppBottomGradient: {
+  ideaAppAccentGlow: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 340,
+    right: -120,
+    bottom: -160,
+    width: 420,
+    height: 540,
   },
 });
 

@@ -585,6 +585,18 @@ class CatalogService {
     }
   }
 
+  async discoverTrendingByGenre(type: 'movie' | 'series', genreName: string, page: number = 1): Promise<StreamingContent[]> {
+    const tmdbType = type === 'movie' ? 'movie' : 'tv';
+
+    try {
+      const genreItems = await TMDBService.getInstance().discoverByGenre(tmdbType, genreName, page);
+      return await Promise.all(genreItems.map((item) => this.convertTMDBToStreamingContent(item, tmdbType)));
+    } catch (error) {
+      logger.error(`Failed to discover trending content by genre for ${type}:${genreName}:`, error);
+      return [];
+    }
+  }
+
   /**
    * Convert TMDB trending/discover result to StreamingContent format
    */

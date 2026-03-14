@@ -1767,8 +1767,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="ContentDiscoverySettings"
               component={ContentDiscoverySettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
@@ -1782,8 +1781,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="AppearanceSettings"
               component={AppearanceSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
@@ -1797,8 +1795,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="IntegrationsSettings"
               component={IntegrationsSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
@@ -1812,8 +1809,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="PlaybackSettings"
               component={PlaybackSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
@@ -1827,8 +1823,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="AboutSettings"
               component={AboutSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
@@ -1842,8 +1837,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="DeveloperSettings"
               component={DeveloperSettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
@@ -1857,8 +1851,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="Legal"
               component={LegalScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
@@ -1872,8 +1865,7 @@ const InnerNavigator = ({ initialRouteName }: { initialRouteName?: keyof RootSta
               name="PrivacySettings"
               component={PrivacySettingsScreen}
               options={{
-                animation: Platform.OS === 'android' ? 'default' : 'slide_from_right',
-                animationDuration: Platform.OS === 'android' ? 250 : 300,
+                animation: 'none',
                 presentation: 'card',
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',

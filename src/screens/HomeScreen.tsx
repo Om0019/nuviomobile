@@ -108,6 +108,7 @@ interface ContinueWatchingRef {
 }
 
 type HomeScreenListItem =
+  | { type: 'genreDiscover'; key: string }
   | { type: 'featured'; key: string }
   | { type: 'thisWeek'; key: string }
   | { type: 'continueWatching'; key: string }
@@ -147,6 +148,11 @@ const HomeScreen = () => {
   const [ideaHomeSection, setIdeaHomeSection] = useState<IdeaHomeSection>('forYou');
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [genresExpanded, setGenresExpanded] = useState(false);
+  const [genreDiscoverType, setGenreDiscoverType] = useState<'movie' | 'series'>('movie');
+  const [genreDiscoverResults, setGenreDiscoverResults] = useState<StreamingContent[]>([]);
+  const [genreDiscoverLoading, setGenreDiscoverLoading] = useState(false);
+  const [genreDiscoverPage, setGenreDiscoverPage] = useState(1);
+  const [genreDiscoverHasMore, setGenreDiscoverHasMore] = useState(false);
 
   // Shared value for scroll position (for parallax effects)
   const scrollY = useSharedValue(0);
@@ -699,6 +705,11 @@ const HomeScreen = () => {
   const listData = useMemo(() => {
     const data: HomeScreenListItem[] = [];
 
+    if (selectedGenre) {
+      data.push({ type: 'genreDiscover', key: `genre-discover-${selectedGenre}-${genreDiscoverType}` });
+      return data;
+    }
+
     // If no addons are installed, just show the welcome component
     if (hasAddons === false) {
       data.push({ type: 'welcome', key: 'welcome' });
@@ -709,15 +720,7 @@ const HomeScreen = () => {
       if (!catalog) return true;
       const matchesType = ideaHomeSection === 'forYou' ? true : catalog.type === ideaHomeSection;
       if (!matchesType) return false;
-      if (!selectedGenre) return true;
-
-      const genreLower = selectedGenre.toLowerCase();
-      const catalogNameMatch = catalog.name?.toLowerCase().includes(genreLower) || catalog.originalName?.toLowerCase().includes(genreLower);
-      const itemGenreMatch = catalog.items?.some((item) =>
-        item.genres?.some((genre) => genre.toLowerCase() === genreLower)
-      );
-
-      return !!(catalogNameMatch || itemGenreMatch);
+      return true;
     });
 
     // Normal flow when addons are present (featured moved to ListHeaderComponent)
@@ -743,7 +746,7 @@ const HomeScreen = () => {
     }
 
     return data;
-  }, [hasAddons, catalogs, visibleCatalogCount, settings.showThisWeekSection, ideaHomeSection, selectedGenre]);
+  }, [selectedGenre, genreDiscoverType, hasAddons, catalogs, visibleCatalogCount, settings.showThisWeekSection, ideaHomeSection]);
 
   const handleLoadMoreCatalogs = useCallback(() => {
     setVisibleCatalogCount(prev => Math.min(prev + 3, catalogs.length));
@@ -779,6 +782,76 @@ const HomeScreen = () => {
 
     return Array.from(genreSet).sort((a, b) => a.localeCompare(b)).slice(0, 10);
   }, [catalogs]);
+
+  useEffect(() => {
+    if (!selectedGenre) {
+      setGenreDiscoverResults([]);
+      setGenreDiscoverPage(1);
+      setGenreDiscoverHasMore(false);
+      setGenreDiscoverLoading(false);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const fetchGenreResults = async () => {
+      setGenreDiscoverLoading(true);
+      setGenreDiscoverPage(1);
+
+      try {
+        const results = await catalogService.discoverTrendingByGenre(genreDiscoverType, selectedGenre, 1);
+        if (isCancelled) return;
+
+        const seen = new Set<string>();
+        const uniqueResults = results.filter((item) => {
+          const key = `${item.type}:${item.id}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
+        setGenreDiscoverResults(uniqueResults);
+        setGenreDiscoverHasMore(uniqueResults.length >= 20);
+      } catch (error) {
+        if (!isCancelled) {
+          logger.error('Failed to fetch Home genre discover results:', error);
+          setGenreDiscoverResults([]);
+          setGenreDiscoverHasMore(false);
+        }
+      } finally {
+        if (!isCancelled) {
+          setGenreDiscoverLoading(false);
+        }
+      }
+    };
+
+    fetchGenreResults();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedGenre, genreDiscoverType]);
+
+  const loadMoreGenreDiscover = useCallback(async () => {
+    if (!selectedGenre || genreDiscoverLoading || !genreDiscoverHasMore) return;
+
+    const nextPage = genreDiscoverPage + 1;
+    setGenreDiscoverLoading(true);
+
+    try {
+      const moreResults = await catalogService.discoverTrendingByGenre(genreDiscoverType, selectedGenre, nextPage);
+      const existingKeys = new Set(genreDiscoverResults.map((item) => `${item.type}:${item.id}`));
+      const newUniqueResults = moreResults.filter((item) => !existingKeys.has(`${item.type}:${item.id}`));
+
+      setGenreDiscoverResults((prev) => [...prev, ...newUniqueResults]);
+      setGenreDiscoverPage(nextPage);
+      setGenreDiscoverHasMore(moreResults.length >= 20 && newUniqueResults.length > 0);
+    } catch (error) {
+      logger.error('Failed to load more Home genre discover results:', error);
+    } finally {
+      setGenreDiscoverLoading(false);
+    }
+  }, [selectedGenre, genreDiscoverLoading, genreDiscoverHasMore, genreDiscoverPage, genreDiscoverType, genreDiscoverResults]);
 
   // Memoize individual section components to prevent re-renders
   const memoizedFeaturedContent = useMemo(() => {
@@ -975,6 +1048,108 @@ const HomeScreen = () => {
       { scale: 1.02 + Math.min(scrollY.value / 2200, 0.04) },
     ],
   }));
+  const genreDiscoverColumns = useMemo(() => {
+    if (windowWidth >= 1200) return 5;
+    if (windowWidth >= 900) return 4;
+    return 3;
+  }, [windowWidth]);
+  const genreDiscoverCardWidth = useMemo(() => {
+    const horizontalPadding = 32;
+    const gap = 14;
+    const availableWidth = windowWidth - horizontalPadding - gap * (genreDiscoverColumns - 1);
+    return Math.floor(availableWidth / genreDiscoverColumns);
+  }, [windowWidth, genreDiscoverColumns]);
+  const memoizedGenreDiscoverSection = useMemo(() => (
+    <View style={styles.genreDiscoverSection}>
+      <View style={styles.genreDiscoverHeader}>
+        <View>
+          <Text style={[styles.genreDiscoverTitle, { color: currentTheme.colors.white }]}>
+            {selectedGenre}
+          </Text>
+          <Text style={[styles.genreDiscoverSubtitle, { color: currentTheme.colors.highEmphasis }]}>
+            Trending picks across all sources
+          </Text>
+        </View>
+        <View style={styles.genreDiscoverTypeSelector}>
+          {(['movie', 'series'] as const).map((typeOption) => {
+            const active = genreDiscoverType === typeOption;
+            return (
+              <TouchableOpacity
+                key={typeOption}
+                activeOpacity={0.82}
+                style={[
+                  styles.genreDiscoverTypePill,
+                  active && styles.genreDiscoverTypePillActive,
+                ]}
+                onPress={() => setGenreDiscoverType(typeOption)}
+              >
+                <Text style={[
+                  styles.genreDiscoverTypePillText,
+                  { color: active ? currentTheme.colors.white : currentTheme.colors.highEmphasis },
+                ]}>
+                  {typeOption === 'movie' ? 'Movies' : 'Shows'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      {genreDiscoverLoading && genreDiscoverResults.length === 0 ? (
+        <View style={styles.genreDiscoverLoading}>
+          <ActivityIndicator size="large" color={currentTheme.colors.primary} />
+        </View>
+      ) : (
+        <>
+          <View style={styles.genreDiscoverGrid}>
+            {genreDiscoverResults.map((item) => (
+              <TouchableOpacity
+                key={`${item.type}:${item.id}`}
+                activeOpacity={0.82}
+                style={[styles.genreDiscoverCard, { width: genreDiscoverCardWidth }]}
+                onPress={() => navigation.navigate('Metadata', { id: item.id, type: item.type, addonId: item.addonId })}
+              >
+                <View style={[styles.genreDiscoverPosterWrap, { borderRadius: settings.posterBorderRadius ?? 12 }]}>
+                  <FastImage
+                    source={{ uri: item.poster }}
+                    style={[styles.genreDiscoverPoster, { borderRadius: settings.posterBorderRadius ?? 12 }]}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                </View>
+                <Text style={[styles.genreDiscoverCardTitle, { color: currentTheme.colors.white }]} numberOfLines={2}>
+                  {item.name}
+                </Text>
+                {!!item.year && (
+                  <Text style={[styles.genreDiscoverCardMeta, { color: currentTheme.colors.highEmphasis }]}>
+                    {item.year}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {genreDiscoverHasMore ? (
+            <TouchableOpacity
+              activeOpacity={0.82}
+              style={styles.genreDiscoverLoadMore}
+              onPress={loadMoreGenreDiscover}
+            >
+              {genreDiscoverLoading ? (
+                <ActivityIndicator size="small" color={currentTheme.colors.white} />
+              ) : (
+                <>
+                  <Text style={[styles.genreDiscoverLoadMoreText, { color: currentTheme.colors.white }]}>
+                    Show More
+                  </Text>
+                  <MaterialIcons name="expand-more" size={18} color={currentTheme.colors.white} />
+                </>
+              )}
+            </TouchableOpacity>
+          ) : null}
+        </>
+      )}
+    </View>
+  ), [selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, currentTheme.colors.primary, genreDiscoverType, genreDiscoverLoading, genreDiscoverResults, genreDiscoverHasMore, genreDiscoverCardWidth, settings.posterBorderRadius, navigation, loadMoreGenreDiscover]);
   const memoizedTopActions = useMemo(() => (
     <View style={[styles.topActionBar, { top: topActionBarTop }]}>
       <TouchableOpacity
@@ -1088,6 +1263,22 @@ const HomeScreen = () => {
           <>
             <TouchableOpacity
               activeOpacity={0.82}
+              style={[styles.topFilterPill, styles.topFilterPillCompact]}
+              onPress={() => {
+                setIdeaHomeSection('forYou');
+                setSelectedGenre(null);
+                setGenresExpanded(false);
+                scrollToTop();
+              }}
+            >
+              <MaterialIcons
+                name="home-filled"
+                size={18}
+                color={currentTheme.colors.highEmphasis}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.82}
               style={[
                 styles.topFilterPill,
                 ideaHomeSection === 'movie' && styles.topFilterPillActive,
@@ -1161,8 +1352,13 @@ const HomeScreen = () => {
                     activeOpacity={0.82}
                     style={[styles.genreChip, isActive && styles.genreChipActive]}
                     onPress={() => {
-                      setSelectedGenre((prev) => prev === genre ? null : genre);
+                      const nextGenre = selectedGenre === genre ? null : genre;
+                      setSelectedGenre(nextGenre);
+                      setGenreDiscoverType(ideaHomeSection === 'series' ? 'series' : 'movie');
                       setIdeaHomeSection('forYou');
+                      if (!nextGenre) {
+                        setGenresExpanded(false);
+                      }
                     }}
                   >
                     <Text style={[
@@ -1183,9 +1379,9 @@ const HomeScreen = () => {
   ), [topFilterBarTop, ideaHomeSection, genresExpanded, selectedGenre, currentTheme.colors.white, currentTheme.colors.highEmphasis, availableGenres, genreExpandAnimatedStyle, filterRowShiftAnimatedStyle, genreTriggerAnimatedStyle]);
   const memoizedHeader = useMemo(() => (
     <>
-      <View style={{ height: ideaHeroHeaderSpacing }} />
-      {showHeroSection ? memoizedFeaturedContent : null}
-      {(ideaHomeSection === 'forYou' && !selectedGenre) ? memoizedContinueWatchingSection : null}
+      {!selectedGenre ? <View style={{ height: ideaHeroHeaderSpacing }} /> : null}
+      {!selectedGenre && showHeroSection ? memoizedFeaturedContent : null}
+      {!selectedGenre && ideaHomeSection === 'forYou' ? memoizedContinueWatchingSection : null}
     </>
   ), [showHeroSection, memoizedFeaturedContent, memoizedContinueWatchingSection, ideaHomeSection, selectedGenre, ideaHeroHeaderSpacing]);
   // Track scroll direction manually for reliable behavior across platforms
@@ -1204,6 +1400,8 @@ const HomeScreen = () => {
   // Stabilize renderItem to prevent FlashList re-renders
   const renderListItem = useCallback(({ item }: { item: HomeScreenListItem; index: number }) => {
     switch (item.type) {
+      case 'genreDiscover':
+        return memoizedGenreDiscoverSection;
       case 'thisWeek':
         return memoizedThisWeekSection;
       case 'continueWatching':
@@ -1253,7 +1451,7 @@ const HomeScreen = () => {
       default:
         return null;
     }
-  }, [memoizedThisWeekSection, currentTheme.colors.elevation1, currentTheme.colors.primary, currentTheme.colors.white, handleLoadMoreCatalogs]);
+  }, [memoizedGenreDiscoverSection, memoizedThisWeekSection, currentTheme.colors.elevation1, currentTheme.colors.primary, currentTheme.colors.white, handleLoadMoreCatalogs]);
 
   // FlashList: using minimal props per installed version
 
@@ -2043,6 +2241,100 @@ const styles = StyleSheet.create<any>({
     fontSize: 14,
     fontWeight: '700',
   },
+  genreDiscoverSection: {
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    paddingBottom: 28,
+  },
+  genreDiscoverHeader: {
+    marginBottom: 18,
+    gap: 14,
+  },
+  genreDiscoverTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -0.6,
+  },
+  genreDiscoverSubtitle: {
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  genreDiscoverTypeSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  genreDiscoverTypePill: {
+    minWidth: 88,
+    height: 38,
+    paddingHorizontal: 16,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  genreDiscoverTypePillActive: {
+    backgroundColor: 'rgba(239, 68, 68, 0.42)',
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  genreDiscoverTypePillText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  genreDiscoverLoading: {
+    paddingVertical: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  genreDiscoverGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 14,
+  },
+  genreDiscoverCard: {
+    marginBottom: 18,
+  },
+  genreDiscoverPosterWrap: {
+    aspectRatio: 2 / 3,
+    overflow: 'hidden',
+    marginBottom: 10,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  genreDiscoverPoster: {
+    width: '100%',
+    height: '100%',
+  },
+  genreDiscoverCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    lineHeight: 19,
+  },
+  genreDiscoverCardMeta: {
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  genreDiscoverLoadMore: {
+    marginTop: 4,
+    alignSelf: 'center',
+    minHeight: 42,
+    paddingHorizontal: 18,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  genreDiscoverLoadMoreText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
   genreFilterWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2100,7 +2392,7 @@ const styles = StyleSheet.create<any>({
     marginTop: 14,
     alignSelf: 'stretch',
     height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(255,255,255,0.018)',
     marginHorizontal: 12,
   },
   topActionButton: {

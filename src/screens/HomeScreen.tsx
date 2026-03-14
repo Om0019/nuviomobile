@@ -1758,8 +1758,6 @@ const HomeScreen = () => {
         {settings.ideaMode && (
           <View pointerEvents="none" style={styles.ideaAmbientBackground}>
             <Animated.View style={[styles.ideaAmbientBottomBand, ideaAmbientBottomBandAnimatedStyle]} />
-            <Animated.View style={[styles.ideaAmbientMidBand, ideaAmbientMidBandAnimatedStyle]} />
-            <Animated.View style={[styles.ideaAmbientTopBand, ideaAmbientTopBandAnimatedStyle]} />
             <Animated.View style={[styles.ideaAmbientToneLayer, ideaAmbientToneAnimatedStyle]} />
             <Animated.View style={[styles.ideaAmbientDynamicGlow, ideaDynamicGlowAnimatedStyle]} />
             <LinearGradient
@@ -1819,8 +1817,6 @@ const HomeScreen = () => {
     memoizedSearchOverlay,
     ideaAmbientToneAnimatedStyle,
     ideaAmbientHighlightAnimatedStyle,
-    ideaAmbientTopBandAnimatedStyle,
-    ideaAmbientMidBandAnimatedStyle,
     ideaAmbientBottomBandAnimatedStyle,
     ideaDynamicGlowAnimatedStyle,
     ideaAmbientPalette,
@@ -1881,20 +1877,6 @@ const styles = StyleSheet.create<any>({
   ideaAmbientBackground: {
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
-  },
-  ideaAmbientTopBand: {
-    position: 'absolute',
-    top: -40,
-    left: 0,
-    right: 0,
-    height: 340,
-  },
-  ideaAmbientMidBand: {
-    position: 'absolute',
-    top: 140,
-    left: 0,
-    right: 0,
-    height: 340,
   },
   ideaAmbientBottomBand: {
     ...StyleSheet.absoluteFillObject,

@@ -21,6 +21,7 @@ import { ScrollToTopProvider, useScrollToTopEmitter } from '../contexts/ScrollTo
 import { telemetryService, TELEMETRY_EVENTS } from '../services/telemetryService';
 import { useTranslation } from 'react-i18next';
 import UpdateService from '../services/updateService';
+import { pushTokenService } from '../services/pushTokenService';
 
 // Optional iOS Glass effect (expo-glass-effect) with safe fallback
 let GlassViewComp: any = null;
@@ -725,6 +726,9 @@ const MainTabs = () => {
 
     UpdateService.initialize().catch(() => {
       // Silent by design - UpdateService handles its own logging.
+    });
+    pushTokenService.registerForPushNotifications().catch(() => {
+      // Silent by design - PushTokenService handles its own logging.
     });
     runOtaCheck(true);
 

@@ -12,6 +12,7 @@ jobs:
     env:
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -37,4 +38,8 @@ jobs:
       - name: Publish OTA update
         run: |
           UPDATE_MESSAGE="$(git log -1 --pretty=%s)"
+          echo "OTA_UPDATE_MESSAGE=$UPDATE_MESSAGE" >> $GITHUB_ENV
           eas update --branch production --message "$UPDATE_MESSAGE"
+
+      - name: Send OTA push notification
+        run: node ./scripts/send-ota-push.mjs

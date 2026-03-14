@@ -1,7 +1,6 @@
 import * as Updates from 'expo-updates';
 import { Platform } from 'react-native';
 import { mmkvStorage } from './mmkvStorage';
-import { notificationService } from './notificationService';
 
 export interface UpdateInfo {
   isAvailable: boolean;
@@ -328,14 +327,9 @@ export class UpdateService {
 
         try {
           await mmkvStorage.setItem(this.updateBadgeKey, 'true');
-          const updateMessage =
-            (update.manifest as any)?.metadata?.message ||
-            (update.manifest as any)?.extra?.expoClient?.message ||
-            'A new Nuvio update is ready to install.';
-          await notificationService.notifyAppUpdateAvailable(update.manifest?.id, updateMessage);
-        } catch (notificationError) {
+        } catch (badgeError) {
           this.addLog(
-            `Update notification failed: ${notificationError instanceof Error ? notificationError.message : String(notificationError)}`,
+            `Update badge set failed: ${badgeError instanceof Error ? badgeError.message : String(badgeError)}`,
             'WARN'
           );
         }
@@ -503,4 +497,3 @@ export class UpdateService {
 }
 
 export default UpdateService.getInstance();
-

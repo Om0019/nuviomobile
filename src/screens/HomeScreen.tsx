@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
   SafeAreaView,
   StatusBar,
   useColorScheme,
@@ -19,7 +20,8 @@ import {
   Pressable,
   Alert,
   InteractionManager,
-  AppState
+  AppState,
+  Keyboard,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -148,6 +150,8 @@ const HomeScreen = () => {
   const [ideaHomeSection, setIdeaHomeSection] = useState<IdeaHomeSection>('forYou');
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [genresExpanded, setGenresExpanded] = useState(false);
+  const [searchOverlayVisible, setSearchOverlayVisible] = useState(false);
+  const [homeSearchQuery, setHomeSearchQuery] = useState('');
   const [genreDiscoverType, setGenreDiscoverType] = useState<'movie' | 'series'>('movie');
   const [genreDiscoverResults, setGenreDiscoverResults] = useState<StreamingContent[]>([]);
   const [genreDiscoverLoading, setGenreDiscoverLoading] = useState(false);
@@ -168,6 +172,7 @@ const HomeScreen = () => {
   const [visibleCatalogCount, setVisibleCatalogCount] = useState(5); // Reduced for memory
   const insets = useSafeAreaInsets();
   const flashListRef = useRef<any>(null);
+  const homeSearchInputRef = useRef<TextInput>(null);
 
   // Scroll to top handler - use scrollToIndex and retry to handle re-renders
   const scrollToTop = useCallback(() => {
@@ -184,6 +189,29 @@ const HomeScreen = () => {
       flashListRef.current?.scrollToOffset({ offset: 0, animated: false });
     }, 400);
   }, []);
+
+  const closeSearchOverlay = useCallback(() => {
+    Keyboard.dismiss();
+    setSearchOverlayVisible(false);
+  }, []);
+
+  const openSearchOverlay = useCallback(() => {
+    setSearchOverlayVisible(true);
+    requestAnimationFrame(() => {
+      homeSearchInputRef.current?.focus();
+    });
+  }, []);
+
+  const submitHomeSearch = useCallback(() => {
+    const trimmedQuery = homeSearchQuery.trim();
+    closeSearchOverlay();
+
+    if (trimmedQuery.length > 0) {
+      navigation.navigate('Search');
+    } else {
+      navigation.navigate('Search');
+    }
+  }, [homeSearchQuery, closeSearchOverlay, navigation]);
 
   useScrollToTop('Home', scrollToTop);
 
@@ -1180,7 +1208,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           activeOpacity={0.82}
           style={styles.topActionButton}
-          onPress={() => navigation.navigate('Search')}
+          onPress={openSearchOverlay}
         >
           {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
             <GlassViewComp
@@ -1227,7 +1255,57 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
     </View>
-  ), [topActionBarTop, navigation, currentTheme.colors.white]);
+  ), [topActionBarTop, navigation, currentTheme.colors.white, openSearchOverlay]);
+  const memoizedSearchOverlay = useMemo(() => {
+    if (!searchOverlayVisible) return null;
+
+    return (
+      <View style={styles.homeSearchOverlay} pointerEvents="box-none">
+        <Pressable style={styles.homeSearchOverlayBackdrop} onPress={closeSearchOverlay}>
+          <BlurView tint="dark" intensity={48} style={StyleSheet.absoluteFillObject} />
+          <LinearGradient
+            colors={['rgba(23,17,18,0.24)', 'rgba(18,13,14,0.46)', 'rgba(14,10,11,0.62)']}
+            locations={[0, 0.36, 1]}
+            style={StyleSheet.absoluteFillObject}
+          />
+        </Pressable>
+
+        <View style={[styles.homeSearchBarWrap, { top: topActionBarTop }]}>
+          <View style={styles.homeSearchBarShell}>
+            {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+              <GlassViewComp
+                style={StyleSheet.absoluteFillObject}
+                glassEffectStyle="regular"
+              />
+            ) : (
+              <BlurView tint="dark" intensity={75} style={StyleSheet.absoluteFillObject} />
+            )}
+            <LinearGradient
+              colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.00)']}
+              locations={[0, 0.18, 1]}
+              style={styles.homeSearchBarHighlight}
+            />
+            <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
+            <TextInput
+              ref={homeSearchInputRef}
+              value={homeSearchQuery}
+              onChangeText={setHomeSearchQuery}
+              placeholder="Search movies, shows, people..."
+              placeholderTextColor="rgba(255,255,255,0.62)"
+              returnKeyType="search"
+              onSubmitEditing={submitHomeSearch}
+              style={[styles.homeSearchInput, { color: currentTheme.colors.white }]}
+              autoCorrect={false}
+              autoCapitalize="none"
+            />
+            <TouchableOpacity activeOpacity={0.82} style={styles.homeSearchCloseButton} onPress={closeSearchOverlay}>
+              <MaterialIcons name="close" size={20} color={currentTheme.colors.white} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }, [searchOverlayVisible, closeSearchOverlay, topActionBarTop, currentTheme.colors.white, homeSearchQuery, submitHomeSearch]);
   const genreExpandAnimatedStyle = useAnimatedStyle(() => ({
     opacity: genreExpandProgress.value,
     transform: [
@@ -1573,6 +1651,7 @@ const HomeScreen = () => {
         />
         {memoizedTopActions}
         {memoizedHomeFilters}
+        {memoizedSearchOverlay}
         {/* Toasts are rendered globally at root */}
       </View>
     );
@@ -1589,6 +1668,7 @@ const HomeScreen = () => {
     memoizedHeader,
     memoizedTopActions,
     memoizedHomeFilters,
+    memoizedSearchOverlay,
     ideaAmbientToneAnimatedStyle,
     ideaAmbientHighlightAnimatedStyle,
     ideaAmbientTopBandAnimatedStyle,
@@ -2394,6 +2474,47 @@ const styles = StyleSheet.create<any>({
     height: StyleSheet.hairlineWidth,
     backgroundColor: 'rgba(255,255,255,0.018)',
     marginHorizontal: 12,
+  },
+  homeSearchOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 120,
+  },
+  homeSearchOverlayBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  homeSearchBarWrap: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+  },
+  homeSearchBarShell: {
+    minHeight: 58,
+    borderRadius: 29,
+    overflow: 'hidden',
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(15,12,13,0.18)',
+  },
+  homeSearchBarHighlight: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  homeSearchInput: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '600',
+    paddingVertical: 14,
+  },
+  homeSearchCloseButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   topActionButton: {
     width: 46,

@@ -22,6 +22,17 @@ type PushTokenRow = {
 class PushTokenService {
   private static instance: PushTokenService;
   private registerPromise: Promise<void> | null = null;
+  private lastStatus: {
+    permission: string;
+    token: string | null;
+    registrationState: 'idle' | 'success' | 'error';
+    error: string | null;
+  } = {
+    permission: 'unknown',
+    token: null,
+    registrationState: 'idle',
+    error: null,
+  };
 
   static getInstance(): PushTokenService {
     if (!PushTokenService.instance) {
@@ -44,6 +55,10 @@ class PushTokenService {
     }
   }
 
+  public getStatus() {
+    return { ...this.lastStatus };
+  }
+
   private async performRegistration(): Promise<void> {
     if (!Device.isDevice) {
       return;
@@ -57,13 +72,17 @@ class PushTokenService {
     try {
       const permission = await Notifications.getPermissionsAsync();
       let finalStatus = permission.status;
+      this.lastStatus.permission = finalStatus;
 
       if (finalStatus !== 'granted') {
         const requested = await Notifications.requestPermissionsAsync();
         finalStatus = requested.status;
+        this.lastStatus.permission = finalStatus;
       }
 
       if (finalStatus !== 'granted') {
+        this.lastStatus.registrationState = 'error';
+        this.lastStatus.error = 'Notification permission not granted';
         logger.warn('[PushTokenService] Notification permission not granted; push registration skipped.');
         return;
       }
@@ -73,12 +92,17 @@ class PushTokenService {
         Constants.easConfig?.projectId;
 
       if (!projectId) {
+        this.lastStatus.registrationState = 'error';
+        this.lastStatus.error = 'Missing EAS projectId';
         logger.warn('[PushTokenService] Missing EAS projectId; push registration skipped.');
         return;
       }
 
       const { data: expoPushToken } = await Notifications.getExpoPushTokenAsync({ projectId });
+      this.lastStatus.token = expoPushToken || null;
       if (!expoPushToken) {
+        this.lastStatus.registrationState = 'error';
+        this.lastStatus.error = 'Expo push token was empty';
         logger.warn('[PushTokenService] Expo push token is empty; push registration skipped.');
         return;
       }
@@ -88,6 +112,8 @@ class PushTokenService {
       const lastRegisteredAccountId = await mmkvStorage.getItem(PUSH_TOKEN_ACCOUNT_STORAGE_KEY);
 
       if (lastRegisteredToken === expoPushToken && lastRegisteredAccountId === (accountUserId || 'anonymous')) {
+        this.lastStatus.registrationState = 'success';
+        this.lastStatus.error = null;
         return;
       }
 
@@ -104,8 +130,12 @@ class PushTokenService {
       await this.upsertPushToken(payload);
       await mmkvStorage.setItem(PUSH_TOKEN_STORAGE_KEY, expoPushToken);
       await mmkvStorage.setItem(PUSH_TOKEN_ACCOUNT_STORAGE_KEY, accountUserId || 'anonymous');
+      this.lastStatus.registrationState = 'success';
+      this.lastStatus.error = null;
       logger.log('[PushTokenService] Registered Expo push token.');
     } catch (error) {
+      this.lastStatus.registrationState = 'error';
+      this.lastStatus.error = error instanceof Error ? error.message : String(error);
       logger.error('[PushTokenService] Failed to register Expo push token:', error);
     }
   }

@@ -14,6 +14,7 @@ import CustomAlert from '../components/CustomAlert';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { notificationService, NotificationSettings } from '../services/notificationService';
+import { pushTokenService } from '../services/pushTokenService';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { logger } from '../utils/logger';
@@ -37,6 +38,7 @@ const NotificationSettingsScreen = () => {
   const [testNotificationId, setTestNotificationId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [notificationStats, setNotificationStats] = useState({ total: 0, upcoming: 0, thisWeek: 0 });
+  const [pushStatus, setPushStatus] = useState(pushTokenService.getStatus());
 
   // Custom alert state
   const [alertVisible, setAlertVisible] = useState(false);
@@ -47,8 +49,10 @@ const NotificationSettingsScreen = () => {
   useEffect(() => {
     const loadSettings = async () => {
       try {
+        await pushTokenService.registerForPushNotifications();
         const savedSettings = await notificationService.getSettings();
         setSettings(savedSettings);
+        setPushStatus(pushTokenService.getStatus());
 
         // Load notification stats
         const stats = notificationService.getNotificationStats();
@@ -62,6 +66,11 @@ const NotificationSettingsScreen = () => {
 
     loadSettings();
   }, []);
+
+  const refreshPushStatus = async () => {
+    await pushTokenService.registerForPushNotifications();
+    setPushStatus(pushTokenService.getStatus());
+  };
 
   // Refresh stats when settings change
   useEffect(() => {
@@ -294,6 +303,38 @@ const NotificationSettingsScreen = () => {
           entering={FadeIn.duration(300)}
           exiting={FadeOut.duration(200)}
         >
+          <View style={[styles.section, { borderBottomColor: currentTheme.colors.border }]}>
+            <Text style={[styles.sectionTitle, { color: currentTheme.colors.text }]}>Push Registration</Text>
+            <Text style={[styles.debugLine, { color: currentTheme.colors.lightGray }]}>
+              Permission: {pushStatus.permission}
+            </Text>
+            <Text style={[styles.debugLine, { color: currentTheme.colors.lightGray }]}>
+              Status: {pushStatus.registrationState}
+            </Text>
+            <Text style={[styles.debugLine, { color: currentTheme.colors.lightGray }]}>
+              Token: {pushStatus.token ? `${pushStatus.token.slice(0, 24)}...` : 'none'}
+            </Text>
+            {!!pushStatus.error && (
+              <Text style={[styles.debugLine, { color: currentTheme.colors.error }]}>
+                Error: {pushStatus.error}
+              </Text>
+            )}
+
+            <TouchableOpacity
+              style={[
+                styles.resetButton,
+                {
+                  backgroundColor: currentTheme.colors.primary + '20',
+                  borderColor: currentTheme.colors.primary + '50'
+                }
+              ]}
+              onPress={refreshPushStatus}
+            >
+              <MaterialIcons name="notifications-active" size={24} color={currentTheme.colors.primary} />
+              <Text style={[styles.resetButtonText, { color: currentTheme.colors.primary }]}>Retry Push Registration</Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={[styles.section, { borderBottomColor: currentTheme.colors.border }]}>
             <Text style={[styles.sectionTitle, { color: currentTheme.colors.text }]}>{t('notification.section_general')}</Text>
 
@@ -553,6 +594,10 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
+  },
+  debugLine: {
+    fontSize: 14,
+    marginBottom: 8,
   },
   section: {
     padding: 16,

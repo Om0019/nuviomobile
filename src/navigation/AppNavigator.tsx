@@ -10,6 +10,7 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons, Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import * as Notifications from 'expo-notifications';
 import { colors } from '../styles/colors';
 import { HeaderVisibility } from '../contexts/HeaderVisibility';
 import { Stream } from '../types/streams';
@@ -691,6 +692,29 @@ const MainTabs = () => {
       if ((load as any)._slow) clearInterval((load as any)._slow);
       clearTimeout(slowTimer);
       sub.remove();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const responseSub = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      const data = response.notification.request.content.data as { type?: string } | undefined;
+
+      if (data?.type !== 'ota-update') {
+        return;
+      }
+
+      try {
+        const updateInfo = await UpdateService.checkForUpdates();
+        if (updateInfo.isAvailable) {
+          await UpdateService.downloadAndInstallUpdate();
+        }
+      } catch {
+        // Silent by design - UpdateService handles its own logging.
+      }
+    });
+
+    return () => {
+      responseSub.remove();
     };
   }, []);
   const { isHomeLoading } = useLoading();

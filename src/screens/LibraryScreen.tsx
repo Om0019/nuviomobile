@@ -1438,19 +1438,32 @@ const LibraryScreen = () => {
     return (Platform.OS === 'ios' ? (Platform as any).isPad === true : smallestDimension >= 768);
   }, [width, height]);
 
-  const handleGoHome = useCallback(() => {
-    (navigation as any).navigate('MainTabs', { screen: 'Home' });
-  }, [navigation]);
+  const handleGoBack = useCallback(() => {
+    if (showTraktContent) {
+      if (selectedTraktFolder) {
+        setSelectedTraktFolder(null);
+      } else {
+        setShowTraktContent(false);
+      }
+      return;
+    }
 
-  const homeHeaderAction = useMemo(() => (
-    <TouchableOpacity
-      style={styles.headerHomeButton}
-      onPress={handleGoHome}
-      activeOpacity={0.7}
-    >
-      <MaterialIcons name="home-filled" size={24} color={currentTheme.colors.text} />
-    </TouchableOpacity>
-  ), [handleGoHome, currentTheme.colors.text]);
+    if (showSimklContent) {
+      if (selectedSimklFolder) {
+        setSelectedSimklFolder(null);
+      } else {
+        setShowSimklContent(false);
+      }
+      return;
+    }
+
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    (navigation as any).navigate('MainTabs', { screen: 'Home' });
+  }, [navigation, showTraktContent, selectedTraktFolder, showSimklContent, selectedSimklFolder]);
 
   return (
     <View style={[styles.container, { backgroundColor: 'transparent' }]}>
@@ -1465,24 +1478,9 @@ const LibraryScreen = () => {
               : 'SIMKL Collections')
             : t('library.title')
         }
-        showBackButton={showTraktContent || showSimklContent}
-        onBackPress={(showTraktContent || showSimklContent) ? () => {
-          if (showTraktContent) {
-            if (selectedTraktFolder) {
-              setSelectedTraktFolder(null);
-            } else {
-              setShowTraktContent(false);
-            }
-          } else if (showSimklContent) {
-            if (selectedSimklFolder) {
-              setSelectedSimklFolder(null);
-            } else {
-              setShowSimklContent(false);
-            }
-          }
-        } : undefined}
         useMaterialIcons
-        rightActionComponent={homeHeaderAction}
+        showBackButton
+        onBackPress={handleGoBack}
         isTablet={isTablet}
       />
 

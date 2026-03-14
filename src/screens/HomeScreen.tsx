@@ -152,6 +152,8 @@ const HomeScreen = () => {
   const [genresExpanded, setGenresExpanded] = useState(false);
   const [searchOverlayVisible, setSearchOverlayVisible] = useState(false);
   const [homeSearchQuery, setHomeSearchQuery] = useState('');
+  const [homeSearchResults, setHomeSearchResults] = useState<StreamingContent[]>([]);
+  const [homeSearchLoading, setHomeSearchLoading] = useState(false);
   const [genreDiscoverType, setGenreDiscoverType] = useState<'movie' | 'series'>('movie');
   const [genreDiscoverResults, setGenreDiscoverResults] = useState<StreamingContent[]>([]);
   const [genreDiscoverLoading, setGenreDiscoverLoading] = useState(false);
@@ -203,15 +205,45 @@ const HomeScreen = () => {
   }, []);
 
   const submitHomeSearch = useCallback(() => {
-    const trimmedQuery = homeSearchQuery.trim();
-    closeSearchOverlay();
+    homeSearchInputRef.current?.blur();
+  }, []);
 
-    if (trimmedQuery.length > 0) {
-      navigation.navigate('Search');
-    } else {
-      navigation.navigate('Search');
+  useEffect(() => {
+    if (!searchOverlayVisible) {
+      return;
     }
-  }, [homeSearchQuery, closeSearchOverlay, navigation]);
+
+    const trimmedQuery = homeSearchQuery.trim();
+    if (trimmedQuery.length < 2) {
+      setHomeSearchLoading(false);
+      setHomeSearchResults([]);
+      return;
+    }
+
+    let isCancelled = false;
+    const timeoutId = setTimeout(async () => {
+      setHomeSearchLoading(true);
+      try {
+        const results = await catalogService.searchContentCinemeta(trimmedQuery);
+        if (isCancelled) return;
+        setHomeSearchResults(results.allResults.slice(0, 24));
+      } catch (error) {
+        if (!isCancelled) {
+          logger.error('Failed Home overlay search:', error);
+          setHomeSearchResults([]);
+        }
+      } finally {
+        if (!isCancelled) {
+          setHomeSearchLoading(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [homeSearchQuery, searchOverlayVisible]);
 
   useScrollToTop('Home', scrollToTop);
 
@@ -1271,41 +1303,89 @@ const HomeScreen = () => {
         </Pressable>
 
         <View style={[styles.homeSearchBarWrap, { top: topActionBarTop }]}>
-          <View style={styles.homeSearchBarShell}>
-            {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
-              <GlassViewComp
-                style={StyleSheet.absoluteFillObject}
-                glassEffectStyle="regular"
+          <View style={styles.homeSearchPanel}>
+            <View style={styles.homeSearchBarShell}>
+              {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+                <GlassViewComp
+                  style={StyleSheet.absoluteFillObject}
+                  glassEffectStyle="regular"
+                />
+              ) : (
+                <BlurView tint="dark" intensity={75} style={StyleSheet.absoluteFillObject} />
+              )}
+              <LinearGradient
+                colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.00)']}
+                locations={[0, 0.18, 1]}
+                style={styles.homeSearchBarHighlight}
               />
-            ) : (
-              <BlurView tint="dark" intensity={75} style={StyleSheet.absoluteFillObject} />
-            )}
-            <LinearGradient
-              colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.00)']}
-              locations={[0, 0.18, 1]}
-              style={styles.homeSearchBarHighlight}
-            />
-            <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
-            <TextInput
-              ref={homeSearchInputRef}
-              value={homeSearchQuery}
-              onChangeText={setHomeSearchQuery}
-              placeholder="Search movies, shows, people..."
-              placeholderTextColor="rgba(255,255,255,0.62)"
-              returnKeyType="search"
-              onSubmitEditing={submitHomeSearch}
-              style={[styles.homeSearchInput, { color: currentTheme.colors.white }]}
-              autoCorrect={false}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity activeOpacity={0.82} style={styles.homeSearchCloseButton} onPress={closeSearchOverlay}>
-              <MaterialIcons name="close" size={20} color={currentTheme.colors.white} />
-            </TouchableOpacity>
+              <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
+              <TextInput
+                ref={homeSearchInputRef}
+                value={homeSearchQuery}
+                onChangeText={setHomeSearchQuery}
+                placeholder="Search movies, shows, people..."
+                placeholderTextColor="rgba(255,255,255,0.62)"
+                returnKeyType="search"
+                onSubmitEditing={submitHomeSearch}
+                style={[styles.homeSearchInput, { color: currentTheme.colors.white }]}
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity activeOpacity={0.82} style={styles.homeSearchCloseButton} onPress={closeSearchOverlay}>
+                <MaterialIcons name="close" size={20} color={currentTheme.colors.white} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              style={styles.homeSearchResultsScroll}
+              contentContainerStyle={styles.homeSearchResultsContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {homeSearchLoading ? (
+                <View style={styles.homeSearchResultsLoading}>
+                  <ActivityIndicator size="large" color={currentTheme.colors.primary} />
+                </View>
+              ) : homeSearchQuery.trim().length < 2 ? (
+                <Text style={[styles.homeSearchHelperText, { color: currentTheme.colors.highEmphasis }]}>
+                  Start typing to search without leaving Home.
+                </Text>
+              ) : homeSearchResults.length > 0 ? (
+                <View style={styles.homeSearchResultsGrid}>
+                  {homeSearchResults.map((item) => (
+                    <TouchableOpacity
+                      key={`${item.type}:${item.id}`}
+                      activeOpacity={0.82}
+                      style={styles.homeSearchResultCard}
+                      onPress={() => {
+                        closeSearchOverlay();
+                        navigation.navigate('Metadata', { id: item.id, type: item.type, addonId: item.addonId });
+                      }}
+                    >
+                      <View style={[styles.homeSearchResultPosterWrap, { borderRadius: settings.posterBorderRadius ?? 12 }]}>
+                        <FastImage
+                          source={{ uri: item.poster }}
+                          style={[styles.homeSearchResultPoster, { borderRadius: settings.posterBorderRadius ?? 12 }]}
+                          resizeMode={FastImage.resizeMode.cover}
+                        />
+                      </View>
+                      <Text style={[styles.homeSearchResultTitle, { color: currentTheme.colors.white }]} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Text style={[styles.homeSearchHelperText, { color: currentTheme.colors.highEmphasis }]}>
+                  No results found.
+                </Text>
+              )}
+            </ScrollView>
           </View>
         </View>
       </View>
     );
-  }, [searchOverlayVisible, closeSearchOverlay, topActionBarTop, currentTheme.colors.white, homeSearchQuery, submitHomeSearch]);
+  }, [searchOverlayVisible, closeSearchOverlay, topActionBarTop, currentTheme.colors.white, currentTheme.colors.highEmphasis, currentTheme.colors.primary, homeSearchQuery, homeSearchLoading, homeSearchResults, submitHomeSearch, navigation, settings.posterBorderRadius]);
   const genreExpandAnimatedStyle = useAnimatedStyle(() => ({
     opacity: genreExpandProgress.value,
     transform: [
@@ -2486,6 +2566,10 @@ const styles = StyleSheet.create<any>({
     position: 'absolute',
     left: 16,
     right: 16,
+    bottom: 18,
+  },
+  homeSearchPanel: {
+    flex: 1,
   },
   homeSearchBarShell: {
     minHeight: 58,
@@ -2498,6 +2582,48 @@ const styles = StyleSheet.create<any>({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
     backgroundColor: 'rgba(15,12,13,0.18)',
+  },
+  homeSearchResultsScroll: {
+    flex: 1,
+    marginTop: 14,
+  },
+  homeSearchResultsContent: {
+    paddingBottom: 24,
+  },
+  homeSearchResultsLoading: {
+    paddingTop: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  homeSearchHelperText: {
+    paddingTop: 22,
+    fontSize: 15,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  homeSearchResultsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 18,
+  },
+  homeSearchResultCard: {
+    width: '31.5%',
+  },
+  homeSearchResultPosterWrap: {
+    aspectRatio: 2 / 3,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    marginBottom: 8,
+  },
+  homeSearchResultPoster: {
+    width: '100%',
+    height: '100%',
+  },
+  homeSearchResultTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    lineHeight: 17,
   },
   homeSearchBarHighlight: {
     ...StyleSheet.absoluteFillObject,

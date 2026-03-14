@@ -582,17 +582,22 @@ const SettingsScreen: React.FC = () => {
 
   // Keep headers below floating top navigator on tablets
   const tabletNavOffset = isTablet ? 64 : 0;
-  const handleGoHome = useCallback(() => {
+  const handleGoBack = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
     (navigation as any).navigate('MainTabs', { screen: 'Home' });
   }, [navigation]);
 
-  const homeHeaderAction = (
+  const backHeaderAction = (
     <TouchableOpacity
       style={styles.headerHomeButton}
-      onPress={handleGoHome}
+      onPress={handleGoBack}
       activeOpacity={0.7}
     >
-      <Feather name="home" size={22} color={currentTheme.colors.text} />
+      <Feather name="arrow-left" size={22} color={currentTheme.colors.text} />
     </TouchableOpacity>
   );
 
@@ -617,7 +622,7 @@ const SettingsScreen: React.FC = () => {
             }
           ]}>
             <View style={styles.tabletHeaderActions}>
-              {homeHeaderAction}
+              {backHeaderAction}
             </View>
             <ScrollView
               ref={tabletScrollViewRef}
@@ -707,7 +712,11 @@ const SettingsScreen: React.FC = () => {
   return (
     <View style={[styles.container, { backgroundColor: 'transparent' }]}>
       <StatusBar barStyle={'light-content'} />
-      <ScreenHeader title={t('settings.settings_title')} rightActionComponent={homeHeaderAction} />
+      <ScreenHeader
+        title={t('settings.settings_title')}
+        showBackButton
+        onBackPress={handleGoBack}
+      />
       <View style={{ flex: 1 }}>
         <View style={styles.contentContainer}>
           <ScrollView

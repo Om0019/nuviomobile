@@ -947,7 +947,7 @@ const HomeScreen = () => {
       <TouchableOpacity
         activeOpacity={0.82}
         style={styles.topActionButton}
-        onPress={() => navigation.navigate('Search')}
+        onPress={() => navigation.navigate('Settings')}
       >
         {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
           <GlassViewComp
@@ -966,32 +966,58 @@ const HomeScreen = () => {
           locations={[0, 0.22, 1]}
           style={styles.topActionButtonHighlight}
         />
-        <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
+        <MaterialIcons name="person-outline" size={22} color={currentTheme.colors.white} />
       </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.82}
-        style={styles.topActionButton}
-        onPress={() => Alert.alert('Voice Search', 'Voice search is coming soon.')}
-      >
-        {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
-          <GlassViewComp
-            style={StyleSheet.absoluteFillObject}
-            glassEffectStyle="regular"
+      <View style={styles.topActionBarRight}>
+        <TouchableOpacity
+          activeOpacity={0.82}
+          style={styles.topActionButton}
+          onPress={() => navigation.navigate('Search')}
+        >
+          {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+            <GlassViewComp
+              style={StyleSheet.absoluteFillObject}
+              glassEffectStyle="regular"
+            />
+          ) : (
+            <BlurView
+              tint="dark"
+              intensity={70}
+              style={StyleSheet.absoluteFillObject}
+            />
+          )}
+          <LinearGradient
+            colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
+            locations={[0, 0.22, 1]}
+            style={styles.topActionButtonHighlight}
           />
-        ) : (
-          <BlurView
-            tint="dark"
-            intensity={70}
-            style={StyleSheet.absoluteFillObject}
+          <MaterialIcons name="search" size={22} color={currentTheme.colors.white} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.82}
+          style={styles.topActionButton}
+          onPress={() => Alert.alert('Voice Search', 'Voice search is coming soon.')}
+        >
+          {Platform.OS === 'ios' && GlassViewComp && liquidGlassAvailable ? (
+            <GlassViewComp
+              style={StyleSheet.absoluteFillObject}
+              glassEffectStyle="regular"
+            />
+          ) : (
+            <BlurView
+              tint="dark"
+              intensity={70}
+              style={StyleSheet.absoluteFillObject}
+            />
+          )}
+          <LinearGradient
+            colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
+            locations={[0, 0.22, 1]}
+            style={styles.topActionButtonHighlight}
           />
-        )}
-        <LinearGradient
-          colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.00)']}
-          locations={[0, 0.22, 1]}
-          style={styles.topActionButtonHighlight}
-        />
-        <MaterialIcons name="keyboard-voice" size={22} color={currentTheme.colors.white} />
-      </TouchableOpacity>
+          <MaterialIcons name="keyboard-voice" size={22} color={currentTheme.colors.white} />
+        </TouchableOpacity>
+      </View>
     </View>
   ), [topActionBarTop, navigation, currentTheme.colors.white]);
   const memoizedHeader = useMemo(() => (
@@ -1787,8 +1813,14 @@ const styles = StyleSheet.create<any>({
   },
   topActionBar: {
     position: 'absolute',
+    left: 12,
     right: 12,
     zIndex: 80,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  topActionBarRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
